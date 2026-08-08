@@ -1,0 +1,9 @@
+name: Solar
+version: '1.0.0'
+main: dragon.me.solar.Solar
+api-version: '1.21'
+prefix: Solar
+authors: [ DragonDevelopsStuff ]
+description: Solar is a high-performance, modern duels plugin.
+softdepend:
+  - FastAsyncWorldEdit

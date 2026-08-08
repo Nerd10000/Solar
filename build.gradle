@@ -1,0 +1,121 @@
+plugins {
+	id 'java'
+	id("xyz.jpenilla.run-paper") version "2.3.1"
+	id("com.gradleup.shadow") version "9.6.1"
+	id("com.diffplug.spotless") version "8.9.0"
+	id("com.github.spotbugs") version "6.5.9"
+
+}
+
+group = 'dragon.me'
+version = '1.0.0'
+
+repositories {
+	mavenCentral()
+	maven {
+		name = "papermc-repo"
+		url = "https://repo.papermc.io/repository/maven-public/"
+	}
+	maven {
+		name = "FAWE"
+		url = "https://maven.enginehub.org/repo/"
+	}
+}
+
+dependencies {
+	compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+	implementation("org.incendo:cloud-core:2.0.0")
+	implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+	implementation("org.incendo:cloud-annotations:2.0.0")
+	implementation 'org.spongepowered:configurate-yaml:4.2.0'
+    implementation("org.spongepowered:configurate-extra-kotlin:4.2.0")
+
+	implementation(platform("com.intellectualsites.bom:bom-newest:1.56")) // Ref: https://github.com/IntellectualSites/bom
+	compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
+	compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
+		transitive = false
+	}
+}
+spotbugs {
+	ignoreFailures = true
+	effort = 'max'
+	reportLevel = 'medium'
+
+}
+tasks.named('spotbugsMain'){
+	reports {
+		html {
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs.html")
+		}
+		xml {
+			required = false
+		}
+	}
+}
+spotless {
+	format 'misc', {
+
+		target '*.gradle', '.gitattributes', '.gitignore'
+
+		// define the steps to apply to those files
+		trimTrailingWhitespace()
+		leadingSpacesToTabs() // or leadingTabsToSpaces. Takes an integer argument if you don't like 4
+		endWithNewline()
+	}
+	java {
+		googleJavaFormat('1.28.0').aosp().reflowLongStrings().skipJavadocFormatting()
+		// fix formatting of type annotations
+		formatAnnotations()
+	}
+
+}
+
+tasks {
+	runServer {
+		// Configure the Minecraft version for our task.
+		// This is the only required configuration besides applying the plugin.
+		// Your plugin's jar (or shadowJar if present) will be used automatically.
+		minecraftVersion("1.21")
+	}
+
+	build {
+		dependsOn(spotlessApply)
+		dependsOn(shadowJar)
+
+	}
+}
+
+def targetJavaVersion = 21
+
+java {
+	def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
+	if (JavaVersion.current() < javaVersion) {
+		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+	}
+
+
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+
+	if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+		options.release.set(targetJavaVersion)
+	}
+}
+
+processResources {
+	def props = [version: version]
+	inputs.properties props
+	filteringCharset 'UTF-8'
+	filesMatching('plugin.yml') {
+		expand props
+	}
+}
+
+tasks.shadowJar {
+	archiveClassifier.set("")
+}
