@@ -3,6 +3,7 @@ package dragon.me.solar;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.DupeArenaGenerator;
 import dragon.me.solar.commands.ArenaCommand;
+import dragon.me.solar.commands.DuelCommand;
 import dragon.me.solar.commands.KitCommand;
 import dragon.me.solar.commands.PingCommand;
 import dragon.me.solar.configs.ConfigManager;
@@ -53,6 +54,7 @@ public final class Solar extends JavaPlugin {
         compatibilityChecker = new CompatibilityChecker(this);
 
         duelInviteManager = new DuelInviteManager();
+        duelInviteManager.expireTimer();
 
         registerCommands();
 
@@ -90,7 +92,7 @@ public final class Solar extends JavaPlugin {
         AnnotationParser<CommandSourceStack> parser =
                 new AnnotationParser<>(commandManager, CommandSourceStack.class);
 
-        parser.parse(new PingCommand(), new ArenaCommand(), new KitCommand());
+        parser.parse(new PingCommand(), new ArenaCommand(), new KitCommand(), new DuelCommand());
     }
 
     public void setupDupeWorld() {
