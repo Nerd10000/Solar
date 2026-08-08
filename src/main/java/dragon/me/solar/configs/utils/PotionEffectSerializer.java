@@ -1,32 +1,28 @@
 package dragon.me.solar.configs.utils;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Map;
-
-import com.google.common.reflect.TypeToken;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
+
 public class PotionEffectSerializer implements TypeSerializer<PotionEffect> {
 
-
     @Override
-    public PotionEffect deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        if (node.virtual()){
+    public PotionEffect deserialize(Type type, ConfigurationNode node)
+            throws SerializationException {
+        if (node.virtual()) {
             return null;
         }
 
-        PotionEffectType potionEffectType = PotionEffectType.getByName(node.node("type").getString());
+        PotionEffectType potionEffectType =
+                PotionEffectType.getByName(node.node("type").getString());
 
-        if (potionEffectType == null){
+        if (potionEffectType == null) {
 
             throw new SerializationException("Not a valid PotionEffectType.");
-
         }
 
         int duration = node.node("duration").getInt();
@@ -35,22 +31,14 @@ public class PotionEffectSerializer implements TypeSerializer<PotionEffect> {
         boolean ambient = node.node("ambient").getBoolean(false);
         boolean particles = node.node("particles").getBoolean(true);
 
-
         boolean icon = node.node("icon").getBoolean(true);
 
-        return new PotionEffect(
-                potionEffectType,
-                duration,
-                amplifier,
-                ambient,
-                particles,
-                icon
-        );
+        return new PotionEffect(potionEffectType, duration, amplifier, ambient, particles, icon);
     }
 
-
     @Override
-    public void serialize(Type type, @Nullable PotionEffect effect, ConfigurationNode node) throws SerializationException {
+    public void serialize(Type type, @Nullable PotionEffect effect, ConfigurationNode node)
+            throws SerializationException {
         if (effect == null) {
             node.raw(null);
             return;

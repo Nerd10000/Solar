@@ -2,8 +2,6 @@ package dragon.me.solar.configs.records;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -18,5 +16,6 @@ public record KitRecord(
         @Setting("offhand") ItemStack offhand) {
 
     public static final KitRecord DEFAULTS =
-            new KitRecord("Unknown", new ArrayList<>(), new ItemStack[] {}, new ItemStack[]{}, null);
+            new KitRecord(
+                    "Unknown", new ArrayList<>(), new ItemStack[] {}, new ItemStack[] {}, null);
 }

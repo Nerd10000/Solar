@@ -9,7 +9,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.potion.PotionEffect;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
@@ -33,7 +32,7 @@ public final class KitCommand {
             return;
         }
 
-        InMemoryKit kit = new InMemoryKit(id,  null, List.of(), null, null);
+        InMemoryKit kit = new InMemoryKit(id, null, List.of(), null, null);
 
         if (Solar.kitManager.create(kit)) {
             playerSender.sendMessage(
@@ -72,8 +71,10 @@ public final class KitCommand {
 
         ItemStack[] armor = playerSender.getInventory().getArmorContents();
 
-
-        ItemStack offhand = playerSender.getInventory().getItemInOffHand().getType().equals(Material.AIR) ? null : playerSender.getInventory().getItemInOffHand();
+        ItemStack offhand =
+                playerSender.getInventory().getItemInOffHand().getType().equals(Material.AIR)
+                        ? null
+                        : playerSender.getInventory().getItemInOffHand();
 
         InMemoryKit inMemoryKit = Solar.kitManager.getKit(id);
 
@@ -208,11 +209,9 @@ public final class KitCommand {
 
             player.getInventory().setStorageContents(kit.items);
 
-
             player.getInventory().setArmorContents(kit.armor);
 
-           player.getInventory().setItemInOffHand(kit.offhand);
-
+            player.getInventory().setItemInOffHand(kit.offhand);
         }
 
         for (PotionEffect e : player.getActivePotionEffects()) {

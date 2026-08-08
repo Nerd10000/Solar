@@ -1,7 +1,6 @@
 package dragon.me.solar.configs;
 
 import dragon.me.solar.Solar;
-
 import dragon.me.solar.configs.utils.ItemStackSerializer;
 import dragon.me.solar.configs.utils.PotionEffectSerializer;
 import java.nio.file.Files;
@@ -33,7 +32,6 @@ public class ConfigLoader<T> {
                 TypeSerializerCollection.builder()
                         .registerAll(TypeSerializerCollection.defaults())
                         .register(ItemStack.class, new ItemStackSerializer())
-
                         .register(PotionEffect.class, new PotionEffectSerializer())
                         .build();
 

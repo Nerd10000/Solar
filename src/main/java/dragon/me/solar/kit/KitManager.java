@@ -19,7 +19,11 @@ public class KitManager {
             KITS.put(
                     e.getKey(),
                     new InMemoryKit(
-                            e.getValue().id(), e.getValue().items(), e.getValue().potionEffects(), e.getValue().armor(), e.getValue().offhand()));
+                            e.getValue().id(),
+                            e.getValue().items(),
+                            e.getValue().potionEffects(),
+                            e.getValue().armor(),
+                            e.getValue().offhand()));
         }
     }
 

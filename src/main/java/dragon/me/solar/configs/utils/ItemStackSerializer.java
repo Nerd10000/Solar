@@ -5,12 +5,8 @@
 
 package dragon.me.solar.configs.utils;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Base64;
-import java.util.Map;
-
-import com.google.common.reflect.TypeToken;
 import org.bukkit.inventory.ItemStack;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -22,10 +18,7 @@ public class ItemStackSerializer implements TypeSerializer<ItemStack> {
     private static final Base64.Decoder DECODER = Base64.getDecoder();
 
     @Override
-    public ItemStack deserialize(
-            Type type,
-            ConfigurationNode node
-    ) throws SerializationException {
+    public ItemStack deserialize(Type type, ConfigurationNode node) throws SerializationException {
 
         String value = node.getString();
 
@@ -34,32 +27,23 @@ public class ItemStackSerializer implements TypeSerializer<ItemStack> {
         }
 
         try {
-            return ItemStack.deserializeBytes(
-                    DECODER.decode(value)
-            );
+            return ItemStack.deserializeBytes(DECODER.decode(value));
         } catch (IllegalArgumentException exception) {
             exception.printStackTrace();
-            throw new SerializationException(
-                    "Failed to deserialize ItemStack"
-            );
+            throw new SerializationException("Failed to deserialize ItemStack");
         }
     }
 
     @Override
-    public void serialize(
-            Type type,
-            ItemStack item,
-            ConfigurationNode node
-    ) throws SerializationException {
+    public void serialize(Type type, ItemStack item, ConfigurationNode node)
+            throws SerializationException {
 
         if (item == null) {
             node.raw(null);
             return;
         }
 
-        String value = ENCODER.encodeToString(
-                item.serializeAsBytes()
-        );
+        String value = ENCODER.encodeToString(item.serializeAsBytes());
 
         node.raw(value);
     }

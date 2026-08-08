@@ -14,71 +14,66 @@ import org.incendo.cloud.annotations.Flag;
 public class DuelCommand {
 
     @Command("duel <player> <kit>")
-    public void duel(CommandSourceStack stack, @Argument("player") Player player, @Argument("kit") String kit, @Flag("rounds") @Default("1") int rounds, @Flag("map") @Default("random") String map){
+    public void duel(
+            CommandSourceStack stack,
+            @Argument("player") Player player,
+            @Argument("kit") String kit,
+            @Flag("rounds") @Default("1") int rounds,
+            @Flag("map") @Default("random") String map) {
 
-        if (!(stack.getSender() instanceof Player sender)){
+        if (!(stack.getSender() instanceof Player sender)) {
 
-            stack.getSender().sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().consoleCantRun(),
-                            Placeholder.parsed("prefix", Solar.configManager.languageRecord().prefix())
-                    )
-            );
+            stack.getSender()
+                    .sendMessage(
+                            Solar.miniMessage.deserialize(
+                                    Solar.configManager.languageRecord().consoleCantRun(),
+                                    Placeholder.parsed(
+                                            "prefix",
+                                            Solar.configManager.languageRecord().prefix())));
             return;
         }
 
         InMemoryKit inMemoryKit = Solar.kitManager.getKit(kit);
 
-        if (inMemoryKit == null){
+        if (inMemoryKit == null) {
             player.sendMessage(
                     Solar.miniMessage.deserialize(
-
                             Solar.configManager.languageRecord().kitNotFound(),
-                            Placeholder.parsed("prefix", Solar.configManager.languageRecord().prefix()),
-                            Placeholder.parsed("kit", kit)
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                            Placeholder.parsed("kit", kit)));
 
-                    )
-            );
             return;
         }
 
-        DuelInviteRecord record = new DuelInviteRecord(
-                sender.getUniqueId(),
-                player.getUniqueId(),
-
-                kit,
-                map,
-                rounds,
-                System.currentTimeMillis()
-        );
+        DuelInviteRecord record =
+                new DuelInviteRecord(
+                        sender.getUniqueId(),
+                        player.getUniqueId(),
+                        kit,
+                        map,
+                        rounds,
+                        System.currentTimeMillis());
 
         Solar.duelInviteManager.add(record);
 
         sender.sendMessage(
                 Solar.miniMessage.deserialize(
-
                         Solar.configManager.languageRecord().duelRequestSent(),
                         Placeholder.parsed("player", player.getName()),
                         Placeholder.parsed("rounds", String.valueOf(rounds)),
                         Placeholder.parsed("map", map),
                         Placeholder.parsed("kit", kit),
-                        Placeholder.parsed("prefix", Solar.configManager.languageRecord().prefix())
-
-                )
-        );
+                        Placeholder.parsed(
+                                "prefix", Solar.configManager.languageRecord().prefix())));
 
         player.sendMessage(
                 Solar.miniMessage.deserialize(
-
                         Solar.configManager.languageRecord().duelRequestReceived(),
                         Placeholder.parsed("prefix", Solar.configManager.languageRecord().prefix()),
                         Placeholder.parsed("player", sender.getName()),
                         Placeholder.parsed("rounds", String.valueOf(rounds)),
                         Placeholder.parsed("kit", kit),
-                        Placeholder.parsed("map", map)
-
-                )
-        );
-
+                        Placeholder.parsed("map", map)));
     }
 }

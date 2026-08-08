@@ -35,7 +35,7 @@ public record LanguageRecord(
         @Setting("kit-effects-set") String kitEffectsSet,
         @Setting("kit-finalized") String kitFinalized,
 
-        //Duel related messages
+        // Duel related messages
         @Setting("duel-request-expired") String duelRequestExpired,
         @Setting("duel-request-sent") String duelRequestSent,
         @Setting("duel-request-received") String duelRequestReceived) {
@@ -78,7 +78,15 @@ public record LanguageRecord(
                             + " set!</gray>",
                     "<prefix><gray>The kit <color:#FCD05C>'<kit>'</color> has been"
                             + " finalized!</gray>",
-                    "<prefix><gray>The duel invite to <color:#FCD05C>'<player>'</color:#FCD05C>has <color:#FCD05C>expired</color:#FCD05C>!</gray>",
-                    "<prefix><gray>The <color:#FCD05C>FT<rounds></color:#FCD05C> <color:#FCD05C><kit></color:#FCD05C> duel invite to <color:#FCD05C>'<player>'</color:#FCD05C> has been sent!</gray>",
-                    "<prefix><gray><color:#FCD05C><player></color:#FCD05C> sent you a <color:#FCD05C>FT<rounds> <kit></color:#FCD05C> duel request! Click here to <click:run_command:'duel accept %player%'><green><b><u>ACCEPT</u></b></green></click> or <click:run_command:'duel decline %player%'><red><b><u>DECLINE</u></b></red></click>.</gray>");
+                    "<prefix><gray>The duel invite to <color:#FCD05C>'<player>'</color:#FCD05C>has"
+                            + " <color:#FCD05C>expired</color:#FCD05C>!</gray>",
+                    "<prefix><gray>The <color:#FCD05C>FT<rounds></color:#FCD05C>"
+                            + " <color:#FCD05C><kit></color:#FCD05C> duel invite to"
+                            + " <color:#FCD05C>'<player>'</color:#FCD05C> has been sent!</gray>",
+                    "<prefix><gray><color:#FCD05C><player></color:#FCD05C> sent you a"
+                            + " <color:#FCD05C>FT<rounds> <kit></color:#FCD05C> duel request! Click"
+                            + " here to <click:run_command:'duel accept"
+                            + " %player%'><green><b><u>ACCEPT</u></b></green></click> or"
+                            + " <click:run_command:'duel decline"
+                            + " %player%'><red><b><u>DECLINE</u></b></red></click>.</gray>");
 }
