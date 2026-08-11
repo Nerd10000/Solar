@@ -59,9 +59,21 @@ public class ConfigLoader<T> {
 
         root = loader.load();
 
+        // Create a node representing the defaults and merge into the loaded root.
+        CommentedConfigurationNode defaultNode = loader.createNode();
+        defaultNode.set(type, defaults);
+
+        // Merge defaults into the existing config. This will populate any missing keys
+        // with values from the defaults without overwriting existing values.
+        root.mergeFrom(defaultNode);
+
+        // Persist merged config so missing keys are written to disk.
+        loader.save(root);
+
         T config = root.get(type);
 
         if (config == null) {
+            // Fallback in case mapping failed.
             config = defaults;
             root.set(type, config);
             loader.save(root);

@@ -33,12 +33,24 @@ public record LanguageRecord(
         @Setting("kit-not-found") String kitNotFound,
         @Setting("kit-items-set") String kitItemsSet,
         @Setting("kit-effects-set") String kitEffectsSet,
+        @Setting("kit-flags-set") String kitFlagsSet,
         @Setting("kit-finalized") String kitFinalized,
 
         // Duel related messages
         @Setting("duel-request-expired") String duelRequestExpired,
         @Setting("duel-request-sent") String duelRequestSent,
-        @Setting("duel-request-received") String duelRequestReceived) {
+        @Setting("duel-request-received") String duelRequestReceived,
+        @Setting("too-many-duel-invites") String tooManyDuelInvites,
+        @Setting("match-begin") String matchBegin,
+
+        // Match related messages
+        @Setting("player-died-to-player") String playerDiedToPlayer,
+        @Setting("player-died-to-unknown-causes") String playerDiedToUnknownCauses,
+        @Setting("match-won") String matchWon,
+        @Setting("match-lost") String matchLost,
+        @Setting("match-forfeit-win") String matchForfeitWin,
+        @Setting("match-forfeit-loss") String matchForfeitLoss,
+        @Setting("lobby-set") String lobbySet) {
 
     public static final LanguageRecord DEFAULTS =
             new LanguageRecord(
@@ -76,6 +88,7 @@ public record LanguageRecord(
                             + " set!</gray>",
                     "<prefix><gray>The potion effects of <color:#FCD05C>'<kit>'</color> have been"
                             + " set!</gray>",
+                    "<prefix><gray>The flags were set for <color:#FCD05C>'<kit>'</color>.</gray> ",
                     "<prefix><gray>The kit <color:#FCD05C>'<kit>'</color> has been"
                             + " finalized!</gray>",
                     "<prefix><gray>The duel invite to <color:#FCD05C>'<player>'</color:#FCD05C>has"
@@ -88,5 +101,18 @@ public record LanguageRecord(
                             + " here to <click:run_command:'duel accept"
                             + " %player%'><green><b><u>ACCEPT</u></b></green></click> or"
                             + " <click:run_command:'duel decline"
-                            + " %player%'><red><b><u>DECLINE</u></b></red></click>.</gray>");
+                            + " %player%'><red><b><u>DECLINE</u></b></red></click>.</gray>",
+                    "<prefix><red>You can't send more than 1 duel invite at a time, please wait"
+                            + " until it is declined or accepted!</red>",
+                    "<prefix><#FCD05C>The match will begin shortly!",
+                    "<gray><color:#fcd05c>☠ <victim></color> died to the hands of"
+                            + " <color:#fcd05c><killer></color:#fcd05c>!</gray>",
+                    "<gray><color:#fcd05c>☠ <victim></color> died in"
+                            + " <color:#fcd05c>combat</color:#fcd05c>!</gray>",
+                    "<prefix><green>You won the duel!</green>",
+                    "<prefix><red>You lost the duel. Winner: <color:#FCD05C><winner></color></red>",
+                    "<prefix><green>You won by forfeit!</green>",
+                    "<prefix><red>You forfeited the duel. Winner:"
+                            + " <color:#FCD05C><winner></color></red>",
+                    "<prefix><gray>Lobby location has been set.</gray>");
 }

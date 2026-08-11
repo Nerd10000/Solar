@@ -5,10 +5,12 @@ import dragon.me.solar.duel.record.DuelInviteRecord;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class DuelInviteManager {
 
@@ -27,15 +29,63 @@ public class DuelInviteManager {
         return true;
     }
 
-    public boolean hasInvite(UUID uuid) {
+    public boolean removeBySender(UUID uuid) {
 
-        for (DuelInviteRecord d : duelInviteRecordList) {
+        Iterator<DuelInviteRecord> iterator = duelInviteRecordList.iterator();
 
-            if (d.sender() == uuid) {
+        while (iterator.hasNext()) {
+
+            if (uuid.equals(iterator.next().sender())) {
+                iterator.remove();
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean removeByReceiver(UUID uuid) {
+
+        Iterator<DuelInviteRecord> iterator = duelInviteRecordList.iterator();
+
+        while (iterator.hasNext()) {
+
+            if (uuid.equals(iterator.next().receiver())) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasInvite(UUID uuid) {
+
+        for (DuelInviteRecord d : duelInviteRecordList) {
+
+            if (d.sender().equals(uuid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public @Nullable DuelInviteRecord getByReceiver(UUID uuid) {
+
+        Optional<DuelInviteRecord> invite =
+                duelInviteRecordList.stream()
+                        .filter(record -> record.receiver().equals(uuid))
+                        .findFirst();
+
+        return invite.orElse(null);
+    }
+
+    public @Nullable DuelInviteRecord getBySender(UUID uuid) {
+
+        Optional<DuelInviteRecord> invite =
+                duelInviteRecordList.stream()
+                        .filter(record -> record.sender().equals(uuid))
+                        .findFirst();
+
+        return invite.orElse(null);
     }
 
     public void expireTimer() {

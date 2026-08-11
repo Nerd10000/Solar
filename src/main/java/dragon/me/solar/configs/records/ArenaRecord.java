@@ -1,5 +1,6 @@
 package dragon.me.solar.configs.records;
 
+import dragon.me.solar.arena.ArenaSpawn;
 import org.bukkit.Location;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
@@ -8,13 +9,13 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 public record ArenaRecord(
         @Setting("name") String name,
         @Setting("min-x") int minX,
-        @Setting("min-Z") int minZ,
         @Setting("min-y") int minY,
-        @Setting("max-y") int maxY,
+        @Setting("min-Z") int minZ,
         @Setting("max-x") int maxX,
+        @Setting("max-y") int maxY,
         @Setting("max-z") int maxZ,
-        @Setting("spawn-1") LocationRecord spawn1,
-        @Setting("spawn-2") LocationRecord spawn2,
+        @Setting("spawn-1") ArenaSpawn spawn1,
+        @Setting("spawn-2") ArenaSpawn spawn2,
         @Setting("schem-path") String schematicPath) {
 
     public boolean contains(Location location) {

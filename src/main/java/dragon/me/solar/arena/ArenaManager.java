@@ -40,8 +40,8 @@ public class ArenaManager {
             inMemoryArena.maxY = arenaRecord.maxY();
             inMemoryArena.maxZ = arenaRecord.maxZ();
 
-            inMemoryArena.spawn1 = arenaRecord.spawn1().toBukkitLocation(null);
-            inMemoryArena.spawn2 = arenaRecord.spawn2().toBukkitLocation(null);
+            inMemoryArena.spawn1 = arenaRecord.spawn1();
+            inMemoryArena.spawn2 = arenaRecord.spawn2();
 
             inMemoryArena.isSpawns1Set = true;
             inMemoryArena.isSpawn2Set = true;

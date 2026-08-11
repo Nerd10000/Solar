@@ -1,6 +1,8 @@
 package dragon.me.solar.commands;
 
+import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
+import dragon.me.solar.arena.ArenaSpawn;
 import dragon.me.solar.arena.InMemoryArena;
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.hooks.Compatibilities;
@@ -142,15 +144,17 @@ public class ArenaCommand {
             return;
         }
 
+        BlockVector3 origin = arena.getPasteOrigin();
+
         switch (value) {
             case 1: // 1ST SPAWN POINT
-                arena.spawn1 = p.getLocation();
+                arena.spawn1 = ArenaSpawn.fromAbsolute(p.getLocation(), origin);
                 arena.isSpawns1Set = true;
 
                 break;
 
             case 2: // 2ND SPAWN POINT
-                arena.spawn2 = p.getLocation();
+                arena.spawn2 = ArenaSpawn.fromAbsolute(p.getLocation(), origin);
                 arena.isSpawn2Set = true;
 
                 break;

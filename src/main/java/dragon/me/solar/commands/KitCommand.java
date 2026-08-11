@@ -1,6 +1,7 @@
 package dragon.me.solar.commands;
 
 import dragon.me.solar.Solar;
+import dragon.me.solar.configs.records.KitFlagsRecord;
 import dragon.me.solar.configs.records.KitRecord;
 import dragon.me.solar.kit.InMemoryKit;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -10,9 +11,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.incendo.cloud.annotations.Argument;
-import org.incendo.cloud.annotations.Command;
-import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotation.specifier.Range;
+import org.incendo.cloud.annotations.*;
 
 public final class KitCommand {
 
@@ -32,7 +32,7 @@ public final class KitCommand {
             return;
         }
 
-        InMemoryKit kit = new InMemoryKit(id, null, List.of(), null, null);
+        InMemoryKit kit = new InMemoryKit(id, null, List.of(), null, null, KitFlagsRecord.DEFAULT);
 
         if (Solar.kitManager.create(kit)) {
             playerSender.sendMessage(
@@ -203,25 +203,90 @@ public final class KitCommand {
             return;
         }
 
-        player.getInventory().clear();
+        Solar.kitManager.applyKit(player, kit);
+    }
 
-        if (kit.items != null) {
+    @Command("kit setFlags <kit>")
+    @Permission("solar.setflags")
+    public void setFlags(
+            CommandSourceStack stack,
+            @Argument("kit") String kit,
+            @Flag("max-health") @Default("20") Float maxHealth,
+            @Flag("natural-regeneration") @Default("true") Boolean naturalRegeneration,
+            @Flag("natural-saturation") @Default("true") Boolean naturalSaturation,
+            @Flag("hunger-loss") @Default("true") Boolean hungerLoss,
+            @Flag("pearl-cooldown") @Default("-1") @Range(min = "-1", max = "20")
+                    Integer pearlCooldown,
+            @Flag("golden-apple-cooldown") @Default("-1") @Range(min = "-1", max = "20")
+                    Integer goldenAppleCooldown,
+            @Flag("windcharge-cooldown") @Default("-1") @Range(min = "-1", max = "20")
+                    Integer windChargeCooldown,
+            @Flag("prevent-block-place") @Default("false") Boolean preventBlockPlace,
+            @Flag("prevent-block-break") @Default("false") Boolean preventBlockBreak,
+            @Flag("prevent-item-drop") @Default("false") Boolean preventItemDrop,
+            @Flag("prevent-movement-before-start") @Default("false")
+                    Boolean preventMovementBeforeStart) {
 
-            player.getInventory().setStorageContents(kit.items);
+        if (stack.getSender() instanceof Player p) {
 
-            player.getInventory().setArmorContents(kit.armor);
+            InMemoryKit inMemoryKit = Solar.kitManager.getKit(kit);
 
-            player.getInventory().setItemInOffHand(kit.offhand);
-        }
-
-        for (PotionEffect e : player.getActivePotionEffects()) {
-            player.removePotionEffect(e.getType());
-        }
-
-        if (kit.effectList != null) {
-            for (PotionEffect e : kit.effectList) {
-                player.addPotionEffect(e);
+            if (inMemoryKit == null) {
+                p.sendMessage(
+                        Solar.miniMessage.deserialize(
+                                Solar.configManager.languageRecord().kitNotFound(),
+                                Placeholder.parsed(
+                                        "prefix", Solar.configManager.languageRecord().prefix()),
+                                Placeholder.parsed("kit", kit)));
+                return;
             }
+            float finalMaxHealth = maxHealth != null ? maxHealth : 20.0f;
+            boolean finalNaturalRegeneration =
+                    naturalRegeneration != null ? naturalRegeneration : true;
+            boolean finalNaturalSaturation = naturalSaturation != null ? naturalSaturation : true;
+            boolean finalHungerLoss = hungerLoss != null ? hungerLoss : true;
+
+            int finalPearlCooldown = pearlCooldown != null ? pearlCooldown : -1;
+            int finalGoldenAppleCooldown = goldenAppleCooldown != null ? goldenAppleCooldown : -1;
+            int finalWindChargeCooldown = windChargeCooldown != null ? windChargeCooldown : -1;
+
+            boolean finalPreventBlockPlace = preventBlockPlace != null && preventBlockPlace;
+            boolean finalPreventBlockBreak = preventBlockBreak != null && preventBlockBreak;
+            boolean finalPreventItemDrop = preventItemDrop != null && preventItemDrop;
+            boolean finalPreventMovementBeforeStart =
+                    preventMovementBeforeStart != null && preventMovementBeforeStart;
+
+            inMemoryKit.flags =
+                    new KitFlagsRecord(
+                            finalMaxHealth,
+                            finalNaturalRegeneration,
+                            finalNaturalSaturation,
+                            finalHungerLoss,
+                            finalPearlCooldown,
+                            finalGoldenAppleCooldown,
+                            finalWindChargeCooldown,
+                            finalPreventBlockPlace,
+                            finalPreventBlockBreak,
+                            finalPreventItemDrop,
+                            finalPreventMovementBeforeStart);
+
+            p.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().kitFlagsSet(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                            Placeholder.parsed("kit", kit)));
+
+        } else {
+
+            stack.getSender()
+                    .sendMessage(
+                            Solar.miniMessage.deserialize(
+                                    Solar.configManager.languageRecord().consoleCantRun(),
+                                    Placeholder.parsed(
+                                            "prefix",
+                                            Solar.configManager.languageRecord().prefix())));
+            return;
         }
     }
 }
