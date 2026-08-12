@@ -56,7 +56,14 @@ public record LanguageRecord(
 
         // Maintenance related
         @Setting("maintenance-changed") String maintenanceChanged,
-        @Setting("maintenance-prevention") String maintenancePrevention) {
+        @Setting("maintenance-prevention") String maintenancePrevention,
+
+        // Party management
+        @Setting("cant-create-party-as-member-of-a-party") String cantCreatePartyAsMemberOfAParty,
+        @Setting("party-created") String partyCreated,
+        @Setting("cant-do-party-as-member-only") String cantDoPartyAsMemberOnly,
+        @Setting("party-disbanded") String partyDisbanded,
+        @Setting("not-in-party") String notInParty) {
 
     public static final LanguageRecord DEFAULTS =
             new LanguageRecord(
@@ -134,5 +141,13 @@ public record LanguageRecord(
                     "<prefix><gray>Maintenance mode's was changed to"
                             + " <color:#fcd05c>'<status>'</color:#fcd05c>!</gray>",
                     "<prefix><red>Currently you can't start a new match, due to an ongoing"
-                        + " maintenance. Contact the staff team for further information!</red>");
+                            + " maintenance. Contact the staff team for further information!</red>",
+                    "<prefix><red>You can't create a new party while in one!</red>",
+                    "<prefix><gray>The <color:#fcd05c>party</color:#fcd05c> has been"
+                            + " <color:#fcd05c>created!</color:#fcd05c>.</gray>",
+                    "<prefix><red>You can't <action> the party as you are not the party"
+                            + " leader!</red>",
+                    "<prefix><gray>The party has been <color:#fcd05c>disbanded</color:#fcd05c> by"
+                            + " <color:#fcd05c><owner></color:#fcd05c>!</gray>",
+                    "<prefix><red>You are not in a party!</red>");
 }

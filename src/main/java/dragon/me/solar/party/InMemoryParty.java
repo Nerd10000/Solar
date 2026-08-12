@@ -27,4 +27,12 @@ public class InMemoryParty {
     public List<UUID> getMemberList() {
         return memberList;
     }
+
+    public void setOwner(UUID owner) {
+        this.owner = owner;
+    }
+
+    public void setMemberList(List<UUID> memberList) {
+        this.memberList = memberList;
+    }
 }

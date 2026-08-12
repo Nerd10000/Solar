@@ -14,6 +14,8 @@ import dragon.me.solar.listeners.*;
 import dragon.me.solar.match.InMemoryMatch;
 import dragon.me.solar.match.MatchManager;
 import dragon.me.solar.match.utils.MatchEndReason;
+import dragon.me.solar.party.PartyManager;
+import dragon.me.solar.party.invite.PartyInviteManager;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.io.File;
 import java.nio.file.Path;
@@ -38,6 +40,8 @@ public final class Solar extends JavaPlugin {
     public static final MiniMessage miniMessage = MiniMessage.miniMessage();
     public static CompatibilityChecker compatibilityChecker;
     public static GridManager gridManager = new GridManager();
+    public static PartyInviteManager partyInviteManager;
+    public static PartyManager partyManager;
 
     public static boolean MAINTENANCE_MODE = false;
 
@@ -60,7 +64,14 @@ public final class Solar extends JavaPlugin {
 
         duelInviteManager = new DuelInviteManager();
         duelInviteManager.expireTimer();
+
         matchManager = new MatchManager();
+
+        partyManager = new PartyManager();
+
+        partyInviteManager = new PartyInviteManager();
+        partyInviteManager.expireTimer();
+
         registerCommands();
         registerListeners();
 
@@ -124,7 +135,8 @@ public final class Solar extends JavaPlugin {
                 new KitCommand(),
                 new DuelCommand(),
                 new SolarCommand(),
-                new SpectateCommand());
+                new SpectateCommand(),
+                new PartyCommand());
     }
 
     public void registerListeners() {

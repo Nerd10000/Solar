@@ -18,11 +18,12 @@ public record SettingsRecord(
                     120000,
                     new LobbyRecord(0, 0, 0, 0f, 0f, "world"),
                     new SoundRecords(
-                            "BLOCK_NOTE_BLOCK_PLING",
-                            "BLOCK_BEACON_ACTIVATE",
-                            "BLOCK_BEACON_DEACTIVATE",
-                            "ENTITY_BLAZE_DEATH",
-                            "UI_TOAST_CHALLENGE_COMPLETE"),
+                            "block.note.block.pling",
+                            "block.beacon.activate",
+                            "block.beacon.deactivate",
+                            "entity.blaze.death",
+                            "ui.toast.challange.complete",
+                            "block.note_block.bass"),
                     true,
                     120000);
 
