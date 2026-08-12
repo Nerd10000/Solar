@@ -9,7 +9,8 @@ public record SettingsRecord(
         @Setting("duel-request-expire-time") long duelRequestExpireTime,
         @Setting("lobby-location") LobbyRecord lobbyRecord,
         @Setting("sounds") SoundRecords soundRecords,
-        @Setting("teleport-to-lobby-on-join") boolean teleportToLobbyOnJoin) {
+        @Setting("teleport-to-lobby-on-join") boolean teleportToLobbyOnJoin,
+        @Setting("party-invite-expire-time") long partyInviteExpireTime) {
 
     public static final SettingsRecord DEFAULTS =
             new SettingsRecord(
@@ -22,7 +23,8 @@ public record SettingsRecord(
                             "BLOCK_BEACON_DEACTIVATE",
                             "ENTITY_BLAZE_DEATH",
                             "UI_TOAST_CHALLENGE_COMPLETE"),
-                    true);
+                    true,
+                    120000);
 
     public SettingsRecord updateLobbyLocation(LobbyRecord record) {
 
@@ -32,7 +34,8 @@ public record SettingsRecord(
                         this.duelRequestExpireTime,
                         record,
                         this.soundRecords,
-                        this.teleportToLobbyOnJoin);
+                        this.teleportToLobbyOnJoin,
+                        this.partyInviteExpireTime);
 
         return prev;
     }

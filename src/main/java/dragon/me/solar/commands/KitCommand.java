@@ -13,12 +13,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.incendo.cloud.annotation.specifier.Range;
 import org.incendo.cloud.annotations.*;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
 
 public final class KitCommand {
 
     @Command("kit create <id>")
     @Permission("solar.kit.manage.create")
-    public void create(CommandSourceStack stack, @Argument("id") String id) {
+    public void create(
+            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
 
         if (!(stack.getSender() instanceof Player playerSender)) {
 
@@ -53,7 +55,8 @@ public final class KitCommand {
 
     @Command("kit set-items <id>")
     @Permission("solar.kit.manage.set-items")
-    public void setItems(CommandSourceStack stack, @Argument("id") String id) {
+    public void setItems(
+            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
 
         if (!(stack.getSender() instanceof Player playerSender)) {
 
@@ -101,7 +104,8 @@ public final class KitCommand {
 
     @Command("kit set-effects <id>")
     @Permission("solar.kit.manage.set-effects")
-    public void setEffects(CommandSourceStack stack, @Argument("id") String id) {
+    public void setEffects(
+            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
 
         if (!(stack.getSender() instanceof Player playerSender)) {
 
@@ -141,7 +145,8 @@ public final class KitCommand {
 
     @Command("kit finalize <id>")
     @Permission("solar.kit.manage.finalize")
-    public void finalize(CommandSourceStack stack, @Argument("id") String id) {
+    public void finalize(
+            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
 
         if (!(stack.getSender() instanceof Player playerSender)) {
 
@@ -182,7 +187,7 @@ public final class KitCommand {
     @Permission("solar.kit.manage.give")
     public void give(
             CommandSourceStack stack,
-            @Argument("id") String id,
+            @Argument(value = "id", suggestions = "kits") String id,
             @Argument("player") Player player) {
 
         if (player == null) return;
@@ -210,7 +215,7 @@ public final class KitCommand {
     @Permission("solar.setflags")
     public void setFlags(
             CommandSourceStack stack,
-            @Argument("kit") String kit,
+            @Argument(value = "kit", suggestions = "kits") String kit,
             @Flag("max-health") @Default("20") Float maxHealth,
             @Flag("natural-regeneration") @Default("true") Boolean naturalRegeneration,
             @Flag("natural-saturation") @Default("true") Boolean naturalSaturation,
@@ -288,5 +293,11 @@ public final class KitCommand {
                                             Solar.configManager.languageRecord().prefix())));
             return;
         }
+    }
+
+    @Suggestions("kits")
+    public List<String> kitSuggestions() {
+
+        return Solar.kitManager.KITS.keySet().stream().toList();
     }
 }

@@ -3,11 +3,6 @@ package dragon.me.solar.configs.records;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
-/*
- *
- * This is record responsible for the language.yml file when accessing it in the plugin
- *
- */
 @ConfigSerializable
 public record LanguageRecord(
         @Setting("prefix") String prefix,
@@ -42,6 +37,13 @@ public record LanguageRecord(
         @Setting("duel-request-received") String duelRequestReceived,
         @Setting("too-many-duel-invites") String tooManyDuelInvites,
         @Setting("match-begin") String matchBegin,
+        @Setting("duel-declined") String duelDeclined,
+        @Setting("duel-declined-requester") String duelDeclinedRequester,
+        @Setting("spectator-joined") String spectatorJoined,
+        @Setting("spectator-left") String spectatorLeft,
+        @Setting("match-not-found") String matchNotFound,
+        @Setting("already-in-spectator") String alreadyInSprectator,
+        @Setting("not-in-spectator") String notInSpectator,
 
         // Match related messages
         @Setting("player-died-to-player") String playerDiedToPlayer,
@@ -50,7 +52,11 @@ public record LanguageRecord(
         @Setting("match-lost") String matchLost,
         @Setting("match-forfeit-win") String matchForfeitWin,
         @Setting("match-forfeit-loss") String matchForfeitLoss,
-        @Setting("lobby-set") String lobbySet) {
+        @Setting("lobby-set") String lobbySet,
+
+        // Maintenance related
+        @Setting("maintenance-changed") String maintenanceChanged,
+        @Setting("maintenance-prevention") String maintenancePrevention) {
 
     public static final LanguageRecord DEFAULTS =
             new LanguageRecord(
@@ -105,8 +111,18 @@ public record LanguageRecord(
                     "<prefix><red>You can't send more than 1 duel invite at a time, please wait"
                             + " until it is declined or accepted!</red>",
                     "<prefix><#FCD05C>The match will begin shortly!",
+                    "<prefix><gray>You have declined <color:#fcd05c>'<sender>'</color:#fcd05c>'s"
+                            + " duel request!</gray>",
+                    "<prefix><color:#fcd05c>'<target>'<gray> has declined you duel request!</gray>",
+                    "<prefix><gray><color:#fcd05c><spectator></color:#fcd05c> is now"
+                            + " spectating!</gray>",
+                    "<prefix><gray><color:#fcd05c><spectator></color:#fcd05c> is not spectating"
+                            + " anymore!",
                     "<gray><color:#fcd05c>☠ <victim></color> died to the hands of"
                             + " <color:#fcd05c><killer></color:#fcd05c>!</gray>",
+                    "<prefix><red>You are already spectating! Please leave first.</red>",
+                    "<prefix><red>You need to be in spectator mode in order to leave!</red>",
+                    "<prefix><red>There is no match with that player!</red>",
                     "<gray><color:#fcd05c>☠ <victim></color> died in"
                             + " <color:#fcd05c>combat</color:#fcd05c>!</gray>",
                     "<prefix><green>You won the duel!</green>",
@@ -114,5 +130,9 @@ public record LanguageRecord(
                     "<prefix><green>You won by forfeit!</green>",
                     "<prefix><red>You forfeited the duel. Winner:"
                             + " <color:#FCD05C><winner></color></red>",
-                    "<prefix><gray>Lobby location has been set.</gray>");
+                    "<prefix><gray>Lobby location has been set.</gray>",
+                    "<prefix><gray>Maintenance mode's was changed to"
+                            + " <color:#fcd05c>'<status>'</color:#fcd05c>!</gray>",
+                    "<prefix><red>Currently you can't start a new match, due to an ongoing"
+                        + " maintenance. Contact the staff team for further information!</red>");
 }

@@ -8,18 +8,22 @@ import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.hooks.Compatibilities;
 import dragon.me.solar.hooks.FaweHook;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.annotation.specifier.Range;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
 
 public class ArenaCommand {
 
     @Command("arenas create <name>")
     @Permission("solar.arena.manage.create")
-    public void create(CommandSourceStack stack, @Argument("name") String name) {
+    public void create(
+            CommandSourceStack stack,
+            @Argument(value = "name", suggestions = "arenas") String name) {
 
         if (!(stack.getSender() instanceof Player p)) {
 
@@ -58,7 +62,7 @@ public class ArenaCommand {
     @Permission("solar.arena.manage.setedge")
     public void setEdge(
             CommandSourceStack stack,
-            @Argument("name") String name,
+            @Argument(value = "name", suggestions = "arenas") String name,
             @Argument("number") @Range(min = "1", max = "2") int value) {
 
         if (!(stack.getSender() instanceof Player p)) {
@@ -117,7 +121,7 @@ public class ArenaCommand {
     @Permission("solar.arena.manage.setspawn")
     public void setSpawn(
             CommandSourceStack stack,
-            @Argument("name") String name,
+            @Argument(value = "name", suggestions = "arenas") String name,
             @Argument("number") @Range(min = "1", max = "2") int value) {
 
         if (!(stack.getSender() instanceof Player p)) {
@@ -170,7 +174,9 @@ public class ArenaCommand {
 
     @Command("arenas finalize <name> ")
     @Permission("solar.arena.manage.finalize")
-    public void finalize(CommandSourceStack stack, @Argument("name") String name) {
+    public void finalize(
+            CommandSourceStack stack,
+            @Argument(value = "name", suggestions = "arenas") String name) {
 
         if (!(stack.getSender() instanceof Player p)) {
 
@@ -219,7 +225,9 @@ public class ArenaCommand {
 
     @Command("arenas saveSchematic <name> ")
     @Permission("solar.arena.manage.saveSchematic")
-    public void saveSchematic(CommandSourceStack stack, @Argument("name") String name) {
+    public void saveSchematic(
+            CommandSourceStack stack,
+            @Argument(value = "name", suggestions = "arenas") String name) {
 
         if (!Solar.compatibilityChecker.isCompatibleWith(Compatibilities.FAWE)) {
 
@@ -288,5 +296,11 @@ public class ArenaCommand {
                             error.printStackTrace();
                             return null;
                         });
+    }
+
+    @Suggestions("arenas")
+    public List<String> arenaSuggestions() {
+
+        return Solar.arenaManager.ARENAS.keySet().stream().toList();
     }
 }

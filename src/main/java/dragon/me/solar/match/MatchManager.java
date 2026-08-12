@@ -206,7 +206,14 @@ public class MatchManager {
         String arenaName = match.getArenaName();
 
         match.getSavedInventories().clear();
+        for (UUID u : match.getSpectatorList()) {
 
+            Player p = Bukkit.getPlayer(u);
+            if (p == null) continue;
+
+            p.setGameMode(GameMode.SURVIVAL);
+            p.teleport(Solar.configManager.getLobbyLocation());
+        }
         executeForEachMember(
                 consumer -> {
                     consumer.setMaxHealth(20);
@@ -244,6 +251,7 @@ public class MatchManager {
         }
 
         executeForEachMember(p -> p.getInventory().clear(), match);
+
         String winnerName = resolveWinnerName(winner);
         announceResults(match, winner, winnerName, reason);
         restoreAndTeleportPlayersInstant(match);
@@ -433,5 +441,14 @@ public class MatchManager {
     public void terminateMatch(InMemoryMatch match) {
 
         endMatch(match, null, MatchEndReason.TERMINATED);
+    }
+
+    public boolean isSpectatingAlready(UUID player) {
+
+        for (InMemoryMatch m : matchList) {
+
+            if (m.getSpectatorList().contains(player)) return true;
+        }
+        return false;
     }
 }

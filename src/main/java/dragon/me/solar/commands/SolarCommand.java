@@ -73,4 +73,35 @@ public class SolarCommand {
                                     "prefix", Solar.configManager.languageRecord().prefix())));
         }
     }
+
+    @Command("solar maintenance")
+    @Permission("solar.maintanance")
+    public void maintenance(CommandSourceStack stack) {
+
+        if (stack.getSender() instanceof Player p) {
+
+            Solar.MAINTENANCE_MODE = !Solar.MAINTENANCE_MODE;
+
+            p.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().maintenanceChanged(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                            Placeholder.parsed(
+                                    "status",
+                                    Solar.MAINTENANCE_MODE ? "<b>ON</b>" : "<b>OFF</b>")));
+
+        } else {
+
+            stack.getSender()
+                    .sendMessage(
+                            Solar.miniMessage.deserialize(
+                                    Solar.configManager.languageRecord().consoleCantRun(),
+                                    Placeholder.parsed(
+                                            "prefix",
+                                            Solar.configManager.languageRecord().prefix())));
+
+            return;
+        }
+    }
 }

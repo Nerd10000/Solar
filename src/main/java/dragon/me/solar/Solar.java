@@ -3,11 +3,7 @@ package dragon.me.solar;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.DupeArenaGenerator;
 import dragon.me.solar.arena.GridManager;
-import dragon.me.solar.commands.ArenaCommand;
-import dragon.me.solar.commands.DuelCommand;
-import dragon.me.solar.commands.KitCommand;
-import dragon.me.solar.commands.PingCommand;
-import dragon.me.solar.commands.SolarCommand;
+import dragon.me.solar.commands.*;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.configs.records.KitRecord;
@@ -42,6 +38,8 @@ public final class Solar extends JavaPlugin {
     public static final MiniMessage miniMessage = MiniMessage.miniMessage();
     public static CompatibilityChecker compatibilityChecker;
     public static GridManager gridManager = new GridManager();
+
+    public static boolean MAINTENANCE_MODE = false;
 
     @Override
     public void onEnable() {
@@ -125,7 +123,8 @@ public final class Solar extends JavaPlugin {
                 new ArenaCommand(),
                 new KitCommand(),
                 new DuelCommand(),
-                new SolarCommand());
+                new SolarCommand(),
+                new SpectateCommand());
     }
 
     public void registerListeners() {

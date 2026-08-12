@@ -7,6 +7,7 @@ import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
 import dragon.me.solar.kit.InMemoryKit;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -14,10 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.incendo.cloud.annotations.Argument;
-import org.incendo.cloud.annotations.Command;
-import org.incendo.cloud.annotations.Default;
-import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.*;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
 
 public class DuelCommand {
 
@@ -25,9 +24,17 @@ public class DuelCommand {
     public void duel(
             CommandSourceStack stack,
             @Argument("player") Player player,
-            @Argument("kit") String kit,
-            @Flag("rounds") @Default("1") int rounds,
-            @Flag("map") @Default("random") String map) {
+            @Argument(value = "kit", suggestions = "kits") String kit,
+            @Flag("rounds") @Default("1") Integer rounds,
+            @Flag(value = "map", suggestions = "arenas") @Default("random") String map) {
+
+        if (rounds == null) {
+            rounds = 1;
+        }
+
+        if (map == null) {
+            map = "random";
+        }
 
         if (!(stack.getSender() instanceof Player sender)) {
 
@@ -38,6 +45,16 @@ public class DuelCommand {
                                     Placeholder.parsed(
                                             "prefix",
                                             Solar.configManager.languageRecord().prefix())));
+            return;
+        }
+
+        if (Solar.MAINTENANCE_MODE) {
+
+            sender.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().maintenancePrevention(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix())));
             return;
         }
 
@@ -105,6 +122,15 @@ public class DuelCommand {
                                             "prefix",
                                             Solar.configManager.languageRecord().prefix())));
 
+            return;
+        }
+        if (Solar.MAINTENANCE_MODE) {
+
+            sender.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().maintenancePrevention(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix())));
             return;
         }
 
@@ -245,5 +271,59 @@ public class DuelCommand {
                                 + receiver.getName()
                                 + " on arena "
                                 + arenaName);
+    }
+
+    @Command("duel decline <player>")
+    public void decline(CommandSourceStack stack, @Argument("player") Player target) {
+
+        if (stack.getSender() instanceof Player p) {
+
+            if (Solar.MAINTENANCE_MODE) {
+
+                p.sendMessage(
+                        Solar.miniMessage.deserialize(
+                                Solar.configManager.languageRecord().maintenancePrevention(),
+                                Placeholder.parsed(
+                                        "prefix", Solar.configManager.languageRecord().prefix())));
+            }
+
+            p.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().duelDeclined(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                            Placeholder.parsed("sender", target.getName())));
+
+            Solar.duelInviteManager.removeBySender(target.getUniqueId());
+
+            target.sendMessage(
+                    Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().duelDeclinedRequester(),
+                            Placeholder.parsed(
+                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                            Placeholder.parsed("target", p.getName())));
+
+        } else {
+
+            stack.getSender()
+                    .sendMessage(
+                            Solar.miniMessage.deserialize(
+                                    Solar.configManager.languageRecord().consoleCantRun(),
+                                    Placeholder.parsed(
+                                            "prefix",
+                                            Solar.configManager.languageRecord().prefix())));
+        }
+    }
+
+    @Suggestions("arenas")
+    public List<String> arenaSuggestions() {
+
+        return Solar.arenaManager.ARENAS.keySet().stream().toList();
+    }
+
+    @Suggestions("kits")
+    public List<String> kitSuggestions() {
+
+        return Solar.kitManager.KITS.keySet().stream().toList();
     }
 }
