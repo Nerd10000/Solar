@@ -63,7 +63,16 @@ public record LanguageRecord(
         @Setting("party-created") String partyCreated,
         @Setting("cant-do-party-as-member-only") String cantDoPartyAsMemberOnly,
         @Setting("party-disbanded") String partyDisbanded,
-        @Setting("not-in-party") String notInParty) {
+        @Setting("not-in-party") String notInParty,
+        @Setting("player-joined-party") String playerJoinedParty,
+        @Setting("party-invite-sent") String partyInviteSent,
+        @Setting("party-invite-received") String partyInviteReceived,
+        @Setting("no-invite-from-party") String notInviteFromParty,
+        @Setting("player-left-party") String playerLeftParty,
+        @Setting("no-such-party") String noSuchParty,
+        @Setting("party-full") String partyFull,
+        @Setting("not-party-leader") String notPartyLeader,
+        @Setting("invalid-event-type") String invalidEventType) {
 
     public static final LanguageRecord DEFAULTS =
             new LanguageRecord(
@@ -149,5 +158,20 @@ public record LanguageRecord(
                             + " leader!</red>",
                     "<prefix><gray>The party has been <color:#fcd05c>disbanded</color:#fcd05c> by"
                             + " <color:#fcd05c><owner></color:#fcd05c>!</gray>",
-                    "<prefix><red>You are not in a party!</red>");
+                    "<prefix><red>You are not in a party!</red>",
+                    "<prefix><color:#fcd05c><player></color:#fcd05c> <gray>joined the"
+                            + " party!</gray>",
+                    "<prefix><color:#fcd05c><player></color:#fcd05c><gray> was invited to the"
+                            + " party!</gray>",
+                    "<prefix><gray>You have been invited to <color:#fcd05c><player>'s"
+                            + " party</color:#fcd05c></gray>! <click:run_command:'party accept"
+                            + " <player>'><green><b><u>ACCEPT</u></b></green></click>"
+                            + " <click:run_command:'party decline"
+                            + " <player>'><red><b><u>DECLINE</u></b></red></click>",
+                    "<prefix><red>You have no party invites from that party!",
+                    "<prefix><gray><color:#fcd05c><player></color:#fcd05c> left the party!</gray>",
+                    "<prefix><red>Party not found!</red>",
+                    "<prefix><red>The party is full!</red>",
+                    "<prefix><red>You are not the leader of the party!</red>",
+                    "<prefix><red>Invalid event type! Use 'splitfight' or 'ffa'.</red>");
 }

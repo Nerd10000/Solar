@@ -43,16 +43,12 @@ public class PartyInviteManager {
                 .runTaskTimer(
                         Solar.instance,
                         () -> {
-                            for (PartyInviteRecord invite : inviteList) {
-
-                                if ((System.currentTimeMillis() - invite.timestamp())
-                                        > Solar.configManager
-                                                .settingsRecord()
-                                                .partyInviteExpireTime()) {
-
-                                    inviteList.remove(invite);
-                                }
-                            }
+                            inviteList.removeIf(
+                                    invite ->
+                                            System.currentTimeMillis() - invite.timestamp()
+                                                    > Solar.configManager
+                                                            .settingsRecord()
+                                                            .partyInviteExpireTime());
                         },
                         0,
                         20);

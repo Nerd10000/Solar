@@ -9,6 +9,7 @@ public class InMemoryParty {
     private UUID uuid;
     private UUID owner;
     private List<UUID> memberList = new ArrayList<>();
+    private int maxMembers = 12;
 
     public InMemoryParty(UUID uuid, UUID playerId) {
         this.uuid = uuid;
@@ -30,6 +31,18 @@ public class InMemoryParty {
 
     public void setOwner(UUID owner) {
         this.owner = owner;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public int getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(int maxMembers) {
+        this.maxMembers = maxMembers;
     }
 
     public void setMemberList(List<UUID> memberList) {

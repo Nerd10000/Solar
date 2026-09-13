@@ -9,4 +9,9 @@ public record TeamPlayer(UUID uuid, boolean isAlive) {
         TeamPlayer newPlayer = new TeamPlayer(this.uuid, isAlive);
         return newPlayer;
     }
+
+    public static TeamPlayer fromUuid(UUID uuid) {
+
+        return new TeamPlayer(uuid, true);
+    }
 }

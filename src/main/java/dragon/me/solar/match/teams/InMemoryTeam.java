@@ -31,13 +31,12 @@ public class InMemoryTeam {
     }
 
     public void setMemberStateTo(boolean isAlive, UUID uuid) {
-
-        for (TeamPlayer player : members) {
+        for (int i = 0; i < members.size(); i++) {
+            TeamPlayer player = members.get(i);
 
             if (player.uuid().equals(uuid)) {
-
-                members.remove(player);
-                members.add(player.updateStatus(isAlive));
+                members.set(i, player.updateStatus(isAlive));
+                return;
             }
         }
     }

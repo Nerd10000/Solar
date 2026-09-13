@@ -2,6 +2,7 @@ package dragon.me.solar.match;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
+import dragon.me.solar.database.models.PlayerStat;
 import dragon.me.solar.hooks.FaweHook;
 import dragon.me.solar.kit.InMemoryKit;
 import dragon.me.solar.match.player.PlayerSnapshot;
@@ -44,12 +45,9 @@ public class MatchManager {
 
             for (InMemoryTeam team : match.getTeamList()) {
 
-                for (TeamPlayer player : team.getMembers()) {
+                if (match.getMembers().stream().anyMatch(m -> m.uuid().equals(uuid))) {
 
-                    if (player.uuid().equals(uuid)) {
-
-                        return match;
-                    }
+                    return match;
                 }
             }
         }
@@ -60,37 +58,24 @@ public class MatchManager {
 
         for (InMemoryMatch match : matchList) {
 
-            for (InMemoryTeam team : match.getTeamList()) {
-
-                for (TeamPlayer player : team.getMembers()) {
-
-                    if (player.uuid().equals(playerId)) {
-                        return true;
-                    }
-                }
+            if (match.getMembers().stream().anyMatch(m -> m.uuid().equals(playerId))) {
+                return true;
             }
         }
         return false;
     }
 
-    public InMemoryMatch startMatch(
-            UUID playerOne,
-            UUID playerTwo,
+    public void startMatch(
+            List<InMemoryTeam> teamList,
             String kitId,
             String mapName,
             String arenaName,
             int gridSlot) {
 
-        InMemoryTeam teamOne =
-                new InMemoryTeam(new ArrayList<>(List.of(new TeamPlayer(playerOne, true))), true);
-        InMemoryTeam teamTwo =
-                new InMemoryTeam(new ArrayList<>(List.of(new TeamPlayer(playerTwo, true))), true);
-
-        InMemoryMatch match =
-                new InMemoryMatch(new ArrayList<>(List.of(teamOne, teamTwo)), kitId, mapName);
+        InMemoryMatch match = new InMemoryMatch(new ArrayList<>(teamList), kitId, mapName);
         match.setArenaName(arenaName);
         match.setGridSlot(gridSlot);
-        // Mark match as starting and run a short countdown before making it ongoing.
+
         match.setStage(MatchStageEnum.STARTING);
 
         InMemoryKit kit = Solar.kitManager.getKit(kitId);
@@ -181,7 +166,7 @@ public class MatchManager {
                         },
                         countdownSeconds * 20L);
 
-        return match;
+        return;
     }
 
     public void endMatch(
@@ -234,6 +219,78 @@ public class MatchManager {
                                 remove(match.getUuid());
                             },
                             5 * 20L);
+        }
+
+        for (TeamPlayer tp : winner.getMembers()) {
+
+            try {
+                Solar.cache
+                        .get(tp.uuid(), match.getKit())
+                        .thenAccept(
+                                d -> {
+                                    PlayerStat stat = d;
+
+                                    if (stat == null) {
+                                        stat = new PlayerStat();
+                                        stat.setKit(match.getKit());
+                                        stat.setUuid(tp.uuid().toString());
+                                    }
+
+                                    stat.setWins(stat.getWins() + 1);
+
+                                    Solar.databaseManager.updateStats(stat);
+                                })
+                        .exceptionally(
+                                err -> {
+                                    Solar.instance
+                                            .getLogger()
+                                            .warning(
+                                                    "An error happened while trying to do database"
+                                                            + " operations: "
+                                                            + err.getMessage()
+                                                            + ".");
+                                    return null;
+                                });
+                ;
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (InMemoryTeam t : match.getTeamList()) {
+            for (TeamPlayer tp : t.getMembers()) {
+
+                if (!winner.getMembers().contains(tp)) {
+
+                    Solar.cache
+                            .get(tp.uuid(), match.getKit())
+                            .thenAccept(
+                                    d -> {
+                                        PlayerStat stat = d;
+
+                                        if (stat == null) {
+                                            stat = new PlayerStat();
+                                            stat.setKit(match.getKit());
+                                            stat.setUuid(tp.uuid().toString());
+                                        }
+
+                                        stat.setLosses(stat.getLosses() + 1);
+                                        Solar.databaseManager.updateStats(stat);
+                                    })
+                            .exceptionally(
+                                    err -> {
+                                        Solar.instance
+                                                .getLogger()
+                                                .warning(
+                                                        "An error happened while trying to do"
+                                                                + " database operations: "
+                                                                + err.getMessage()
+                                                                + ".");
+                                        return null;
+                                    });
+                }
+            }
         }
     }
 
@@ -333,7 +390,7 @@ public class MatchManager {
         }
     }
 
-    private void restoreAndTeleportPlayers(InMemoryMatch match) {
+    public void restoreAndTeleportPlayers(InMemoryMatch match) {
         Location lobby = Solar.configManager.getLobbyLocation();
 
         for (InMemoryTeam team : match.getTeamList()) {

@@ -70,4 +70,20 @@ public class PlayerSnapshot {
         }
         return cloned;
     }
+
+    public ItemStack[] getContents() {
+        return contents;
+    }
+
+    public ItemStack[] getArmor() {
+        return armor;
+    }
+
+    public ItemStack getOffhand() {
+        return offhand;
+    }
+
+    public List<PotionEffect> getEffects() {
+        return effects;
+    }
 }

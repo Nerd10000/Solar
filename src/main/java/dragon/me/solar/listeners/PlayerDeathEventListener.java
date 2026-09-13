@@ -10,6 +10,7 @@ import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -74,6 +75,7 @@ public class PlayerDeathEventListener implements Listener {
         }
 
         team.updateTeamStatus();
+
         Location deathLocation = player.getLocation().clone().add(0, 1, 0);
         Bukkit.getScheduler()
                 .runTask(
@@ -87,6 +89,7 @@ public class PlayerDeathEventListener implements Listener {
                                 player.setInvulnerable(true);
                             }
                         });
+        player.setGameMode(GameMode.SPECTATOR);
 
         if (!match.shouldEndMatch()) {
             SoundUtils.playConfiguredSound(

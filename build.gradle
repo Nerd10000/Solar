@@ -20,6 +20,12 @@ repositories {
 		name = "FAWE"
 		url = "https://maven.enginehub.org/repo/"
 	}
+
+	maven {
+		name = "CodeMC"
+		url = uri("https://repo.codemc.io/repository/maven-public/")
+	}
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -36,6 +42,15 @@ dependencies {
 	compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
 		transitive = false
 	}
+
+	// Source: https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-core
+	implementation("com.j256.ormlite:ormlite-core:6.1")
+	// Source: https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-jdbc
+	implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+
+	implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
+
+	compileOnly 'com.github.NEZNAMY:TAB-API:6.1.2'
 }
 spotbugs {
 	ignoreFailures = true

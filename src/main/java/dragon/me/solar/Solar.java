@@ -7,6 +7,8 @@ import dragon.me.solar.commands.*;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.configs.records.KitRecord;
+import dragon.me.solar.database.DatabaseManager;
+import dragon.me.solar.database.PlayerStatCache;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.hooks.CompatibilityChecker;
 import dragon.me.solar.kit.KitManager;
@@ -42,6 +44,8 @@ public final class Solar extends JavaPlugin {
     public static GridManager gridManager = new GridManager();
     public static PartyInviteManager partyInviteManager;
     public static PartyManager partyManager;
+    public static DatabaseManager databaseManager;
+    public static PlayerStatCache cache;
 
     public static boolean MAINTENANCE_MODE = false;
 
@@ -68,6 +72,8 @@ public final class Solar extends JavaPlugin {
         matchManager = new MatchManager();
 
         partyManager = new PartyManager();
+        databaseManager = new DatabaseManager("solar.db");
+        cache = new PlayerStatCache();
 
         partyInviteManager = new PartyInviteManager();
         partyInviteManager.expireTimer();

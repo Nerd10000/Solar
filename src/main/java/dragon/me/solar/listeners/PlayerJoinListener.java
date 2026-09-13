@@ -27,5 +27,48 @@ public class PlayerJoinListener implements Listener {
                         Solar.configManager.settingsRecord().lobbyRecord().z(),
                         Solar.configManager.settingsRecord().lobbyRecord().yaw(),
                         Solar.configManager.settingsRecord().lobbyRecord().pitch()));
+
+        Solar.databaseManager
+                .getStoreById(e.getPlayer().getUniqueId())
+                .thenAccept(
+                        store -> {
+                            if (store == null) return;
+
+                            //            p.getInventory().setContents((ItemStack[])
+                            // store.getContent());
+                            //            p.getInventory().setItemInOffHand((ItemStack)
+                            // store.getOffhand());
+                            //            p.getInventory().setArmorContents((ItemStack[])
+                            // store.getArmor());
+
+                            // TODO: Handle adding potion effects.
+
+                            p.teleportAsync(
+                                    new Location(
+                                            Bukkit.getWorld(
+                                                    Solar.configManager
+                                                            .settingsRecord()
+                                                            .lobbyRecord()
+                                                            .name()),
+                                            Solar.configManager.settingsRecord().lobbyRecord().x(),
+                                            Solar.configManager.settingsRecord().lobbyRecord().y(),
+                                            Solar.configManager.settingsRecord().lobbyRecord().z(),
+                                            Solar.configManager
+                                                    .settingsRecord()
+                                                    .lobbyRecord()
+                                                    .yaw(),
+                                            Solar.configManager
+                                                    .settingsRecord()
+                                                    .lobbyRecord()
+                                                    .pitch()));
+
+                            Solar.databaseManager.removeStoreById(p.getUniqueId());
+                            Solar.instance
+                                    .getLogger()
+                                    .info(
+                                            "Restored the state of "
+                                                    + p.getName()
+                                                    + " later as he left the match!");
+                        });
     }
 }

@@ -6,7 +6,10 @@ import dragon.me.solar.arena.InMemoryArena;
 import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
 import dragon.me.solar.kit.InMemoryKit;
+import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.match.teams.InMemoryTeam;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -259,8 +262,20 @@ public class DuelCommand {
         sender.teleport(senderLocation);
         receiver.teleport(receiverLocation);
 
+        InMemoryTeam team1 =
+                new InMemoryTeam(
+                        new ArrayList<>(List.of(TeamPlayer.fromUuid(sender.getUniqueId()))), true);
+        InMemoryTeam team2 =
+                new InMemoryTeam(
+                        new ArrayList<>(List.of(TeamPlayer.fromUuid(receiver.getUniqueId()))),
+                        true);
+
         Solar.matchManager.startMatch(
-                invite.sender(), invite.receiver(), invite.kit(), invite.map(), arenaName, slot);
+                new ArrayList<>(List.of(team1, team2)),
+                invite.kit(),
+                invite.map(),
+                arenaName,
+                slot);
 
         Solar.instance
                 .getLogger()

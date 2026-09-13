@@ -1,6 +1,7 @@
 package dragon.me.solar.match;
 
 import dragon.me.solar.match.player.PlayerSnapshot;
+import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchStageEnum;
 import java.util.ArrayList;
@@ -60,6 +61,53 @@ public class InMemoryMatch {
         long count = teamList.stream().filter(InMemoryTeam::isTeamAlive).count();
 
         return count <= 1;
+    }
+
+    public List<TeamPlayer> getMembers() {
+
+        List<TeamPlayer> players = new ArrayList<>();
+
+        for (InMemoryTeam t : teamList) {
+
+            players.addAll(t.getMembers());
+        }
+
+        return players;
+    }
+
+    public boolean onTheSameTeam(UUID p1, UUID p2) {
+        for (InMemoryTeam team : teamList) {
+            boolean hasP1 = false;
+            boolean hasP2 = false;
+
+            for (TeamPlayer player : team.getMembers()) {
+                if (player.uuid().equals(p1)) {
+                    hasP1 = true;
+                }
+
+                if (player.uuid().equals(p2)) {
+                    hasP2 = true;
+                }
+
+                if (hasP1 && hasP2) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public InMemoryTeam getTeamByMember(UUID uuid) {
+
+        for (InMemoryTeam team : teamList) {
+
+            for (TeamPlayer tp : team.getMembers()) {
+
+                if (tp.uuid().equals(uuid)) return team;
+            }
+        }
+        return null;
     }
 
     public UUID getUuid() {
