@@ -1,11 +1,11 @@
 package dragon.me.solar.commands;
 
-import com.sk89q.worldedit.math.BlockVector3;
-import dragon.me.solar.Solar;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.GridManager;
 import dragon.me.solar.arena.InMemoryArena;
-import dragon.me.solar.configs.ConfigManager;
+import dragon.me.solar.arena.InMemoryArena.ArenaSpawn;
+import dragon.me.solar.commands.CommandSourceStack;
+import dragon.me.solar.commands.Command;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
@@ -32,25 +32,29 @@ import org.incendo.cloud.annotations.*;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
 
 public class DuelCommand {
-
-    private final MiniMessage miniMessage;
+    private final ArenaManager arenaManager;
+    private final GridManager gridManager;
     private final KitManager kitManager;
     private final DuelInviteManager duelInviteManager;
     private final ConfigManager configManager;
-    private final GridManager gridManager;
     private final MatchManager matchManager;
     private final MatchService matchService;
-    private final ArenaManager arenaManager;
 
-    public DuelCommand(MiniMessage miniMessage, KitManager kitManager, DuelInviteManager duelInviteManager, ConfigManager configManager, GridManager gridManager, MatchManager matchManager, MatchService matchService, ArenaManager arenaManager) {
-        this.miniMessage = miniMessage;
+    public DuelCommand(
+            ArenaManager arenaManager,
+            GridManager gridManager,
+            KitManager kitManager,
+            DuelInviteManager duelInviteManager,
+            ConfigManager configManager,
+            MatchManager matchManager,
+            MatchService matchService) {
+        this.arenaManager = arenaManager;
+        this.gridManager = gridManager;
         this.kitManager = kitManager;
         this.duelInviteManager = duelInviteManager;
         this.configManager = configManager;
-        this.gridManager = gridManager;
         this.matchManager = matchManager;
         this.matchService = matchService;
-        this.arenaManager = arenaManager;
     }
 
     @Command("duel <player> <kit>")
@@ -70,7 +74,6 @@ public class DuelCommand {
         }
 
         if (!(stack.getSender() instanceof Player sender)) {
-
             stack.getSender()
                     .sendMessage(
                             miniMessage.deserialize(
@@ -82,7 +85,6 @@ public class DuelCommand {
         }
 
         if (Solar.MAINTENANCE_MODE) {
-
             sender.sendMessage(
                     miniMessage.deserialize(
                             configManager.languageRecord().maintenancePrevention(),
@@ -146,7 +148,6 @@ public class DuelCommand {
     public void duelAccept(CommandSourceStack stack, @Argument("player") Player player) {
 
         if (!(stack.getSender() instanceof Player sender)) {
-
             stack.getSender()
                     .sendMessage(
                             miniMessage.deserialize(
@@ -154,11 +155,9 @@ public class DuelCommand {
                                     Placeholder.parsed(
                                             "prefix",
                                             configManager.languageRecord().prefix())));
-
             return;
         }
         if (Solar.MAINTENANCE_MODE) {
-
             sender.sendMessage(
                     miniMessage.deserialize(
                             configManager.languageRecord().maintenancePrevention(),
@@ -201,7 +200,7 @@ public class DuelCommand {
                         Placeholder.parsed(
                                 "prefix", configManager.languageRecord().prefix())));
 
-        String arenaName = resolveArenaName(invite.map());
+        String arenaName = arenaManager.resolveArenaName(invite.map());
         if (arenaName == null) {
             Solar.instance.getLogger().warning("No arena available for duel.");
             return;
@@ -240,26 +239,6 @@ public class DuelCommand {
                                             throwable);
                             return null;
                         });
-    }
-
-    private String resolveArenaName(String map) {
-        if (map.equalsIgnoreCase("random")) {
-            if (arenaManager.ARENAS.isEmpty()) {
-                return null;
-            }
-
-            return arenaManager.ARENAS.values().stream()
-                    .skip(ThreadLocalRandom.current().nextInt(arenaManager.ARENAS.size()))
-                    .findFirst()
-                    .orElseThrow()
-                    .name;
-        }
-
-        if (!arenaManager.ARENAS.containsKey(map)) {
-            return null;
-        }
-
-        return map;
     }
 
     private void startMatchAtArena(
@@ -323,7 +302,6 @@ public class DuelCommand {
         if (stack.getSender() instanceof Player p) {
 
             if (Solar.MAINTENANCE_MODE) {
-
                 p.sendMessage(
                         miniMessage.deserialize(
                                 configManager.languageRecord().maintenancePrevention(),
@@ -361,13 +339,11 @@ public class DuelCommand {
 
     @Suggestions("arenas")
     public List<String> arenaSuggestions() {
-
-        return Solar.arenaManager.ARENAS.keySet().stream().toList();
+        return arenaManager.getArenas().keySet().stream().toList();
     }
 
     @Suggestions("kits")
     public List<String> kitSuggestions() {
-
         return kitManager.KITS.keySet().stream().toList();
     }
 }
