@@ -2,10 +2,18 @@ package dragon.me.solar.commands;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
+import dragon.me.solar.arena.ArenaManager;
+import dragon.me.solar.arena.GridManager;
 import dragon.me.solar.arena.InMemoryArena;
+import dragon.me.solar.configs.ConfigManager;
+import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
 import dragon.me.solar.kit.InMemoryKit;
+import dragon.me.solar.kit.KitManager;
+import dragon.me.solar.match.InMemoryMatch;
+import dragon.me.solar.match.MatchManager;
+import dragon.me.solar.match.MatchService;
 import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -13,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,6 +32,26 @@ import org.incendo.cloud.annotations.*;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
 
 public class DuelCommand {
+
+    private final MiniMessage miniMessage;
+    private final KitManager kitManager;
+    private final DuelInviteManager duelInviteManager;
+    private final ConfigManager configManager;
+    private final GridManager gridManager;
+    private final MatchManager matchManager;
+    private final MatchService matchService;
+    private final ArenaManager arenaManager;
+
+    public DuelCommand(MiniMessage miniMessage, KitManager kitManager, DuelInviteManager duelInviteManager, ConfigManager configManager, GridManager gridManager, MatchManager matchManager, MatchService matchService, ArenaManager arenaManager) {
+        this.miniMessage = miniMessage;
+        this.kitManager = kitManager;
+        this.duelInviteManager = duelInviteManager;
+        this.configManager = configManager;
+        this.gridManager = gridManager;
+        this.matchManager = matchManager;
+        this.matchService = matchService;
+        this.arenaManager = arenaManager;
+    }
 
     @Command("duel <player> <kit>")
     public void duel(
@@ -43,21 +73,21 @@ public class DuelCommand {
 
             stack.getSender()
                     .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
+                            miniMessage.deserialize(
+                                    configManager.languageRecord().consoleCantRun(),
                                     Placeholder.parsed(
                                             "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                                            configManager.languageRecord().prefix())));
             return;
         }
 
         if (Solar.MAINTENANCE_MODE) {
 
             sender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().maintenancePrevention(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().maintenancePrevention(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix())));
+                                    "prefix", configManager.languageRecord().prefix())));
             return;
         }
 
@@ -65,10 +95,10 @@ public class DuelCommand {
 
         if (inMemoryKit == null) {
             sender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().kitNotFound(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().kitNotFound(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                                    "prefix", configManager.languageRecord().prefix()),
                             Placeholder.parsed("kit", kit)));
 
             return;
@@ -85,27 +115,27 @@ public class DuelCommand {
 
         if (!Solar.duelInviteManager.add(record)) {
             sender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().tooManyDuelInvites(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().tooManyDuelInvites(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix())));
+                                    "prefix", configManager.languageRecord().prefix())));
             return;
         }
 
         sender.sendMessage(
-                Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().duelRequestSent(),
+                miniMessage.deserialize(
+                        configManager.languageRecord().duelRequestSent(),
                         Placeholder.parsed("player", player.getName()),
                         Placeholder.parsed("rounds", String.valueOf(rounds)),
                         Placeholder.parsed("map", map),
                         Placeholder.parsed("kit", kit),
                         Placeholder.parsed(
-                                "prefix", Solar.configManager.languageRecord().prefix())));
+                                "prefix", configManager.languageRecord().prefix())));
 
         player.sendMessage(
-                Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().duelRequestReceived(),
-                        Placeholder.parsed("prefix", Solar.configManager.languageRecord().prefix()),
+                miniMessage.deserialize(
+                        configManager.languageRecord().duelRequestReceived(),
+                        Placeholder.parsed("prefix", configManager.languageRecord().prefix()),
                         Placeholder.parsed("player", sender.getName()),
                         Placeholder.parsed("rounds", String.valueOf(rounds)),
                         Placeholder.parsed("kit", kit),
@@ -119,21 +149,21 @@ public class DuelCommand {
 
             stack.getSender()
                     .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
+                            miniMessage.deserialize(
+                                    configManager.languageRecord().consoleCantRun(),
                                     Placeholder.parsed(
                                             "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                                            configManager.languageRecord().prefix())));
 
             return;
         }
         if (Solar.MAINTENANCE_MODE) {
 
             sender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().maintenancePrevention(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().maintenancePrevention(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix())));
+                                    "prefix", configManager.languageRecord().prefix())));
             return;
         }
 
@@ -160,16 +190,16 @@ public class DuelCommand {
         }
 
         player.sendMessage(
-                Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().matchBegin(),
+                miniMessage.deserialize(
+                        configManager.languageRecord().matchBegin(),
                         Placeholder.parsed(
-                                "prefix", Solar.configManager.languageRecord().prefix())));
+                                "prefix", configManager.languageRecord().prefix())));
 
         sender.sendMessage(
-                Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().matchBegin(),
+                miniMessage.deserialize(
+                        configManager.languageRecord().matchBegin(),
                         Placeholder.parsed(
-                                "prefix", Solar.configManager.languageRecord().prefix())));
+                                "prefix", configManager.languageRecord().prefix())));
 
         String arenaName = resolveArenaName(invite.map());
         if (arenaName == null) {
@@ -214,18 +244,18 @@ public class DuelCommand {
 
     private String resolveArenaName(String map) {
         if (map.equalsIgnoreCase("random")) {
-            if (Solar.arenaManager.ARENAS.isEmpty()) {
+            if (arenaManager.ARENAS.isEmpty()) {
                 return null;
             }
 
-            return Solar.arenaManager.ARENAS.values().stream()
-                    .skip(ThreadLocalRandom.current().nextInt(Solar.arenaManager.ARENAS.size()))
+            return arenaManager.ARENAS.values().stream()
+                    .skip(ThreadLocalRandom.current().nextInt(arenaManager.ARENAS.size()))
                     .findFirst()
                     .orElseThrow()
                     .name;
         }
 
-        if (!Solar.arenaManager.ARENAS.containsKey(map)) {
+        if (!arenaManager.ARENAS.containsKey(map)) {
             return null;
         }
 
@@ -237,25 +267,25 @@ public class DuelCommand {
 
         World world = Bukkit.getWorld("arenas");
         if (world == null) {
-            Solar.gridManager.free(slot);
+            gridManager.free(slot);
             Solar.instance.getLogger().severe("Arena world does not exist!");
             return;
         }
 
         if (!sender.isOnline() || !receiver.isOnline()) {
-            Solar.gridManager.free(slot);
+            gridManager.free(slot);
             Solar.instance.getLogger().warning("Players left before arena paste completed.");
             return;
         }
 
-        InMemoryArena arena = Solar.arenaManager.getArena(arenaName);
+        InMemoryArena arena = arenaManager.getArena(arenaName);
         if (arena == null || arena.spawn1 == null || arena.spawn2 == null) {
-            Solar.gridManager.free(slot);
+            gridManager.free(slot);
             Solar.instance.getLogger().warning("Arena spawn points missing for " + arenaName);
             return;
         }
 
-        BlockVector3 center = Solar.gridManager.getCenter(slot);
+        BlockVector3 center = gridManager.getCenter(slot);
         Location senderLocation = arena.spawn1.toLocation(world, center);
         Location receiverLocation = arena.spawn2.toLocation(world, center);
 
@@ -270,12 +300,11 @@ public class DuelCommand {
                         new ArrayList<>(List.of(TeamPlayer.fromUuid(receiver.getUniqueId()))),
                         true);
 
-        Solar.matchManager.startMatch(
-                new ArrayList<>(List.of(team1, team2)),
+        InMemoryMatch match = new InMemoryMatch(new ArrayList<>(List.of(team1, team2)),
                 invite.kit(),
-                invite.map(),
-                arenaName,
-                slot);
+                invite.map());
+
+        matchService.startMatch(match);
 
         Solar.instance
                 .getLogger()
@@ -296,37 +325,37 @@ public class DuelCommand {
             if (Solar.MAINTENANCE_MODE) {
 
                 p.sendMessage(
-                        Solar.miniMessage.deserialize(
-                                Solar.configManager.languageRecord().maintenancePrevention(),
+                        miniMessage.deserialize(
+                                configManager.languageRecord().maintenancePrevention(),
                                 Placeholder.parsed(
-                                        "prefix", Solar.configManager.languageRecord().prefix())));
+                                        "prefix", configManager.languageRecord().prefix())));
             }
 
             p.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().duelDeclined(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().duelDeclined(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                                    "prefix", configManager.languageRecord().prefix()),
                             Placeholder.parsed("sender", target.getName())));
 
-            Solar.duelInviteManager.removeBySender(target.getUniqueId());
+            duelInviteManager.removeBySender(target.getUniqueId());
 
             target.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().duelDeclinedRequester(),
+                    miniMessage.deserialize(
+                            configManager.languageRecord().duelDeclinedRequester(),
                             Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix()),
+                                    "prefix", configManager.languageRecord().prefix()),
                             Placeholder.parsed("target", p.getName())));
 
         } else {
 
             stack.getSender()
                     .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
+                            miniMessage.deserialize(
+                                    configManager.languageRecord().consoleCantRun(),
                                     Placeholder.parsed(
                                             "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                                            configManager.languageRecord().prefix())));
         }
     }
 
@@ -339,6 +368,6 @@ public class DuelCommand {
     @Suggestions("kits")
     public List<String> kitSuggestions() {
 
-        return Solar.kitManager.KITS.keySet().stream().toList();
+        return kitManager.KITS.keySet().stream().toList();
     }
 }
