@@ -1,8 +1,9 @@
 package dragon.me.solar.listeners;
 
-import dragon.me.solar.Solar;
 import dragon.me.solar.kit.InMemoryKit;
+import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.match.InMemoryMatch;
+import dragon.me.solar.match.MatchManager;
 import dragon.me.solar.match.utils.MatchStageEnum;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,18 +14,26 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 
 public class PlayerItemUseListener implements Listener {
 
+    private final MatchManager matchManager;
+    private final KitManager kitManager;
+
+    public PlayerItemUseListener(MatchManager matchManager, KitManager kitManager) {
+        this.matchManager = matchManager;
+        this.kitManager = kitManager;
+    }
+
     @EventHandler
     public void onHandleItemUse(PlayerInteractEvent e) {
 
         Player p = e.getPlayer();
 
-        if (Solar.matchManager.isPlayerInAMatch(p.getUniqueId())) {
+        if (matchManager.isPlayerInAMatch(p.getUniqueId())) {
 
-            InMemoryMatch match = Solar.matchManager.getMatchByMember(p.getUniqueId());
+            InMemoryMatch match = matchManager.getMatchByMember(p.getUniqueId());
 
             if (match == null) return;
 
-            InMemoryKit inMemoryKit = Solar.kitManager.getKit(match.getKit());
+            InMemoryKit inMemoryKit = kitManager.getKit(match.getKit());
 
             if (e.getAction().isRightClick() && match.getStage() == MatchStageEnum.ENDED) {
 
@@ -63,11 +72,11 @@ public class PlayerItemUseListener implements Listener {
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent e) {
 
-        InMemoryMatch match = Solar.matchManager.getMatchByMember(e.getPlayer().getUniqueId());
+        InMemoryMatch match = matchManager.getMatchByMember(e.getPlayer().getUniqueId());
 
         if (match == null) return;
 
-        InMemoryKit inMemoryKit = Solar.kitManager.getKit(match.getKit());
+        InMemoryKit inMemoryKit = kitManager.getKit(match.getKit());
 
         if (inMemoryKit == null) return;
 

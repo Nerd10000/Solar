@@ -3,6 +3,8 @@ package dragon.me.solar.listeners;
 import dragon.me.solar.Solar;
 import dragon.me.solar.database.models.PlayerStore;
 import dragon.me.solar.match.InMemoryMatch;
+import dragon.me.solar.match.MatchManager;
+import dragon.me.solar.match.MatchService;
 import dragon.me.solar.match.player.PlayerSnapshot;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchEndReason;
@@ -15,15 +17,23 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerQuitEventListener implements Listener {
 
+    private final MatchManager matchManager;
+    private final MatchService matchService;
+
+    public PlayerQuitEventListener(MatchManager matchManager, MatchService matchService) {
+        this.matchManager = matchManager;
+        this.matchService = matchService;
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
 
-        if (!Solar.matchManager.isPlayerInAMatch(uuid)) {
+        if (!matchManager.isPlayerInAMatch(uuid)) {
             return;
         }
 
-        InMemoryMatch match = Solar.matchManager.getMatchByMember(uuid);
+        InMemoryMatch match = matchManager.getMatchByMember(uuid);
         if (match == null || match.getStage() == MatchStageEnum.ENDED) {
             return;
         }
@@ -45,7 +55,7 @@ public class PlayerQuitEventListener implements Listener {
         InMemoryTeam winner = matchOver && !aliveTeams.isEmpty() ? aliveTeams.getFirst() : null;
 
         if (matchOver) {
-            Solar.matchManager.endMatch(match, winner, MatchEndReason.FORFEIT);
+            matchService.endMatch(match, winner, MatchEndReason.FORFEIT);
         }
 
         PlayerSnapshot snapshot = match.getSavedInventories().get(uuid);

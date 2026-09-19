@@ -29,12 +29,12 @@ repositories {
 }
 
 dependencies {
-	compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+	compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 	implementation("org.incendo:cloud-core:2.0.0")
-	implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+	implementation("org.incendo:cloud-paper:2.0.1")
 	implementation("org.incendo:cloud-annotations:2.0.0")
 	implementation 'org.spongepowered:configurate-yaml:4.2.0'
-	implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
+	implementation("org.incendo:cloud-minecraft-extras:2.0.0")
 
 
 	implementation(platform("com.intellectualsites.bom:bom-newest:1.56")) // Ref: https://github.com/IntellectualSites/bom
@@ -50,7 +50,7 @@ dependencies {
 
 	implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
 
-	compileOnly 'com.github.NEZNAMY:TAB-API:6.1.2'
+
 }
 spotbugs {
 	ignoreFailures = true
@@ -102,7 +102,38 @@ tasks {
 	}
 }
 
-def targetJavaVersion = 21
+def testDir = file("C:\\Workspace\\Szerverek\\Dragon's Test server")
+
+tasks.register("copyToTestServer") {
+	dependsOn(tasks.shadowJar)
+	description = "Copies the built jar to the test server's plugins folder."
+
+	doLast {
+		def pluginsDir = new File(testDir, "plugins")
+
+		if (!pluginsDir.exists()) {
+			throw new GradleException(
+				"Plugins directory does not exist: ${pluginsDir}"
+			)
+		}
+
+		copy {
+			from tasks.shadowJar.archiveFile
+			into pluginsDir
+		}
+
+		println "Copied ${tasks.shadowJar.archiveFile.get().asFile.name} to ${pluginsDir}"
+	}
+}
+
+tasks.register("runTestServer", Exec) {
+	dependsOn("copyToTestServer")
+
+	workingDir(testDir)
+	commandLine("cmd", "/c", "run.bat")
+}
+
+def targetJavaVersion = 25
 
 java {
 	def javaVersion = JavaVersion.toVersion(targetJavaVersion)

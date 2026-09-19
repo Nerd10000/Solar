@@ -1,7 +1,10 @@
 package dragon.me.solar.arena;
 
+import dragon.me.solar.configs.records.ArenaRecord;
+import dragon.me.solar.configs.records.ArenasRecord;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ArenaManager {
     private final Map<String, InMemoryArena> ARENAS = new HashMap<>();
@@ -18,7 +21,7 @@ public class ArenaManager {
     }
 
     public Map<String, InMemoryArena> getArenas() {
-        return ARENAS;
+        return Map.copyOf(ARENAS);
     }
 
     public void load(ArenasRecord record) {
@@ -33,7 +36,7 @@ public class ArenaManager {
             inMemoryArena.spawn1 = entry.getValue().spawn1();
             inMemoryArena.spawn2 = entry.getValue().spawn2();
             inMemoryArena.isSpawns1Set = true;
-            inMemoryArena.isSpawns2Set = true;
+            inMemoryArena.isSpawn2Set = true;
             inMemoryArena.isMaxBorderSet = true;
             inMemoryArena.isMinBorderSet = true;
             create(inMemoryArena);

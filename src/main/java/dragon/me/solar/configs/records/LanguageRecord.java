@@ -1,5 +1,6 @@
 package dragon.me.solar.configs.records;
 
+import java.util.List;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -72,7 +73,9 @@ public record LanguageRecord(
         @Setting("no-such-party") String noSuchParty,
         @Setting("party-full") String partyFull,
         @Setting("not-party-leader") String notPartyLeader,
-        @Setting("invalid-event-type") String invalidEventType) {
+        @Setting("invalid-event-type") String invalidEventType,
+        @Setting("party-help") List<String> partyHelp,
+        @Setting("arenas-help") List<String> arenasHelp) {
 
     public static final LanguageRecord DEFAULTS =
             new LanguageRecord(
@@ -173,5 +176,30 @@ public record LanguageRecord(
                     "<prefix><red>Party not found!</red>",
                     "<prefix><red>The party is full!</red>",
                     "<prefix><red>You are not the leader of the party!</red>",
-                    "<prefix><red>Invalid event type! Use 'splitfight' or 'ffa'.</red>");
+                    "<prefix><red>Invalid event type! Use 'splitfight' or 'ffa'.</red>",
+                    List.of(
+                            "",
+                            "<b><gradient:#FCD05C:#A48022><u>Help for Parties:</u></b>",
+                            "<gradient:#FCD05C:#A48022>/party create <gray>- Creates the party.",
+                            "<gradient:#FCD05C:#A48022>/party invite <player> <gray>- Invites the"
+                                    + " specified player to the party!",
+                            "<gradient:#FCD05C:#A48022>/party accept <player> <gray>- Accepts the"
+                                    + " party invite.",
+                            "<gradient:#FCD05C:#A48022>/party disband <gray>- Disbands the party.",
+                            "<gradient:#FCD05C:#A48022>/party leave <gray>- Leaves the party.",
+                            "<gradient:#FCD05C:#A48022>/party start <kit> <type> <gray>- Starts the"
+                                    + " party with the specified kit and type (Types: FFA, Split)"),
+                    List.of(
+                            "<b><gradient:#FCD05C:#A48022><u>Help for Arenas:</u></b>",
+                            "<gradient:#FCD05C:#A48022>/arenas create <name> <gray>- Creates an"
+                                    + " arena named <arena>.",
+                            "<gradient:#FCD05C:#A48022>/arenas setEdge <arena> <1 | 2> <gray>- Sets"
+                                    + " te #1 or the #2 corner of an arena.",
+                            "<gradient:#FCD05C:#A48022>/arenas setSpawn <arena> <1 | 2> <gray>-"
+                                    + " Sets the #1 or the #2 team spawn for the arena.",
+                            "<gradient:#FCD05C:#A48022>/arenas finalize <arena> <gray>-"
+                                    + " Saves/Finalizes the arena to the disk.",
+                            "<gradient:#FCD05C:#A48022>/arenas saveSchematic <arena> <gray>-"
+                                + " Creates a schematic of the arena which is used for cloning it"
+                                + " when a match starts! "));
 }

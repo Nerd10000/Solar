@@ -1,6 +1,8 @@
 package dragon.me.solar.listeners;
 
 import dragon.me.solar.Solar;
+import dragon.me.solar.configs.ConfigManager;
+import dragon.me.solar.database.DatabaseManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -10,23 +12,31 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerJoinListener implements Listener {
 
+    private final ConfigManager configManager;
+    private final DatabaseManager databaseManager;
+
+    public PlayerJoinListener(ConfigManager configManager, DatabaseManager databaseManager) {
+        this.configManager = configManager;
+        this.databaseManager = databaseManager;
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
 
         Player p = e.getPlayer();
 
-        if (Solar.configManager.settingsRecord().lobbyRecord() == null) return;
+        if (configManager.settingsRecord().lobbyRecord() == null) return;
 
-        if (!Solar.configManager.settingsRecord().teleportToLobbyOnJoin()) return;
+        if (!configManager.settingsRecord().teleportToLobbyOnJoin()) return;
 
         p.teleport(
                 new Location(
-                        Bukkit.getWorld(Solar.configManager.settingsRecord().lobbyRecord().name()),
-                        Solar.configManager.settingsRecord().lobbyRecord().x(),
-                        Solar.configManager.settingsRecord().lobbyRecord().y(),
-                        Solar.configManager.settingsRecord().lobbyRecord().z(),
-                        Solar.configManager.settingsRecord().lobbyRecord().yaw(),
-                        Solar.configManager.settingsRecord().lobbyRecord().pitch()));
+                        Bukkit.getWorld(configManager.settingsRecord().lobbyRecord().name()),
+                        configManager.settingsRecord().lobbyRecord().x(),
+                        configManager.settingsRecord().lobbyRecord().y(),
+                        configManager.settingsRecord().lobbyRecord().z(),
+                        configManager.settingsRecord().lobbyRecord().yaw(),
+                        configManager.settingsRecord().lobbyRecord().pitch()));
 
         Solar.databaseManager
                 .getStoreById(e.getPlayer().getUniqueId())
@@ -46,23 +56,17 @@ public class PlayerJoinListener implements Listener {
                             p.teleportAsync(
                                     new Location(
                                             Bukkit.getWorld(
-                                                    Solar.configManager
+                                                    configManager
                                                             .settingsRecord()
                                                             .lobbyRecord()
                                                             .name()),
-                                            Solar.configManager.settingsRecord().lobbyRecord().x(),
-                                            Solar.configManager.settingsRecord().lobbyRecord().y(),
-                                            Solar.configManager.settingsRecord().lobbyRecord().z(),
-                                            Solar.configManager
-                                                    .settingsRecord()
-                                                    .lobbyRecord()
-                                                    .yaw(),
-                                            Solar.configManager
-                                                    .settingsRecord()
-                                                    .lobbyRecord()
-                                                    .pitch()));
+                                            configManager.settingsRecord().lobbyRecord().x(),
+                                            configManager.settingsRecord().lobbyRecord().y(),
+                                            configManager.settingsRecord().lobbyRecord().z(),
+                                            configManager.settingsRecord().lobbyRecord().yaw(),
+                                            configManager.settingsRecord().lobbyRecord().pitch()));
 
-                            Solar.databaseManager.removeStoreById(p.getUniqueId());
+                            databaseManager.removeStoreById(p.getUniqueId());
                             Solar.instance
                                     .getLogger()
                                     .info(
