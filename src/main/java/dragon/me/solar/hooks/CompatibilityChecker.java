@@ -14,6 +14,10 @@ public class CompatibilityChecker {
 
             compatibilitiesList.add(Compatibilities.FAWE);
         }
+
+        if (instance.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            compatibilitiesList.add(Compatibilities.PAPI);
+        }
     }
 
     public boolean isCompatibleWith(Compatibilities c) {

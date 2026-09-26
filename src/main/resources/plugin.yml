@@ -7,3 +7,4 @@ authors: [ DragonDevelopsStuff ]
 description: Solar is a high-performance, modern duel plugin.
 softdepend:
   - FastAsyncWorldEdit
+  - PlaceholderAPI

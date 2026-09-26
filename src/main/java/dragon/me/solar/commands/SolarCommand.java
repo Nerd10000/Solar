@@ -73,6 +73,7 @@ public class SolarCommand {
                     Placeholder.parsed(
                             "prefix", Solar.configManager.languageRecord().prefix())));
         } catch (Exception e) {
+            e.printStackTrace();
             player.sendMessage(Solar.miniMessage.deserialize(
                     "<prefix><red>Failed to reload configuration.</red>",
                     Placeholder.parsed(
