@@ -109,7 +109,7 @@ public class SolarCommand {
     }
 
     @Command("solar")
-    public void noArgComand(CommandSourceStack stack) {
+    public void noArgCommand(CommandSourceStack stack) {
 
         List<String> unparsed = configManager.languageRecord().solarHelp();
 

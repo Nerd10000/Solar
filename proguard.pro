@@ -17,6 +17,12 @@
     <methods>;
     <init>();
 }
+-keep class dragon.me.solar.database.** {
+    <fields>;
+    <methods>;
+    <init>();
+}
+# =====
 # ============================================================
 # Keep shaded dependencies unchanged
 # ============================================================

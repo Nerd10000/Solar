@@ -23,30 +23,26 @@ public class MessageService {
         this.miniMessage = miniMessage;
     }
 
-    public Component render(Player player, String template, TagResolver... placeholders) {
-
-        if (Solar.compatibilityChecker.isCompatibleWith(Compatibilities.PAPI)) {
-            template = PlaceholderAPI.setPlaceholders(player, template);
-        }
-
+    private Component deserialize(String template, TagResolver... placeholders) {
         TagResolver prefix =
                 Placeholder.parsed("prefix", configManager.languageRecord().prefix());
+
         TagResolver[] resolvers =
                 Stream.concat(Stream.of(prefix), Arrays.stream(placeholders)).toArray(TagResolver[]::new);
+
         return miniMessage.deserialize(template, resolvers);
     }
 
-    public Component render(CommandSourceStack stack, String template, TagResolver... placeholders) {
-
-        if (Solar.compatibilityChecker.isCompatibleWith(Compatibilities.PAPI)) {
-            template = PlaceholderAPI.setPlaceholders(null, template);
+    public Component render(Player player, String template, TagResolver... placeholders) {
+        if (player != null && Solar.compatibilityChecker.isCompatibleWith(Compatibilities.PAPI)) {
+            template = PlaceholderAPI.setPlaceholders(player, template);
         }
 
-        TagResolver prefix =
-                Placeholder.parsed("prefix", configManager.languageRecord().prefix());
-        TagResolver[] resolvers =
-                Stream.concat(Stream.of(prefix), Arrays.stream(placeholders)).toArray(TagResolver[]::new);
-        return miniMessage.deserialize(template, resolvers);
+        return deserialize(template, placeholders);
+    }
+
+    public Component render(CommandSourceStack stack, String template, TagResolver... placeholders) {
+        return deserialize(template, placeholders);
     }
 
     public void send(Player player, String template, TagResolver... placeholders) {

@@ -37,6 +37,11 @@ public class PlayerJoinListener implements Listener {
                 configManager.settingsRecord().lobbyRecord().yaw(),
                 configManager.settingsRecord().lobbyRecord().pitch()));
 
+        for (String kitName : Solar.kitManager.getKits().keySet()) {
+
+            Solar.cache.get(e.getPlayer().getUniqueId(), kitName).thenAccept(stat -> {});
+        }
+
         Solar.databaseManager.getStoreById(e.getPlayer().getUniqueId()).thenAccept(store -> {
             if (store == null) return;
 

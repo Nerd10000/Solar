@@ -27,7 +27,9 @@ import dragon.me.solar.configs.records.KitRecord;
 import dragon.me.solar.database.DatabaseManager;
 import dragon.me.solar.database.PlayerStatCache;
 import dragon.me.solar.duel.DuelInviteManager;
+import dragon.me.solar.hooks.Compatibilities;
 import dragon.me.solar.hooks.CompatibilityChecker;
+import dragon.me.solar.hooks.papi.SolarExpansion;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
 import dragon.me.solar.listeners.*;
@@ -134,6 +136,11 @@ public final class Solar extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+
+        if (compatibilityChecker.isCompatibleWith(Compatibilities.PAPI)) {
+
+            new SolarExpansion(this).register();
+        }
     }
 
     @Override

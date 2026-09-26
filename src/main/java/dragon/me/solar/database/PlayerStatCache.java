@@ -44,6 +44,30 @@ public class PlayerStatCache {
         cache.synchronous().asMap().keySet().removeIf(key -> key.uuid().equals(uuid));
     }
 
+    public int getWins(UUID uuid, String kit) {
+        StatKey key = new StatKey(uuid, kit);
+        cache.get(key);
+        PlayerStat stat = cache.synchronous().getIfPresent(key);
+
+        if (stat != null) {
+            return stat.getWins();
+        }
+
+        return -1;
+    }
+
+    public int getLosses(UUID uuid, String kit) {
+        StatKey key = new StatKey(uuid, kit);
+        cache.get(key);
+        PlayerStat stat = cache.synchronous().getIfPresent(key);
+
+        if (stat != null) {
+            return stat.getLosses();
+        }
+
+        return -1;
+    }
+
     public void invalidate(UUID uuid, String kit) {
         cache.synchronous().invalidate(new StatKey(uuid, kit));
     }

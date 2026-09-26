@@ -175,6 +175,30 @@ public class MatchService {
         playerStateService.restoreAndTeleport(match);
         playerStateService.resetMaxHealth(match);
 
+        for (InMemoryTeam team : match.getTeamList()) {
+
+            boolean isWinner = team.equals(winner);
+
+            for (TeamPlayer tp : team.getMembers()) {
+                Solar.cache
+                        .get(tp.uuid(), match.getKit())
+                        .thenCompose(stat -> {
+                            if (isWinner) {
+                                stat.setWins(stat.getWins() + 1);
+                            } else {
+                                stat.setLosses(stat.getLosses() + 1);
+                            }
+
+                            return Solar.databaseManager.updateStats(stat);
+                        })
+                        .exceptionally(error -> {
+                            Solar.instance.getLogger().severe("Failed to update stats for " + tp.uuid());
+                            error.printStackTrace();
+                            return null;
+                        });
+            }
+        }
+
         Bukkit.getScheduler()
                 .runTaskLater(
                         Solar.instance,
