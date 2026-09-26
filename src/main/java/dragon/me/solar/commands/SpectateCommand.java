@@ -20,22 +20,20 @@ public class SpectateCommand {
 
             if (match == null) {
 
-                p.sendMessage(
-                        Solar.miniMessage.deserialize(
-                                Solar.configManager.languageRecord().matchNotFound(),
-                                Placeholder.parsed(
-                                        "prefix", Solar.configManager.languageRecord().prefix()),
-                                Placeholder.parsed("member", player.getName())));
+                p.sendMessage(Solar.miniMessage.deserialize(
+                        Solar.configManager.languageRecord().matchNotFound(),
+                        Placeholder.parsed(
+                                "prefix", Solar.configManager.languageRecord().prefix()),
+                        Placeholder.parsed("member", player.getName())));
                 return;
             }
 
             if (Solar.matchManager.isSpectatingAlready(p.getUniqueId())) {
 
-                p.sendMessage(
-                        Solar.miniMessage.deserialize(
-                                Solar.configManager.languageRecord().alreadyInSprectator(),
-                                Placeholder.parsed(
-                                        "prefix", Solar.configManager.languageRecord().prefix())));
+                p.sendMessage(Solar.miniMessage.deserialize(
+                        Solar.configManager.languageRecord().alreadyInSprectator(),
+                        Placeholder.parsed(
+                                "prefix", Solar.configManager.languageRecord().prefix())));
 
                 return;
             }
@@ -44,22 +42,20 @@ public class SpectateCommand {
 
             match.getSpectatorList().add(p.getUniqueId());
 
-            match.broadcast(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().spectatorJoined(),
-                            Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix()),
-                            Placeholder.parsed("spectator", p.getName())));
+            match.broadcast(Solar.miniMessage.deserialize(
+                    Solar.configManager.languageRecord().spectatorJoined(),
+                    Placeholder.parsed(
+                            "prefix", Solar.configManager.languageRecord().prefix()),
+                    Placeholder.parsed("spectator", p.getName())));
 
         } else {
 
             stack.getSender()
-                    .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
-                                    Placeholder.parsed(
-                                            "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                    .sendMessage(Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().consoleCantRun(),
+                            Placeholder.parsed(
+                                    "prefix",
+                                    Solar.configManager.languageRecord().prefix())));
 
             return;
         }
@@ -74,22 +70,20 @@ public class SpectateCommand {
 
             if (match == null) {
 
-                p.sendMessage(
-                        Solar.miniMessage.deserialize(
-                                Solar.configManager.languageRecord().matchNotFound(),
-                                Placeholder.parsed(
-                                        "prefix", Solar.configManager.languageRecord().prefix()),
-                                Placeholder.parsed("member", player.getName())));
+                p.sendMessage(Solar.miniMessage.deserialize(
+                        Solar.configManager.languageRecord().matchNotFound(),
+                        Placeholder.parsed(
+                                "prefix", Solar.configManager.languageRecord().prefix()),
+                        Placeholder.parsed("member", player.getName())));
                 return;
             }
 
             if (!Solar.matchManager.isSpectatingAlready(p.getUniqueId())) {
 
-                p.sendMessage(
-                        Solar.miniMessage.deserialize(
-                                Solar.configManager.languageRecord().alreadyInSprectator(),
-                                Placeholder.parsed(
-                                        "prefix", Solar.configManager.languageRecord().prefix())));
+                p.sendMessage(Solar.miniMessage.deserialize(
+                        Solar.configManager.languageRecord().alreadyInSprectator(),
+                        Placeholder.parsed(
+                                "prefix", Solar.configManager.languageRecord().prefix())));
 
                 return;
             }
@@ -98,23 +92,21 @@ public class SpectateCommand {
 
             match.getSpectatorList().remove(p.getUniqueId());
 
-            match.broadcast(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().spectatorLeft(),
-                            Placeholder.parsed(
-                                    "prefix", Solar.configManager.languageRecord().prefix()),
-                            Placeholder.parsed("spectator", p.getName())));
+            match.broadcast(Solar.miniMessage.deserialize(
+                    Solar.configManager.languageRecord().spectatorLeft(),
+                    Placeholder.parsed(
+                            "prefix", Solar.configManager.languageRecord().prefix()),
+                    Placeholder.parsed("spectator", p.getName())));
 
             p.teleport(Solar.configManager.getLobbyLocation());
 
         } else {
             stack.getSender()
-                    .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
-                                    Placeholder.parsed(
-                                            "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                    .sendMessage(Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().consoleCantRun(),
+                            Placeholder.parsed(
+                                    "prefix",
+                                    Solar.configManager.languageRecord().prefix())));
 
             return;
         }

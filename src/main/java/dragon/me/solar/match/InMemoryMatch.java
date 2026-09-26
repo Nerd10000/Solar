@@ -18,7 +18,6 @@ public class InMemoryMatch {
     private List<InMemoryTeam> teamList = new ArrayList<>();
 
     private String kit;
-    private String map;
     private String arenaName;
     private int gridSlot = -1;
 
@@ -29,11 +28,10 @@ public class InMemoryMatch {
 
     private boolean preventAllActions = false;
 
-    public InMemoryMatch(List<InMemoryTeam> teamList, String kit, String map) {
+    public InMemoryMatch(List<InMemoryTeam> teamList, String kit) {
         uuid = UUID.randomUUID();
         this.teamList = teamList;
         this.kit = kit;
-        this.map = map;
     }
 
     public List<InMemoryTeam> getTeamList() {
@@ -116,10 +114,6 @@ public class InMemoryMatch {
 
     public String getKit() {
         return kit;
-    }
-
-    public String getMap() {
-        return map;
     }
 
     public String getArenaName() {

@@ -11,8 +11,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 public class PotionEffectSerializer implements TypeSerializer<PotionEffect> {
 
     @Override
-    public PotionEffect deserialize(Type type, ConfigurationNode node)
-            throws SerializationException {
+    public PotionEffect deserialize(Type type, ConfigurationNode node) throws SerializationException {
         if (node.virtual()) {
             return null;
         }

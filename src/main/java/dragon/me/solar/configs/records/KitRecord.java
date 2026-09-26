@@ -16,12 +16,6 @@ public record KitRecord(
         @Setting("offhand") ItemStack offhand,
         @Setting("flags") KitFlagsRecord flags) {
 
-    public static final KitRecord DEFAULTS =
-            new KitRecord(
-                    "Unknown",
-                    new ArrayList<>(),
-                    new ItemStack[] {},
-                    new ItemStack[] {},
-                    null,
-                    KitFlagsRecord.DEFAULT);
+    public static final KitRecord DEFAULTS = new KitRecord(
+            "Unknown", new ArrayList<>(), new ItemStack[] {}, new ItemStack[] {}, null, KitFlagsRecord.DEFAULT);
 }

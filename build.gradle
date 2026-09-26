@@ -1,21 +1,41 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath "com.guardsquare:proguard-gradle:7.8.1"
+	}
+}
+
+import proguard.gradle.ProGuardTask
+
 plugins {
 	id 'java'
 	id("xyz.jpenilla.run-paper") version "2.3.1"
 	id("com.gradleup.shadow") version "9.6.1"
 	id("com.diffplug.spotless") version "8.9.0"
 	id("com.github.spotbugs") version "6.5.9"
-
+	id("io.github.khstov.string-veil") version "0.2.1"
 }
-
+configurations {
+	proguardLibrary {
+		canBeResolved = true
+		canBeConsumed = false
+		extendsFrom compileOnly
+	}
+}
 group = 'dragon.me'
 version = '1.0.0'
 
 repositories {
 	mavenCentral()
+
 	maven {
 		name = "papermc-repo"
 		url = "https://repo.papermc.io/repository/maven-public/"
 	}
+
 	maven {
 		name = "FAWE"
 		url = "https://maven.enginehub.org/repo/"
@@ -25,94 +45,87 @@ repositories {
 		name = "CodeMC"
 		url = uri("https://repo.codemc.io/repository/maven-public/")
 	}
-	maven { url 'https://jitpack.io' }
+
+	maven {
+		url 'https://jitpack.io'
+	}
 }
 
 dependencies {
-	compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+
+	implementation(platform("com.intellectualsites.bom:bom-newest:1.56"))
+
+	proguardLibrary(platform("com.intellectualsites.bom:bom-newest:1.56"))
+
+	compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+
 	implementation("org.incendo:cloud-core:2.0.0")
-	implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+	implementation("org.incendo:cloud-paper:2.0.1")
 	implementation("org.incendo:cloud-annotations:2.0.0")
-	implementation 'org.spongepowered:configurate-yaml:4.2.0'
-	implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
+	implementation("org.incendo:cloud-minecraft-extras:2.0.0")
 
+	implementation("org.spongepowered:configurate-yaml:4.2.0")
 
-	implementation(platform("com.intellectualsites.bom:bom-newest:1.56")) // Ref: https://github.com/IntellectualSites/bom
+	implementation(platform("com.intellectualsites.bom:bom-newest:1.56"))
+
 	compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
+
 	compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {
 		transitive = false
 	}
 
-	// Source: https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-core
 	implementation("com.j256.ormlite:ormlite-core:6.1")
-	// Source: https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-jdbc
 	implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 
 	implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
-
-	compileOnly 'com.github.NEZNAMY:TAB-API:6.1.2'
 }
+
 spotbugs {
 	ignoreFailures = true
 	effort = 'max'
 	reportLevel = 'medium'
-
 }
-tasks.named('spotbugsMain'){
+
+tasks.named('spotbugsMain') {
 	reports {
 		html {
 			required = true
 			outputLocation = file("$buildDir/reports/spotbugs.html")
 		}
+
 		xml {
 			required = false
 		}
 	}
 }
+
 spotless {
 	format 'misc', {
-
 		target '*.gradle', '.gitattributes', '.gitignore'
 
-		// define the steps to apply to those files
 		trimTrailingWhitespace()
-		leadingSpacesToTabs() // or leadingTabsToSpaces. Takes an integer argument if you don't like 4
+		leadingSpacesToTabs()
 		endWithNewline()
 	}
+
 	java {
-		googleJavaFormat('1.28.0').aosp().reflowLongStrings().skipJavadocFormatting()
-		// fix formatting of type annotations
+		palantirJavaFormat("2.79.0")
+		removeUnusedImports()
 		formatAnnotations()
 	}
-
 }
 
-tasks {
-	runServer {
-		// Configure the Minecraft version for our task.
-		// This is the only required configuration besides applying the plugin.
-		// Your plugin's jar (or shadowJar if present) will be used automatically.
-		minecraftVersion("1.21.11")
-	}
-
-	build {
-		dependsOn(spotlessApply)
-		dependsOn(shadowJar)
-
-	}
-}
-
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 
 java {
 	def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
+
 	if (JavaVersion.current() < javaVersion) {
 		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 	}
-
-
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -125,8 +138,10 @@ tasks.withType(JavaCompile).configureEach {
 
 processResources {
 	def props = [version: version]
+
 	inputs.properties props
 	filteringCharset 'UTF-8'
+
 	filesMatching('plugin.yml') {
 		expand props
 	}
@@ -134,4 +149,100 @@ processResources {
 
 tasks.shadowJar {
 	archiveClassifier.set("")
+}
+
+tasks {
+	runServer {
+		minecraftVersion("1.21.11")
+	}
+
+	build {
+		dependsOn(spotlessApply)
+		dependsOn("proguard")
+	}
+}
+
+def testDir = file("C:\\Workspace\\Szerverek\\Dragon's Test server")
+stringVeil {
+	enabled = true
+
+	failOnSecretLikeLiterals = false
+	includePackages = ["dragon.me.solar"]
+}
+
+tasks.register("copyToTestServer") {
+	dependsOn(tasks.named("proguard"))
+
+	description = "Copies the obfuscated JAR to the test server's plugins folder."
+
+	doLast {
+		def pluginsDir = new File(testDir, "plugins")
+
+		if (!pluginsDir.exists()) {
+			throw new GradleException(
+				"Plugins directory does not exist: ${pluginsDir}"
+			)
+		}
+
+		copy {
+			from file("$buildDir/libs/${project.name}-${version}-obf.jar")
+			into pluginsDir
+		}
+
+		println "Copied ${project.name}-${version}-obf.jar to ${pluginsDir}"
+	}
+}
+
+tasks.register("runTestServer", Exec) {
+	dependsOn("copyToTestServer")
+
+	workingDir(testDir)
+	commandLine("cmd", "/c", "run.bat")
+}
+
+/*
+ * Shadow JAR
+ *
+ * Creates:
+ * build/libs/Solar-1.0.0.jar
+ */
+tasks.shadowJar {
+	dependsOn(tasks.named("stringVeilObfuscateJvm"))
+	archiveClassifier.set("")
+}
+
+/*
+ * ProGuard
+ *
+ * Input:
+ * build/libs/Solar-1.0.0.jar
+ *
+ * Output:
+ * build/libs/Solar-1.0.0-obf.jar
+ */
+def zuluJavaHome = file("C:/Program Files/Zulu/zulu-25")
+
+tasks.register("proguard", ProGuardTask) {
+	dependsOn(tasks.named("shadowJar"))
+
+	configuration(file("proguard.pro"))
+
+	injars(tasks.named("shadowJar").flatMap { it.archiveFile })
+
+	outjars(file("$buildDir/libs/${project.name}-${version}-obf.jar"))
+
+	// JDK 25 modules
+	fileTree("${zuluJavaHome}/jmods") {
+		include("*.jmod")
+	}.files.each { jmod ->
+		libraryjars(
+			jmod,
+			jarfilter: "!**.jar",
+			filter: "!module-info.class"
+		)
+	}
+
+	configurations.proguardLibrary.resolve().each { dependency ->
+		libraryjars(dependency)
+	}
 }
