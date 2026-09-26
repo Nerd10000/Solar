@@ -8,6 +8,7 @@ public class InMemoryQueue {
 
     public final String kitId;
     public Queue<UUID> queue = new ArrayDeque<>();
+    public int teamSize = 1;
 
     public InMemoryQueue(String kitId) {
 
@@ -29,16 +30,22 @@ public class InMemoryQueue {
         queue.remove(uuid);
     }
 
-    public UUID[] getNextParticipants() {
+    public UUID[] getNextParticipants(int amount) {
+        if (queue.size() < amount) {
+            return new UUID[0];
+        }
 
-        UUID u1 = queue.remove();
-        UUID u2 = queue.remove();
+        UUID[] results = new UUID[amount];
 
-        return new UUID[] {u1, u2};
+        for (int i = 0; i < amount; i++) {
+            results[i] = queue.poll();
+        }
+
+        return results;
     }
 
-    public boolean isEnoughForNextMatch() {
+    public boolean isEnoughForNextMatch(int teamSize) {
 
-        return queue.size() >= 2;
+        return queue.size() >= teamSize * 2;
     }
 }

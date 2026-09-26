@@ -31,10 +31,7 @@ public class PartyInviteArg {
             party = new InMemoryParty(UUID.randomUUID(), player.getUniqueId());
             context.partyManager().addParty(party);
         } else if (!party.getOwner().equals(player.getUniqueId())) {
-            context.send(
-                    player,
-                    context.language().cantDoPartyAsMemberOnly(),
-                    Placeholder.parsed("action", "invite"));
+            context.send(player, context.language().cantDoPartyAsMemberOnly(), Placeholder.parsed("action", "invite"));
             return;
         }
         if (context.partyManager().isMemberOfAParty(target.getUniqueId())) {
@@ -42,19 +39,9 @@ public class PartyInviteArg {
         }
 
         context.partyInviteManager()
-                .addInvite(
-                        new PartyInviteRecord(
-                                player.getUniqueId(),
-                                target.getUniqueId(),
-                                party.getUuid(),
-                                System.currentTimeMillis()));
-        context.send(
-                player,
-                context.language().partyInviteSent(),
-                Placeholder.parsed("player", target.getName()));
-        context.send(
-                target,
-                context.language().partyInviteReceived(),
-                Placeholder.parsed("sender", player.getName()));
+                .addInvite(new PartyInviteRecord(
+                        player.getUniqueId(), target.getUniqueId(), party.getUuid(), System.currentTimeMillis()));
+        context.send(player, context.language().partyInviteSent(), Placeholder.parsed("player", target.getName()));
+        context.send(target, context.language().partyInviteReceived(), Placeholder.parsed("sender", player.getName()));
     }
 }

@@ -19,9 +19,7 @@ public class ArenaCreateArg {
 
     @Command("arenas create <name>")
     @Permission("solar.arena.manage.create")
-    public void create(
-            CommandSourceStack stack,
-            @Argument(value = "name", suggestions = "arenas") String name) {
+    public void create(CommandSourceStack stack, @Argument(value = "name", suggestions = "arenas") String name) {
         if (!(stack.getSender() instanceof Player player)) {
             messages.sendConsoleError(stack);
             return;
@@ -35,9 +33,6 @@ public class ArenaCreateArg {
             return;
         }
 
-        messages.send(
-                player,
-                messages.language().arenaCreated(),
-                Placeholder.parsed("arena", arena.name));
+        messages.send(player, messages.language().arenaCreated(), Placeholder.parsed("arena", arena.name));
     }
 }

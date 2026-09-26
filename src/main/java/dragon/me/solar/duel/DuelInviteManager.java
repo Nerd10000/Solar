@@ -70,20 +70,18 @@ public class DuelInviteManager {
 
     public @Nullable DuelInviteRecord getByReceiver(UUID uuid) {
 
-        Optional<DuelInviteRecord> invite =
-                duelInviteRecordList.stream()
-                        .filter(record -> record.receiver().equals(uuid))
-                        .findFirst();
+        Optional<DuelInviteRecord> invite = duelInviteRecordList.stream()
+                .filter(record -> record.receiver().equals(uuid))
+                .findFirst();
 
         return invite.orElse(null);
     }
 
     public @Nullable DuelInviteRecord getBySender(UUID uuid) {
 
-        Optional<DuelInviteRecord> invite =
-                duelInviteRecordList.stream()
-                        .filter(record -> record.sender().equals(uuid))
-                        .findFirst();
+        Optional<DuelInviteRecord> invite = duelInviteRecordList.stream()
+                .filter(record -> record.sender().equals(uuid))
+                .findFirst();
 
         return invite.orElse(null);
     }
@@ -108,18 +106,16 @@ public class DuelInviteManager {
                                     Player receiver = Bukkit.getPlayer(invite.receiver());
 
                                     if (sender != null && receiver != null) {
-                                        sender.sendMessage(
-                                                Solar.miniMessage.deserialize(
+                                        sender.sendMessage(Solar.miniMessage.deserialize(
+                                                Solar.configManager
+                                                        .languageRecord()
+                                                        .duelRequestExpired(),
+                                                Placeholder.parsed("player", receiver.getName()),
+                                                Placeholder.parsed(
+                                                        "prefix",
                                                         Solar.configManager
                                                                 .languageRecord()
-                                                                .duelRequestExpired(),
-                                                        Placeholder.parsed(
-                                                                "player", receiver.getName()),
-                                                        Placeholder.parsed(
-                                                                "prefix",
-                                                                Solar.configManager
-                                                                        .languageRecord()
-                                                                        .prefix())));
+                                                                .prefix())));
                                     }
 
                                     iterator.remove();

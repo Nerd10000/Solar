@@ -19,10 +19,6 @@ public record LocationRecord(
 
     public static LocationRecord from(Location location) {
         return new LocationRecord(
-                location.getX(),
-                location.getY(),
-                location.getZ(),
-                location.getYaw(),
-                location.getPitch());
+                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 }

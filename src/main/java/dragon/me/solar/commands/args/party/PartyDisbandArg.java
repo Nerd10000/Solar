@@ -28,29 +28,17 @@ public class PartyDisbandArg {
             return;
         }
         if (!party.getOwner().equals(player.getUniqueId())) {
-            context.send(
-                    player,
-                    context.language().cantDoPartyAsMemberOnly(),
-                    Placeholder.parsed("action", "disband"));
+            context.send(player, context.language().cantDoPartyAsMemberOnly(), Placeholder.parsed("action", "disband"));
             return;
         }
 
         context.partyManager().removeParty(party);
-        context.partyManager()
-                .executeForEachMember(
-                        party,
-                        member -> {
-                            context.send(
-                                    member,
-                                    context.language().partyDisbanded(),
-                                    Placeholder.parsed("owner", player.getName()));
-                            SoundUtils.playConfiguredSound(
-                                    member,
-                                    context.configManager()
-                                            .settingsRecord()
-                                            .soundRecords()
-                                            .partyDisbanded(),
-                                    Sound.ENTITY_GOAT_HORN_BREAK);
-                        });
+        context.partyManager().executeForEachMember(party, member -> {
+            context.send(member, context.language().partyDisbanded(), Placeholder.parsed("owner", player.getName()));
+            SoundUtils.playConfiguredSound(
+                    member,
+                    context.configManager().settingsRecord().soundRecords().partyDisbanded(),
+                    Sound.ENTITY_GOAT_HORN_BREAK);
+        });
     }
 }

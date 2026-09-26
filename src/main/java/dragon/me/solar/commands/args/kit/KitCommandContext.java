@@ -9,10 +9,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 
 public record KitCommandContext(
-        KitManager kitManager,
-        KitService kitService,
-        ConfigManager configManager,
-        MessageService messages) {
+        KitManager kitManager, KitService kitService, ConfigManager configManager, MessageService messages) {
 
     public void send(Player player, String template, TagResolver... placeholders) {
         messages.send(player, template, placeholders);

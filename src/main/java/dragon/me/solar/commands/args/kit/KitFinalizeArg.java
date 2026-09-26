@@ -17,8 +17,7 @@ public class KitFinalizeArg {
 
     @Command("kit finalize <id>")
     @Permission("solar.kit.manage.finalize")
-    public void finalizeKit(
-            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
+    public void finalizeKit(CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
@@ -26,17 +25,11 @@ public class KitFinalizeArg {
 
         InMemoryKit kit = context.kitManager().getKit(id);
         if (kit == null) {
-            context.send(
-                    player,
-                    context.messages().language().kitNotFound(),
-                    Placeholder.parsed("kit", id));
+            context.send(player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
             return;
         }
 
         context.configManager().registerKit(kit.toRecord());
-        context.send(
-                player,
-                context.messages().language().kitFinalized(),
-                Placeholder.parsed("kit", id));
+        context.send(player, context.messages().language().kitFinalized(), Placeholder.parsed("kit", id));
     }
 }

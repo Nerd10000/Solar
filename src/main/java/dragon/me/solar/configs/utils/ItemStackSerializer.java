@@ -35,8 +35,7 @@ public class ItemStackSerializer implements TypeSerializer<ItemStack> {
     }
 
     @Override
-    public void serialize(Type type, ItemStack item, ConfigurationNode node)
-            throws SerializationException {
+    public void serialize(Type type, ItemStack item, ConfigurationNode node) throws SerializationException {
 
         if (item == null) {
             node.raw(null);

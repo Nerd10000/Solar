@@ -28,17 +28,13 @@ public class KitSetFlagsArg {
             @Flag("natural-regeneration") @Default("true") Boolean naturalRegeneration,
             @Flag("natural-saturation") @Default("true") Boolean naturalSaturation,
             @Flag("hunger-loss") @Default("true") Boolean hungerLoss,
-            @Flag("pearl-cooldown") @Default("-1") @Range(min = "-1", max = "20")
-                    Integer pearlCooldown,
-            @Flag("golden-apple-cooldown") @Default("-1") @Range(min = "-1", max = "20")
-                    Integer goldenAppleCooldown,
-            @Flag("windcharge-cooldown") @Default("-1") @Range(min = "-1", max = "20")
-                    Integer windChargeCooldown,
+            @Flag("pearl-cooldown") @Default("-1") @Range(min = "-1", max = "20") Integer pearlCooldown,
+            @Flag("golden-apple-cooldown") @Default("-1") @Range(min = "-1", max = "20") Integer goldenAppleCooldown,
+            @Flag("windcharge-cooldown") @Default("-1") @Range(min = "-1", max = "20") Integer windChargeCooldown,
             @Flag("prevent-block-place") @Default("false") Boolean preventBlockPlace,
             @Flag("prevent-block-break") @Default("false") Boolean preventBlockBreak,
             @Flag("prevent-item-drop") @Default("false") Boolean preventItemDrop,
-            @Flag("prevent-movement-before-start") @Default("false")
-                    Boolean preventMovementBeforeStart) {
+            @Flag("prevent-movement-before-start") @Default("false") Boolean preventMovementBeforeStart) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
@@ -46,29 +42,22 @@ public class KitSetFlagsArg {
 
         InMemoryKit inMemoryKit = context.kitManager().getKit(kit);
         if (inMemoryKit == null) {
-            context.send(
-                    player,
-                    context.messages().language().kitNotFound(),
-                    Placeholder.parsed("kit", kit));
+            context.send(player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", kit));
             return;
         }
 
-        inMemoryKit.flags =
-                new KitFlagsRecord(
-                        maxHealth != null ? maxHealth : 20.0f,
-                        naturalRegeneration == null || naturalRegeneration,
-                        naturalSaturation == null || naturalSaturation,
-                        hungerLoss == null || hungerLoss,
-                        pearlCooldown != null ? pearlCooldown : -1,
-                        goldenAppleCooldown != null ? goldenAppleCooldown : -1,
-                        windChargeCooldown != null ? windChargeCooldown : -1,
-                        preventBlockPlace != null && preventBlockPlace,
-                        preventBlockBreak != null && preventBlockBreak,
-                        preventItemDrop != null && preventItemDrop,
-                        preventMovementBeforeStart != null && preventMovementBeforeStart);
-        context.send(
-                player,
-                context.messages().language().kitFlagsSet(),
-                Placeholder.parsed("kit", kit));
+        inMemoryKit.flags = new KitFlagsRecord(
+                maxHealth != null ? maxHealth : 20.0f,
+                naturalRegeneration == null || naturalRegeneration,
+                naturalSaturation == null || naturalSaturation,
+                hungerLoss == null || hungerLoss,
+                pearlCooldown != null ? pearlCooldown : -1,
+                goldenAppleCooldown != null ? goldenAppleCooldown : -1,
+                windChargeCooldown != null ? windChargeCooldown : -1,
+                preventBlockPlace != null && preventBlockPlace,
+                preventBlockBreak != null && preventBlockBreak,
+                preventItemDrop != null && preventItemDrop,
+                preventMovementBeforeStart != null && preventMovementBeforeStart);
+        context.send(player, context.messages().language().kitFlagsSet(), Placeholder.parsed("kit", kit));
     }
 }

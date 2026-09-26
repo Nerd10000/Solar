@@ -15,27 +15,24 @@ public final class PingCommand {
         if (!(stack.getSender() instanceof Player playerSender)) {
 
             stack.getSender()
-                    .sendMessage(
-                            Solar.miniMessage.deserialize(
-                                    Solar.configManager.languageRecord().consoleCantRun(),
-                                    Placeholder.parsed(
-                                            "prefix",
-                                            Solar.configManager.languageRecord().prefix())));
+                    .sendMessage(Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().consoleCantRun(),
+                            Placeholder.parsed(
+                                    "prefix",
+                                    Solar.configManager.languageRecord().prefix())));
             return;
         }
 
         if (player != null) {
-            playerSender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().pingOtherCommand(),
-                            Placeholder.parsed("target", player.getName()),
-                            Placeholder.parsed("ping", String.valueOf(player.getPing()))));
+            playerSender.sendMessage(Solar.miniMessage.deserialize(
+                    Solar.configManager.languageRecord().pingOtherCommand(),
+                    Placeholder.parsed("target", player.getName()),
+                    Placeholder.parsed("ping", String.valueOf(player.getPing()))));
 
         } else {
-            playerSender.sendMessage(
-                    Solar.miniMessage.deserialize(
-                            Solar.configManager.languageRecord().pingCommand(),
-                            Placeholder.unparsed("ping", String.valueOf(playerSender.getPing()))));
+            playerSender.sendMessage(Solar.miniMessage.deserialize(
+                    Solar.configManager.languageRecord().pingCommand(),
+                    Placeholder.unparsed("ping", String.valueOf(playerSender.getPing()))));
         }
     }
 }

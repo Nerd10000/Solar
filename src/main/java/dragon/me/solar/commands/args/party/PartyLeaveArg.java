@@ -39,10 +39,9 @@ public class PartyLeaveArg {
         context.partyManager()
                 .executeForEachMember(
                         party,
-                        member ->
-                                context.send(
-                                        member,
-                                        context.language().playerLeftParty(),
-                                        Placeholder.parsed("player", player.getName())));
+                        member -> context.send(
+                                member,
+                                context.language().playerLeftParty(),
+                                Placeholder.parsed("player", player.getName())));
     }
 }

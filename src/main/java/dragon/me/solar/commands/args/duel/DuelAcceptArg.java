@@ -4,7 +4,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.GridManager;
-import dragon.me.solar.arena.InMemoryArena;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
@@ -77,79 +76,42 @@ public class DuelAcceptArg {
         int slot = gridManager.allocate();
         BlockVector3 center = gridManager.getCenter(slot);
         FaweHook.pasteArena(arenaName, center)
-                .thenAccept(
-                        success -> {
-                            if (!success) {
-                                gridManager.free(slot);
-                                plugin.getLogger().warning("Failed to paste arena " + arenaName);
-                                return;
-                            }
-                            Bukkit.getScheduler()
-                                    .runTask(
-                                            plugin,
-                                            () ->
-                                                    startMatchAtArena(
-                                                            sender, player, invite, arenaName,
-                                                            slot));
-                        })
-                .exceptionally(
-                        throwable -> {
-                            gridManager.free(slot);
-                            plugin.getLogger()
-                                    .log(
-                                            Level.SEVERE,
-                                            "Error while pasting arena " + arenaName,
-                                            throwable);
-                            return null;
-                        });
+                .thenAccept(success -> {
+                    if (!success) {
+                        gridManager.free(slot);
+                        plugin.getLogger().warning("Failed to paste arena " + arenaName);
+                        return;
+                    }
+                    Bukkit.getScheduler()
+                            .runTask(plugin, () -> startMatchAtArena(sender, player, invite, arenaName, slot));
+                })
+                .exceptionally(throwable -> {
+                    gridManager.free(slot);
+                    plugin.getLogger().log(Level.SEVERE, "Error while pasting arena " + arenaName, throwable);
+                    return null;
+                });
     }
 
     private void startMatchAtArena(
             Player sender, Player receiver, DuelInviteRecord invite, String arenaName, int slot) {
         World world = Bukkit.getWorld("arenas");
-        if (world == null) {
-            gridManager.free(slot);
-            plugin.getLogger().severe("Arena world does not exist!");
-            return;
-        }
+
         if (!sender.isOnline() || !receiver.isOnline()) {
             gridManager.free(slot);
             plugin.getLogger().warning("Players left before arena paste completed.");
             return;
         }
 
-        InMemoryArena arena = arenaManager.getArena(arenaName);
-        if (arena == null || arena.spawn1 == null || arena.spawn2 == null) {
-            gridManager.free(slot);
-            plugin.getLogger().warning("Arena spawn points missing for " + arenaName);
-            return;
-        }
-
-        BlockVector3 center = gridManager.getCenter(slot);
-        sender.teleport(arena.spawn1.toLocation(world, center));
-        receiver.teleport(arena.spawn2.toLocation(world, center));
-
         InMemoryTeam team1 =
-                new InMemoryTeam(
-                        new ArrayList<>(List.of(TeamPlayer.fromUuid(sender.getUniqueId()))), true);
+                new InMemoryTeam(new ArrayList<>(List.of(TeamPlayer.fromUuid(sender.getUniqueId()))), true);
         InMemoryTeam team2 =
-                new InMemoryTeam(
-                        new ArrayList<>(List.of(TeamPlayer.fromUuid(receiver.getUniqueId()))),
-                        true);
-        InMemoryMatch match =
-                new InMemoryMatch(
-                        new ArrayList<>(List.of(team1, team2)), invite.kit(), invite.map());
+                new InMemoryTeam(new ArrayList<>(List.of(TeamPlayer.fromUuid(receiver.getUniqueId()))), true);
+
+        InMemoryMatch match = new InMemoryMatch(new ArrayList<>(List.of(team1, team2)), invite.kit());
+
         match.setArenaName(arenaName);
         match.setGridSlot(slot);
-        matchService.startMatch(match);
 
-        plugin.getLogger()
-                .info(
-                        "Started match between "
-                                + sender.getName()
-                                + " and "
-                                + receiver.getName()
-                                + " on arena "
-                                + arenaName);
+        matchService.startMatch(match, false);
     }
 }

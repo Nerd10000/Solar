@@ -26,8 +26,7 @@ public class PartyAcceptArg {
             return;
         }
 
-        PartyInviteRecord invite =
-                context.partyInviteManager().getInviteBySender(inviter.getUniqueId());
+        PartyInviteRecord invite = context.partyInviteManager().getInviteBySender(inviter.getUniqueId());
         if (invite == null) {
             context.send(player, context.language().notInviteFromParty());
             return;
@@ -45,10 +44,9 @@ public class PartyAcceptArg {
         context.partyManager()
                 .executeForEachMember(
                         party,
-                        member ->
-                                context.send(
-                                        member,
-                                        context.language().playerJoinedParty(),
-                                        Placeholder.parsed("player", player.getName())));
+                        member -> context.send(
+                                member,
+                                context.language().playerJoinedParty(),
+                                Placeholder.parsed("player", player.getName())));
     }
 }

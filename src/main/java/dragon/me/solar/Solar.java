@@ -20,13 +20,7 @@ import dragon.me.solar.commands.args.kit.KitGiveArg;
 import dragon.me.solar.commands.args.kit.KitSetEffectsArg;
 import dragon.me.solar.commands.args.kit.KitSetFlagsArg;
 import dragon.me.solar.commands.args.kit.KitSetItemsArg;
-import dragon.me.solar.commands.args.party.PartyAcceptArg;
-import dragon.me.solar.commands.args.party.PartyCommandContext;
-import dragon.me.solar.commands.args.party.PartyCreateArg;
-import dragon.me.solar.commands.args.party.PartyDisbandArg;
-import dragon.me.solar.commands.args.party.PartyInviteArg;
-import dragon.me.solar.commands.args.party.PartyLeaveArg;
-import dragon.me.solar.commands.args.party.PartyStartArg;
+import dragon.me.solar.commands.args.party.*;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.configs.records.KitRecord;
@@ -108,10 +102,9 @@ public final class Solar extends JavaPlugin {
         cache = context.cache;
         matchService = context.matchService;
 
-        commandManager =
-                PaperCommandManager.builder()
-                        .executionCoordinator(ExecutionCoordinator.simpleCoordinator())
-                        .buildOnEnable(instance);
+        commandManager = PaperCommandManager.builder()
+                .executionCoordinator(ExecutionCoordinator.simpleCoordinator())
+                .buildOnEnable(instance);
 
         duelInviteManager.expireTimer();
         partyInviteManager.expireTimer();
@@ -134,7 +127,8 @@ public final class Solar extends JavaPlugin {
 
         this.getLogger().info("Loaded in " + configManager.kitsRecord().kits().size() + " kit(s)!");
 
-        for (Map.Entry<String, KitRecord> entry : configManager.kitsRecord().kits().entrySet()) {
+        for (Map.Entry<String, KitRecord> entry :
+                configManager.kitsRecord().kits().entrySet()) {
             this.getLogger().info(" - " + entry.getKey());
         }
 
@@ -147,17 +141,12 @@ public final class Solar extends JavaPlugin {
         List<InMemoryMatch> matches = matchManager.getMatchList();
 
         if (!matches.isEmpty()) {
-            getLogger()
-                    .warning(
-                            "The server is shutting down while "
-                                    + matches.size()
-                                    + " match(es) are active.");
+            getLogger().warning("The server is shutting down while " + matches.size() + " match(es) are active.");
             getLogger().warning("Active matches will be terminated.");
 
             getLogger()
-                    .warning(
-                            "For planned maintenance, use '/solar maintenance' to prevent new"
-                                    + " matches from starting.");
+                    .warning("For planned maintenance, use '/solar maintenance' to prevent new"
+                            + " matches from starting.");
             getLogger().warning("Allow ongoing matches to finish before restarting the server.");
             getLogger().warning("Maintenance mode is disabled by default after a server restart.");
         }
@@ -165,18 +154,14 @@ public final class Solar extends JavaPlugin {
         for (InMemoryMatch match : matches) {
             matchService.terminate(match);
         }
+
+        cleanup();
     }
 
     public void registerCommands() {
-        AnnotationParser<CommandSourceStack> parser =
-                new AnnotationParser<>(commandManager, CommandSourceStack.class);
+        AnnotationParser<CommandSourceStack> parser = new AnnotationParser<>(commandManager, CommandSourceStack.class);
         PartyCommandContext partyCommandContext =
-                new PartyCommandContext(
-                        partyManager,
-                        partyInviteManager,
-                        configManager,
-                        miniMessage,
-                        messageService);
+                new PartyCommandContext(partyManager, partyInviteManager, configManager, miniMessage, messageService);
         KitCommandContext kitCommandContext =
                 new KitCommandContext(kitManager, kitService, configManager, messageService);
 
@@ -197,15 +182,9 @@ public final class Solar extends JavaPlugin {
                 new KitSetFlagsArg(kitCommandContext),
                 new DuelCommand(arenaManager, kitManager),
                 new DuelRequestArg(kitManager, duelInviteManager, messageService),
-                new DuelAcceptArg(
-                        instance,
-                        arenaManager,
-                        gridManager,
-                        duelInviteManager,
-                        matchService,
-                        messageService),
+                new DuelAcceptArg(instance, arenaManager, gridManager, duelInviteManager, matchService, messageService),
                 new DuelDeclineArg(duelInviteManager, messageService),
-                new SolarCommand(),
+                new SolarCommand(configManager, miniMessage),
                 new SpectateCommand(),
                 new PartyCommand(configManager, miniMessage),
                 new PartyCreateArg(partyCommandContext),
@@ -213,8 +192,12 @@ public final class Solar extends JavaPlugin {
                 new PartyDisbandArg(partyCommandContext),
                 new PartyInviteArg(partyCommandContext),
                 new PartyAcceptArg(partyCommandContext),
+                new PartyTransferArg(partyCommandContext),
+                new PartyDenyArg(partyCommandContext),
+                new PartyInfoArg(partyCommandContext),
+                new PartyKickArg(partyCommandContext),
+                new PartyBroadcastArg(partyCommandContext),
                 new PartyStartArg(
-                        instance,
                         partyManager,
                         partyService,
                         kitManager,
@@ -227,30 +210,17 @@ public final class Solar extends JavaPlugin {
     public void registerListeners() {
         getServer()
                 .getPluginManager()
+                .registerEvents(new PlayerDeathEventListener(matchService, matchManager, miniMessage), this);
+        getServer()
+                .getPluginManager()
                 .registerEvents(
-                        new PlayerDeathEventListener(matchService, matchManager, miniMessage),
-                        this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerQuitEventListener(matchManager, matchService), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerItemUseListener(matchManager, kitManager), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new BlockBreakAndPlaceListener(matchManager, kitManager), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerPickupItemListener(matchManager), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerDropItemListener(matchManager, kitManager), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerMovementListener(matchManager, kitManager), this);
-        getServer()
-                .getPluginManager()
-                .registerEvents(new PlayerJoinListener(configManager, databaseManager), this);
+                        new PlayerQuitEventListener(matchManager, matchService, partyManager, messageService), this);
+        getServer().getPluginManager().registerEvents(new PlayerItemUseListener(matchManager, kitManager), this);
+        getServer().getPluginManager().registerEvents(new BlockBreakAndPlaceListener(matchManager, kitManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerPickupItemListener(matchManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDropItemListener(matchManager, kitManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerMovementListener(matchManager, kitManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(configManager, databaseManager), this);
     }
 
     public void setupDupeWorld() {
@@ -291,5 +261,35 @@ public final class Solar extends JavaPlugin {
         if (!schem.exists()) {
             schem.mkdir();
         }
+    }
+
+    public void cleanup() {
+        World world = Bukkit.getWorld("arenas");
+        if (world == null) return;
+
+        File folder = world.getWorldFolder();
+
+        // Save + unload
+        Bukkit.unloadWorld(world, false);
+
+        if (deleteRecursively(folder)) {
+            getLogger().info("World 'arenas' deleted successfully.");
+        } else {
+            getLogger().severe("Failed to delete world 'arenas'.");
+        }
+    }
+
+    private boolean deleteRecursively(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    if (!deleteRecursively(child)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return file.delete();
     }
 }

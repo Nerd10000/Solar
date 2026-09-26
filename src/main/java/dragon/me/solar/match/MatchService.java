@@ -2,16 +2,23 @@ package dragon.me.solar.match;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
+import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.GridManager;
+import dragon.me.solar.arena.InMemoryArena;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.hooks.FaweHook;
 import dragon.me.solar.kit.InMemoryKit;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
+import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchEndReason;
 import dragon.me.solar.match.utils.MatchStageEnum;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class MatchService {
@@ -24,6 +31,7 @@ public class MatchService {
     private final MatchPlayerStateService playerStateService;
     private final MatchAnnouncementService announcementService;
     private final MatchCountdownService countdownService;
+    private final ArenaManager arenaManager;
 
     public MatchService(
             MatchManager matchManager,
@@ -33,7 +41,8 @@ public class MatchService {
             KitService kitService,
             MatchPlayerStateService playerStateService,
             MatchAnnouncementService announcementService,
-            MatchCountdownService countdownService) {
+            MatchCountdownService countdownService,
+            ArenaManager arenaManager) {
         this.matchManager = matchManager;
         this.gridManager = gridManager;
         this.configManager = configManager;
@@ -42,17 +51,115 @@ public class MatchService {
         this.playerStateService = playerStateService;
         this.announcementService = announcementService;
         this.countdownService = countdownService;
+        this.arenaManager = arenaManager;
     }
 
-    public void startMatch(InMemoryMatch match) {
+    public void startMatch(InMemoryMatch match, boolean isFFA) {
+
         match.setStage(MatchStageEnum.STARTING);
-        matchManager.add(match);
-        playerStateService.saveSnapshots(match);
-        validateAndApplyKit(match);
-        countdownService.start(match);
+
+        BlockVector3 center = gridManager.getCenter(match.getGridSlot());
+        FaweHook.pasteArena(match.getArenaName(), center)
+                .thenAccept(success -> {
+                    Bukkit.getScheduler().runTask(Solar.instance, () -> {
+                        if (!success) {
+                            gridManager.free(match.getGridSlot());
+                            Solar.instance.getLogger().warning("Failed to paste arena");
+                            return;
+                        }
+
+                        matchManager.add(match);
+                        playerStateService.saveSnapshots(match);
+                        validateAndApplyKit(match);
+                        countdownService.start(match);
+
+                        if (!prepareArena(match, isFFA)) {
+                            return;
+                        }
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Bukkit.getScheduler().runTask(Solar.instance, () -> {
+                        gridManager.free(match.getGridSlot());
+                        Solar.instance
+                                .getLogger()
+                                .log(Level.SEVERE, "Error while pasting arena " + match.getArenaName(), throwable);
+                    });
+                    return null;
+                });
+    }
+
+    private boolean prepareArena(InMemoryMatch match, boolean isFFA) {
+
+        World world = Bukkit.getWorld("arenas");
+
+        if (world == null) {
+            gridManager.free(match.getGridSlot());
+            Solar.instance.getLogger().severe("Arena world does not exist!");
+            return false;
+        }
+
+        InMemoryArena arena = arenaManager.getArena(match.getArenaName());
+
+        BlockVector3 center = gridManager.getCenter(match.getGridSlot());
+
+        if (arena == null || arena.spawn1 == null || arena.spawn2 == null) {
+            gridManager.free(match.getGridSlot());
+            Solar.instance.getLogger().warning("Arena spawn points missing for " + match.getArenaName());
+            return false;
+        }
+
+        Location team1Spawn = arena.spawn1.toLocation(world, center);
+        Location team2Spawn = arena.spawn2.toLocation(world, center);
+
+        if (!isFFA) {
+
+            teleportTeam(match.getTeamList().get(0), team1Spawn);
+            teleportTeam(match.getTeamList().get(1), team2Spawn);
+
+        } else {
+            int playerCount = match.getTeamList().size();
+            double rotation = ThreadLocalRandom.current().nextDouble(0, Math.PI * 2);
+            for (int index = 0; index < playerCount; index++) {
+                InMemoryTeam team = match.getTeamList().get(index);
+
+                double angle = rotation + (2 * Math.PI * index) / playerCount;
+
+                int x = (int) Math.round(
+                        center.x() + Math.cos(angle) * 5 // TODO make it customizable
+                        );
+
+                int z = (int) Math.round(
+                        center.z() + Math.sin(angle) * 5 // TODO make it customizable
+                        );
+
+                Location onGroundCenter = world.getHighestBlockAt(x, z).getLocation();
+
+                Player player = Bukkit.getPlayer(team.getMembers().get(0).uuid());
+
+                if (player != null) {
+                    player.teleport(onGroundCenter.add(0.5, 1, 0.5));
+                }
+            }
+        }
+
+        Solar.instance
+                .getLogger()
+                .info("Starting the match between " + match.getTeamList().size() + " teams. (Party)");
+        return true;
+    }
+
+    private void teleportTeam(InMemoryTeam team, Location location) {
+        for (TeamPlayer teamPlayer : team.getMembers()) {
+            Player player = Bukkit.getPlayer(teamPlayer.uuid());
+            if (player != null) {
+                player.teleport(location);
+            }
+        }
     }
 
     public void endMatch(InMemoryMatch match, InMemoryTeam winner, MatchEndReason reason) {
+
         if (match.getStage() == MatchStageEnum.ENDED) {
             return;
         }

@@ -27,11 +27,10 @@ public class PartyCommand {
         for (String s : unparsed) {
 
             stack.getSender()
-                    .sendMessage(
-                            miniMessage.deserialize(
-                                    s,
-                                    Placeholder.parsed(
-                                            "prefix", configManager.languageRecord().prefix())));
+                    .sendMessage(miniMessage.deserialize(
+                            s,
+                            Placeholder.parsed(
+                                    "prefix", configManager.languageRecord().prefix())));
         }
     }
 
@@ -43,11 +42,10 @@ public class PartyCommand {
         for (String s : unparsed) {
 
             stack.getSender()
-                    .sendMessage(
-                            miniMessage.deserialize(
-                                    s,
-                                    Placeholder.parsed(
-                                            "prefix", configManager.languageRecord().prefix())));
+                    .sendMessage(miniMessage.deserialize(
+                            s,
+                            Placeholder.parsed(
+                                    "prefix", configManager.languageRecord().prefix())));
         }
     }
 }

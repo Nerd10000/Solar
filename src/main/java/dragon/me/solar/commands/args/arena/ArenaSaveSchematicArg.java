@@ -21,9 +21,7 @@ public class ArenaSaveSchematicArg {
 
     @Command("arenas saveSchematic <name>")
     @Permission("solar.arena.manage.saveSchematic")
-    public void saveSchematic(
-            CommandSourceStack stack,
-            @Argument(value = "name", suggestions = "arenas") String name) {
+    public void saveSchematic(CommandSourceStack stack, @Argument(value = "name", suggestions = "arenas") String name) {
         if (!Solar.compatibilityChecker.isCompatibleWith(Compatibilities.FAWE)) {
             messages.send(
                     stack,
@@ -43,23 +41,13 @@ public class ArenaSaveSchematicArg {
         }
 
         FaweHook.createArenaSchematic(arena, player.getWorld())
-                .thenRun(
-                        () ->
-                                messages.send(
-                                        player,
-                                        messages.language().arenaSchemSaved(),
-                                        Placeholder.parsed("name", name)))
-                .exceptionally(
-                        error -> {
-                            Solar.instance
-                                    .getLogger()
-                                    .warning(
-                                            "An error happened while saving "
-                                                    + name
-                                                    + "'s schematic!");
-                            error.printStackTrace();
-                            return null;
-                        });
+                .thenRun(() ->
+                        messages.send(player, messages.language().arenaSchemSaved(), Placeholder.parsed("name", name)))
+                .exceptionally(error -> {
+                    Solar.instance.getLogger().warning("An error happened while saving " + name + "'s schematic!");
+                    error.printStackTrace();
+                    return null;
+                });
     }
 
     private void sendConsoleError(CommandSourceStack stack) {

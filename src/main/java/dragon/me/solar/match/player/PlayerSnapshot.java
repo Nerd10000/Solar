@@ -16,14 +16,10 @@ public class PlayerSnapshot {
     private final List<PotionEffect> effects;
 
     public PlayerSnapshot(
-            ItemStack[] contents,
-            ItemStack[] armor,
-            ItemStack offhand,
-            Collection<PotionEffect> effects) {
+            ItemStack[] contents, ItemStack[] armor, ItemStack offhand, Collection<PotionEffect> effects) {
         this.contents = cloneArray(contents);
         this.armor = cloneArray(armor);
-        this.offhand =
-                offhand != null && offhand.getType() != Material.AIR ? offhand.clone() : null;
+        this.offhand = offhand != null && offhand.getType() != Material.AIR ? offhand.clone() : null;
         this.effects = new ArrayList<>(effects);
     }
 

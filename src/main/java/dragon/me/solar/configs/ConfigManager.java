@@ -7,6 +7,8 @@ import dragon.me.solar.configs.records.KitRecord;
 import dragon.me.solar.configs.records.KitsRecord;
 import dragon.me.solar.configs.records.LanguageRecord;
 import dragon.me.solar.configs.records.LobbyRecord;
+import dragon.me.solar.configs.records.QueueRecord;
+import dragon.me.solar.configs.records.QueuesRecord;
 import dragon.me.solar.configs.records.SettingsRecord;
 import java.nio.file.Path;
 import org.bukkit.Bukkit;
@@ -20,19 +22,20 @@ public class ConfigManager {
     private SettingsRecord settingsRecord;
     private ArenasRecord arenasRecord;
     private KitsRecord kitsRecord;
+    private QueuesRecord queuesRecord;
 
     private ConfigLoader<LanguageRecord> languageLoader;
     private ConfigLoader<ArenasRecord> arenaLoader;
     private ConfigLoader<KitsRecord> kitLoader;
     private ConfigLoader<SettingsRecord> settingsLoader;
+    private ConfigLoader<QueuesRecord> queuesLoader;
 
     public ConfigManager(Solar solar) {
 
         Path folder = solar.getDataPath();
 
         try {
-            languageLoader =
-                    new ConfigLoader<>(folder.resolve("language.yml"), LanguageRecord.class);
+            languageLoader = new ConfigLoader<>(folder.resolve("language.yml"), LanguageRecord.class);
             languageRecord = languageLoader.load(LanguageRecord.DEFAULTS);
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
@@ -58,6 +61,15 @@ public class ConfigManager {
             kitLoader = new ConfigLoader<>(folder.resolve("kits.yml"), KitsRecord.class);
 
             kitsRecord = kitLoader.load(KitsRecord.DEFAULTS);
+
+        } catch (ConfigurateException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+
+            queuesLoader = new ConfigLoader<>(folder.resolve("queues.yml"), QueuesRecord.class);
+            queuesRecord = queuesLoader.load(QueuesRecord.DEFAULTS);
 
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
@@ -102,6 +114,10 @@ public class ConfigManager {
         return kitsRecord;
     }
 
+    public QueuesRecord queuesRecord() {
+        return queuesRecord;
+    }
+
     public void registerArena(ArenaRecord record) {
 
         arenasRecord = arenasRecord.addArena(record);
@@ -125,6 +141,17 @@ public class ConfigManager {
         settingsRecord = settingsRecord.updateLobbyLocation(record);
         try {
             settingsLoader.save(settingsRecord);
+        } catch (ConfigurateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void registerQueue(QueueRecord queue) {
+
+        queuesRecord = queuesRecord.addQueue(queue);
+
+        try {
+            queuesLoader.save(queuesRecord);
         } catch (ConfigurateException e) {
             throw new RuntimeException(e);
         }

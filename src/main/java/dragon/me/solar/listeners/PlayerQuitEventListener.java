@@ -9,8 +9,13 @@ import dragon.me.solar.match.player.PlayerSnapshot;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchEndReason;
 import dragon.me.solar.match.utils.MatchStageEnum;
+import dragon.me.solar.messages.MessageService;
+import dragon.me.solar.party.InMemoryParty;
+import dragon.me.solar.party.PartyManager;
 import java.util.List;
 import java.util.UUID;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -19,16 +24,66 @@ public class PlayerQuitEventListener implements Listener {
 
     private final MatchManager matchManager;
     private final MatchService matchService;
+    private final PartyManager partyManager;
+    private final MessageService messageService;
 
-    public PlayerQuitEventListener(MatchManager matchManager, MatchService matchService) {
+    public PlayerQuitEventListener(
+            MatchManager matchManager,
+            MatchService matchService,
+            PartyManager partyManager,
+            MessageService messageService) {
         this.matchManager = matchManager;
         this.matchService = matchService;
+        this.partyManager = partyManager;
+        this.messageService = messageService;
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
 
+        /*
+         *
+         * Handling players that leave while in a party
+         *
+         */
+        if (partyManager.isMemberOfAParty(uuid)) {
+
+            InMemoryParty party = partyManager.getPartyByMember(uuid);
+
+            if (party != null) {
+
+                if (party.getOwner().equals(uuid)) {
+
+                    partyManager.executeForEachMember(party, p -> {
+                        messageService.send(
+                                p,
+                                messageService.language().partyOwnerLeft(),
+                                Placeholder.parsed(
+                                        "player", Bukkit.getOfflinePlayer(uuid).getName()));
+                    });
+
+                    partyManager.removeParty(party);
+
+                } else {
+
+                    partyManager.executeForEachMember(party, p -> {
+                        messageService.send(
+                                p,
+                                messageService.language().playerLeftParty(),
+                                Placeholder.parsed(
+                                        "player", Bukkit.getOfflinePlayer(uuid).getName()));
+                    });
+                    party.getMemberList().remove(uuid);
+                }
+            }
+        }
+
+        /*
+         *
+         * Handling players that are in a match and quit
+         *
+         */
         if (!matchManager.isPlayerInAMatch(uuid)) {
             return;
         }
@@ -40,16 +95,13 @@ public class PlayerQuitEventListener implements Listener {
 
         Solar.cache.invalidateAll(uuid);
 
-        // 1. Remove the player from their team and decide the match outcome FIRST.
-        //    Nothing below this point is allowed to be able to prevent this from
-        //    having already happened — that was the original bug: a failing
-        //    setHealth(0) call was aborting this logic before it could run.
         for (InMemoryTeam team : match.getTeamList()) {
             team.getMembers().removeIf(member -> member.uuid().equals(uuid));
         }
 
-        List<InMemoryTeam> aliveTeams =
-                match.getTeamList().stream().filter(team -> !team.getMembers().isEmpty()).toList();
+        List<InMemoryTeam> aliveTeams = match.getTeamList().stream()
+                .filter(team -> !team.getMembers().isEmpty())
+                .toList();
 
         boolean matchOver = aliveTeams.size() <= 1;
         InMemoryTeam winner = matchOver && !aliveTeams.isEmpty() ? aliveTeams.getFirst() : null;

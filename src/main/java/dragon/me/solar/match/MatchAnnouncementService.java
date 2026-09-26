@@ -21,8 +21,7 @@ public class MatchAnnouncementService {
         this.messages = messages;
     }
 
-    public void announceResults(
-            InMemoryMatch match, InMemoryTeam winner, String winnerName, MatchEndReason reason) {
+    public void announceResults(InMemoryMatch match, InMemoryTeam winner, String winnerName, MatchEndReason reason) {
         for (TeamPlayer teamPlayer : match.getMembers()) {
             Player player = Bukkit.getPlayer(teamPlayer.uuid());
             if (player == null) {
@@ -49,7 +48,9 @@ public class MatchAnnouncementService {
                     isWinner ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.BLOCK_BEACON_DEACTIVATE);
             messages.send(
                     player,
-                    isWinner ? messages.language().matchWon() : messages.language().matchLost(),
+                    isWinner
+                            ? messages.language().matchWon()
+                            : messages.language().matchLost(),
                     Placeholder.parsed("winner", winnerName));
         }
     }

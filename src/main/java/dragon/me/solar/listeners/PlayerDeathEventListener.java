@@ -27,8 +27,7 @@ public class PlayerDeathEventListener implements Listener {
     private final MatchManager matchManager;
     private final MiniMessage miniMessage;
 
-    public PlayerDeathEventListener(
-            MatchService matchService, MatchManager matchManager, MiniMessage miniMessage) {
+    public PlayerDeathEventListener(MatchService matchService, MatchManager matchManager, MiniMessage miniMessage) {
         this.matchService = matchService;
         this.matchManager = matchManager;
         this.miniMessage = miniMessage;
@@ -48,19 +47,10 @@ public class PlayerDeathEventListener implements Listener {
             return;
         }
 
-        Optional<InMemoryTeam> teamOptional =
-                match.getTeamList().stream()
-                        .filter(
-                                team ->
-                                        team.getMembers().stream()
-                                                .anyMatch(
-                                                        teamPlayer ->
-                                                                teamPlayer
-                                                                        .uuid()
-                                                                        .equals(
-                                                                                player
-                                                                                        .getUniqueId())))
-                        .findFirst();
+        Optional<InMemoryTeam> teamOptional = match.getTeamList().stream()
+                .filter(team -> team.getMembers().stream()
+                        .anyMatch(teamPlayer -> teamPlayer.uuid().equals(player.getUniqueId())))
+                .findFirst();
 
         if (teamOptional.isEmpty()) {
             return;
@@ -74,50 +64,42 @@ public class PlayerDeathEventListener implements Listener {
 
         if (player.getKiller() == null) {
 
-            match.broadcast(
-                    miniMessage.deserialize(
-                            Solar.configManager.languageRecord().playerDiedToUnknownCauses(),
-                            Placeholder.parsed("victim", player.getName())));
+            match.broadcast(miniMessage.deserialize(
+                    Solar.configManager.languageRecord().playerDiedToUnknownCauses(),
+                    Placeholder.parsed("victim", player.getName())));
 
         } else {
 
-            match.broadcast(
-                    miniMessage.deserialize(
-                            Solar.configManager.languageRecord().playerDiedToPlayer(),
-                            Placeholder.parsed("victim", player.getName()),
-                            Placeholder.parsed("killer", player.getKiller().getName())));
+            match.broadcast(miniMessage.deserialize(
+                    Solar.configManager.languageRecord().playerDiedToPlayer(),
+                    Placeholder.parsed("victim", player.getName()),
+                    Placeholder.parsed("killer", player.getKiller().getName())));
         }
 
         team.updateTeamStatus();
 
         Location deathLocation = player.getLocation().clone().add(0, 1, 0);
-        Bukkit.getScheduler()
-                .runTask(
-                        Solar.instance,
-                        () -> {
-                            if (player.isDead()) {
-                                player.spigot().respawn();
+        Bukkit.getScheduler().runTask(Solar.instance, () -> {
+            if (player.isDead()) {
+                player.spigot().respawn();
 
-                                player.teleport(deathLocation);
-                                player.setAllowFlight(true);
-                                player.setInvulnerable(true);
-                            }
-                        });
+                player.teleport(deathLocation);
+                player.setAllowFlight(true);
+                player.setInvulnerable(true);
+            }
+        });
         player.setGameMode(GameMode.SPECTATOR);
 
         if (!match.shouldEndMatch()) {
             SoundUtils.playConfiguredSound(
-                    player,
-                    Solar.configManager.settingsRecord().soundRecords().deadSound(),
-                    Sound.ENTITY_BLAZE_DEATH);
+                    player, Solar.configManager.settingsRecord().soundRecords().deadSound(), Sound.ENTITY_BLAZE_DEATH);
             return;
         }
 
-        InMemoryTeam winner =
-                match.getTeamList().stream()
-                        .filter(InMemoryTeam::isTeamAlive)
-                        .findFirst()
-                        .orElse(null);
+        InMemoryTeam winner = match.getTeamList().stream()
+                .filter(InMemoryTeam::isTeamAlive)
+                .findFirst()
+                .orElse(null);
 
         matchService.endMatch(match, winner, MatchEndReason.DEATH);
     }

@@ -34,8 +34,7 @@ public class PlayerMovementListener implements Listener {
 
         if (inMemoryKit == null) return;
 
-        if (match.getStage() == MatchStageEnum.STARTING
-                && inMemoryKit.flags.preventMovementBeforeStart()) {
+        if (match.getStage() == MatchStageEnum.STARTING && inMemoryKit.flags.preventMovementBeforeStart()) {
 
             Location location = e.getFrom();
             location.setYaw(e.getTo().getYaw());

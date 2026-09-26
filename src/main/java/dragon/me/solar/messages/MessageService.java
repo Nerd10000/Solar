@@ -21,10 +21,10 @@ public class MessageService {
     }
 
     public Component render(String template, TagResolver... placeholders) {
-        TagResolver prefix = Placeholder.parsed("prefix", configManager.languageRecord().prefix());
+        TagResolver prefix =
+                Placeholder.parsed("prefix", configManager.languageRecord().prefix());
         TagResolver[] resolvers =
-                Stream.concat(Stream.of(prefix), Arrays.stream(placeholders))
-                        .toArray(TagResolver[]::new);
+                Stream.concat(Stream.of(prefix), Arrays.stream(placeholders)).toArray(TagResolver[]::new);
         return miniMessage.deserialize(template, resolvers);
     }
 

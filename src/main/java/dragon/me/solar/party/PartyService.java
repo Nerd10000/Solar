@@ -26,12 +26,16 @@ public class PartyService {
         return List.of(createTeam(team1), createTeam(team2));
     }
 
+    public List<InMemoryTeam> generateTeamsForFfa(InMemoryParty party) {
+        List<UUID> shuffled = new ArrayList<>(party.getMemberList());
+        Collections.shuffle(shuffled);
+
+        return shuffled.stream().map(uuid -> createTeam(List.of(uuid))).toList();
+    }
+
     private InMemoryTeam createTeam(List<UUID> members) {
         return new InMemoryTeam(
-                members.stream()
-                        .map(TeamPlayer::fromUuid)
-                        .collect(Collectors.toCollection(ArrayList::new)),
-                true);
+                members.stream().map(TeamPlayer::fromUuid).collect(Collectors.toCollection(ArrayList::new)), true);
     }
 
     public InMemoryParty getPartyByMember(UUID playerId) {

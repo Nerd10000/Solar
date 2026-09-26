@@ -18,8 +18,7 @@ public class KitSetEffectsArg {
 
     @Command("kit set-effects <id>")
     @Permission("solar.kit.manage.set-effects")
-    public void setEffects(
-            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
+    public void setEffects(CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
@@ -27,17 +26,11 @@ public class KitSetEffectsArg {
 
         InMemoryKit kit = context.kitManager().getKit(id);
         if (kit == null) {
-            context.send(
-                    player,
-                    context.messages().language().kitNotFound(),
-                    Placeholder.parsed("kit", id));
+            context.send(player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
             return;
         }
 
         kit.effectList = new ArrayList<>(player.getActivePotionEffects());
-        context.send(
-                player,
-                context.messages().language().kitEffectsSet(),
-                Placeholder.parsed("kit", id));
+        context.send(player, context.messages().language().kitEffectsSet(), Placeholder.parsed("kit", id));
     }
 }

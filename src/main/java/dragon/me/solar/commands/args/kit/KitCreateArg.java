@@ -19,18 +19,16 @@ public class KitCreateArg {
 
     @Command("kit create <id>")
     @Permission("solar.kit.manage.create")
-    public void create(
-            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
+    public void create(CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
         }
 
         InMemoryKit kit = new InMemoryKit(id, null, List.of(), null, null, KitFlagsRecord.DEFAULT);
-        String message =
-                context.kitManager().create(kit)
-                        ? context.messages().language().kitCreated()
-                        : context.messages().language().kitExists();
+        String message = context.kitManager().create(kit)
+                ? context.messages().language().kitCreated()
+                : context.messages().language().kitExists();
         context.send(player, message, Placeholder.parsed("kit", id));
     }
 }

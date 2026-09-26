@@ -64,7 +64,10 @@ public class DatabaseManager {
         return CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        return statsDao.queryBuilder().where().eq("uuid", uuid.toString()).query();
+                        return statsDao.queryBuilder()
+                                .where()
+                                .eq("uuid", uuid.toString())
+                                .query();
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -124,15 +127,13 @@ public class DatabaseManager {
 
         return CompletableFuture.supplyAsync(
                 () -> {
-                    getStoreById(uuid)
-                            .thenAccept(
-                                    store -> {
-                                        try {
-                                            storeDao.delete(store);
-                                        } catch (SQLException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    });
+                    getStoreById(uuid).thenAccept(store -> {
+                        try {
+                            storeDao.delete(store);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
                     return null;
                 },

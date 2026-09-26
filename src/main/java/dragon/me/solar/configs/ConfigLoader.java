@@ -28,20 +28,18 @@ public class ConfigLoader<T> {
 
     public T load(T defaults) throws ConfigurateException {
 
-        TypeSerializerCollection serializers =
-                TypeSerializerCollection.builder()
-                        .registerAll(TypeSerializerCollection.defaults())
-                        .register(ItemStack.class, new ItemStackSerializer())
-                        .register(PotionEffect.class, new PotionEffectSerializer())
-                        .build();
+        TypeSerializerCollection serializers = TypeSerializerCollection.builder()
+                .registerAll(TypeSerializerCollection.defaults())
+                .register(ItemStack.class, new ItemStackSerializer())
+                .register(PotionEffect.class, new PotionEffectSerializer())
+                .build();
 
-        loader =
-                YamlConfigurationLoader.builder()
-                        .path(path)
-                        .indent(4)
-                        .nodeStyle(NodeStyle.BLOCK)
-                        .defaultOptions(op -> op.serializers(serializers))
-                        .build();
+        loader = YamlConfigurationLoader.builder()
+                .path(path)
+                .indent(4)
+                .nodeStyle(NodeStyle.BLOCK)
+                .defaultOptions(op -> op.serializers(serializers))
+                .build();
 
         if (Files.notExists(path)) {
             try {

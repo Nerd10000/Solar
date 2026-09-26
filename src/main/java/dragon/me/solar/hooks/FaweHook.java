@@ -34,167 +34,137 @@ public class FaweHook {
 
     public static CompletableFuture<Void> createArenaSchematic(InMemoryArena arena, World world) {
 
-        return CompletableFuture.runAsync(
-                () -> {
-                    BlockVector3 pos1 = BlockVector3.at(arena.minX, arena.minY, arena.minZ);
+        return CompletableFuture.runAsync(() -> {
+            BlockVector3 pos1 = BlockVector3.at(arena.minX, arena.minY, arena.minZ);
 
-                    BlockVector3 pos2 = BlockVector3.at(arena.maxX, arena.maxY, arena.maxZ);
+            BlockVector3 pos2 = BlockVector3.at(arena.maxX, arena.maxY, arena.maxZ);
 
-                    com.sk89q.worldedit.world.World worldeditWorld = BukkitAdapter.adapt(world);
+            com.sk89q.worldedit.world.World worldeditWorld = BukkitAdapter.adapt(world);
 
-                    CuboidRegion region = new CuboidRegion(worldeditWorld, pos1, pos2);
+            CuboidRegion region = new CuboidRegion(worldeditWorld, pos1, pos2);
 
-                    BlockVector3 center =
-                            BlockVector3.at(
-                                    (arena.minX + arena.maxX) / 2,
-                                    arena.minY,
-                                    (arena.minZ + arena.maxZ) / 2);
+            BlockVector3 center =
+                    BlockVector3.at((arena.minX + arena.maxX) / 2, arena.minY, (arena.minZ + arena.maxZ) / 2);
 
-                    try (EditSession editSession =
-                            WorldEdit.getInstance()
-                                    .newEditSessionBuilder()
-                                    .world(worldeditWorld)
-                                    .fastMode(true)
-                                    .build()) {
+            try (EditSession editSession = WorldEdit.getInstance()
+                    .newEditSessionBuilder()
+                    .world(worldeditWorld)
+                    .fastMode(true)
+                    .build()) {
 
-                        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+                BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 
-                        // IMPORTANT: keep clipboard coordinates consistent
-                        clipboard.setOrigin(center);
+                // IMPORTANT: keep clipboard coordinates consistent
+                clipboard.setOrigin(center);
 
-                        ForwardExtentCopy copy =
-                                new ForwardExtentCopy(
-                                        editSession, region, clipboard, region.getMinimumPoint());
+                ForwardExtentCopy copy =
+                        new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 
-                        copy.setCopyingEntities(true);
-                        copy.setCopyingBiomes(false);
+                copy.setCopyingEntities(true);
+                copy.setCopyingBiomes(false);
 
-                        Operations.complete(copy);
+                Operations.complete(copy);
 
-                        File file =
-                                new File(
-                                        Solar.instance.getDataFolder(),
-                                        "schem/" + arena.name + ".schem");
+                File file = new File(Solar.instance.getDataFolder(), "schem/" + arena.name + ".schem");
 
-                        file.getParentFile().mkdirs();
+                file.getParentFile().mkdirs();
 
-                        ClipboardFormat format = ClipboardFormats.findByAlias("sponge.3");
+                ClipboardFormat format = ClipboardFormats.findByAlias("sponge.3");
 
-                        if (format == null) {
-                            throw new IllegalStateException("Sponge schematic format not found");
-                        }
+                if (format == null) {
+                    throw new IllegalStateException("Sponge schematic format not found");
+                }
 
-                        try (ClipboardWriter writer =
-                                format.getWriter(new FileOutputStream(file))) {
+                try (ClipboardWriter writer = format.getWriter(new FileOutputStream(file))) {
 
-                            writer.write(clipboard);
-                        }
+                    writer.write(clipboard);
+                }
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static CompletableFuture<Boolean> pasteArena(String arenaName, BlockVector3 center) {
 
-        return CompletableFuture.supplyAsync(
-                () -> {
-                    ArenaRecord arena = Solar.configManager.arenasRecord().arenas().get(arenaName);
+        return CompletableFuture.supplyAsync(() -> {
+            ArenaRecord arena = Solar.configManager.arenasRecord().arenas().get(arenaName);
 
-                    if (arena == null) {
-                        Solar.instance
-                                .getLogger()
-                                .warning("Failed to paste arena: no such arena: " + arenaName);
-                        return false;
-                    }
+            if (arena == null) {
+                Solar.instance.getLogger().warning("Failed to paste arena: no such arena: " + arenaName);
+                return false;
+            }
 
-                    File schematicFile =
-                            new File(Solar.instance.getDataFolder(), arena.schematicPath());
+            File schematicFile = new File(Solar.instance.getDataFolder(), arena.schematicPath());
 
-                    ClipboardFormat format = ClipboardFormats.findByAlias("sponge.3");
+            ClipboardFormat format = ClipboardFormats.findByAlias("sponge.3");
 
-                    if (format == null) {
-                        Solar.instance
-                                .getLogger()
-                                .warning("Could not find Sponge schematic format.");
-                        return false;
-                    }
+            if (format == null) {
+                Solar.instance.getLogger().warning("Could not find Sponge schematic format.");
+                return false;
+            }
 
-                    try (ClipboardReader reader =
-                            format.getReader(new FileInputStream(schematicFile))) {
+            try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
 
-                        Clipboard clipboard = reader.read();
+                Clipboard clipboard = reader.read();
 
-                        try (EditSession editSession =
-                                WorldEdit.getInstance()
-                                        .newEditSession(
-                                                new BukkitWorld(Bukkit.getWorld("arenas")))) {
+                try (EditSession editSession =
+                        WorldEdit.getInstance().newEditSession(new BukkitWorld(Bukkit.getWorld("arenas")))) {
 
-                            Operation operation =
-                                    new ClipboardHolder(clipboard)
-                                            .createPaste(editSession)
-                                            .to(center)
-                                            .ignoreAirBlocks(true)
-                                            .copyEntities(false)
-                                            .build();
+                    Operation operation = new ClipboardHolder(clipboard)
+                            .createPaste(editSession)
+                            .to(center)
+                            .ignoreAirBlocks(true)
+                            .copyEntities(false)
+                            .build();
 
-                            Operations.complete(operation);
-                        }
+                    Operations.complete(operation);
+                }
 
-                        return true;
+                return true;
 
-                    } catch (IOException | WorldEditException e) {
-                        Solar.instance
-                                .getLogger()
-                                .log(Level.SEVERE, "Failed to paste arena " + arenaName, e);
-                        return false;
-                    }
-                });
+            } catch (IOException | WorldEditException e) {
+                Solar.instance.getLogger().log(Level.SEVERE, "Failed to paste arena " + arenaName, e);
+                return false;
+            }
+        });
     }
 
     public static CompletableFuture<Void> clearArena(String arenaName, BlockVector3 center) {
-        return CompletableFuture.runAsync(
-                () -> {
-                    ArenaRecord arena = Solar.configManager.arenasRecord().arenas().get(arenaName);
-                    if (arena == null) {
-                        return;
-                    }
+        return CompletableFuture.runAsync(() -> {
+            ArenaRecord arena = Solar.configManager.arenasRecord().arenas().get(arenaName);
+            if (arena == null) {
+                return;
+            }
 
-                    int originX = (arena.minX() + arena.maxX()) / 2;
-                    int originZ = (arena.minZ() + arena.maxZ()) / 2;
+            int originX = (arena.minX() + arena.maxX()) / 2;
+            int originZ = (arena.minZ() + arena.maxZ()) / 2;
 
-                    BlockVector3 min =
-                            BlockVector3.at(
-                                    center.x() + arena.minX() - originX,
-                                    center.y() + arena.minY() - arena.minY(),
-                                    center.z() + arena.minZ() - originZ);
-                    BlockVector3 max =
-                            BlockVector3.at(
-                                    center.x() + arena.maxX() - originX,
-                                    center.y() + arena.maxY() - arena.minY(),
-                                    center.z() + arena.maxZ() - originZ);
+            BlockVector3 min = BlockVector3.at(
+                    center.x() + arena.minX() - originX,
+                    center.y() + arena.minY() - arena.minY(),
+                    center.z() + arena.minZ() - originZ);
+            BlockVector3 max = BlockVector3.at(
+                    center.x() + arena.maxX() - originX,
+                    center.y() + arena.maxY() - arena.minY(),
+                    center.z() + arena.maxZ() - originZ);
 
-                    com.sk89q.worldedit.world.World worldeditWorld =
-                            BukkitAdapter.adapt(Bukkit.getWorld("arenas"));
-                    CuboidRegion region = new CuboidRegion(worldeditWorld, min, max);
+            com.sk89q.worldedit.world.World worldeditWorld = BukkitAdapter.adapt(Bukkit.getWorld("arenas"));
+            CuboidRegion region = new CuboidRegion(worldeditWorld, min, max);
 
-                    try (EditSession editSession =
-                            WorldEdit.getInstance()
-                                    .newEditSessionBuilder()
-                                    .world(worldeditWorld)
-                                    .fastMode(true)
-                                    .build()) {
-                        editSession.setBlocks(
-                                (com.sk89q.worldedit.regions.Region) region,
-                                (com.sk89q.worldedit.world.block.BlockState)
-                                        BlockTypes.AIR.getDefaultState());
-                    } catch (WorldEditException e) {
-                        Solar.instance
-                                .getLogger()
-                                .log(Level.SEVERE, "Failed to clear arena " + arenaName, e);
-                    }
-                });
+            try (EditSession editSession = WorldEdit.getInstance()
+                    .newEditSessionBuilder()
+                    .world(worldeditWorld)
+                    .fastMode(true)
+                    .build()) {
+                editSession.setBlocks(
+                        (com.sk89q.worldedit.regions.Region) region,
+                        (com.sk89q.worldedit.world.block.BlockState) BlockTypes.AIR.getDefaultState());
+            } catch (WorldEditException e) {
+                Solar.instance.getLogger().log(Level.SEVERE, "Failed to clear arena " + arenaName, e);
+            }
+        });
     }
 
     public static void clearArenaSync(String arenaName, BlockVector3 center) {
@@ -206,16 +176,14 @@ public class FaweHook {
         int originX = (arena.minX() + arena.maxX()) / 2;
         int originZ = (arena.minZ() + arena.maxZ()) / 2;
 
-        BlockVector3 min =
-                BlockVector3.at(
-                        center.x() + arena.minX() - originX,
-                        center.y() + arena.minY() - arena.minY(),
-                        center.z() + arena.minZ() - originZ);
-        BlockVector3 max =
-                BlockVector3.at(
-                        center.x() + arena.maxX() - originX,
-                        center.y() + arena.maxY() - arena.minY(),
-                        center.z() + arena.maxZ() - originZ);
+        BlockVector3 min = BlockVector3.at(
+                center.x() + arena.minX() - originX,
+                center.y() + arena.minY() - arena.minY(),
+                center.z() + arena.minZ() - originZ);
+        BlockVector3 max = BlockVector3.at(
+                center.x() + arena.maxX() - originX,
+                center.y() + arena.maxY() - arena.minY(),
+                center.z() + arena.maxZ() - originZ);
 
         org.bukkit.World bukkitWorld = Bukkit.getWorld("arenas");
         if (bukkitWorld == null) return;
@@ -224,20 +192,16 @@ public class FaweHook {
         CuboidRegion region = new CuboidRegion(worldeditWorld, min, max);
 
         // Synchronous EditSession without FastMode so changes commit immediately to Bukkit
-        try (EditSession editSession =
-                WorldEdit.getInstance()
-                        .newEditSessionBuilder()
-                        .world(worldeditWorld)
-                        .fastMode(false)
-                        .build()) {
+        try (EditSession editSession = WorldEdit.getInstance()
+                .newEditSessionBuilder()
+                .world(worldeditWorld)
+                .fastMode(false)
+                .build()) {
 
-            editSession.setBlocks(
-                    (com.sk89q.worldedit.regions.Region) region, BlockTypes.AIR.getDefaultState());
+            editSession.setBlocks((com.sk89q.worldedit.regions.Region) region, BlockTypes.AIR.getDefaultState());
             editSession.flushQueue(); // Ensure queued operations are explicitly flushed
         } catch (WorldEditException e) {
-            Solar.instance
-                    .getLogger()
-                    .log(Level.SEVERE, "Failed to synchronously clear arena " + arenaName, e);
+            Solar.instance.getLogger().log(Level.SEVERE, "Failed to synchronously clear arena " + arenaName, e);
         }
     }
 }

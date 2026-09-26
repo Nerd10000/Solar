@@ -34,8 +34,7 @@ public class PlayerDropItemListener implements Listener {
             InMemoryKit inMemoryKit = kitManager.getKit(match.getKit());
 
             if (inMemoryKit != null) {
-                if (match.getStage() == MatchStageEnum.ONGOING
-                        && inMemoryKit.flags.preventItemDrop()) {
+                if (match.getStage() == MatchStageEnum.ONGOING && inMemoryKit.flags.preventItemDrop()) {
 
                     e.setCancelled(true);
                 }

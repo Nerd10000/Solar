@@ -19,8 +19,7 @@ public class DuelRequestArg {
     private final DuelInviteManager duelInviteManager;
     private final MessageService messages;
 
-    public DuelRequestArg(
-            KitManager kitManager, DuelInviteManager duelInviteManager, MessageService messages) {
+    public DuelRequestArg(KitManager kitManager, DuelInviteManager duelInviteManager, MessageService messages) {
         this.kitManager = kitManager;
         this.duelInviteManager = duelInviteManager;
         this.messages = messages;
@@ -47,19 +46,17 @@ public class DuelRequestArg {
 
         InMemoryKit inMemoryKit = kitManager.getKit(kit);
         if (inMemoryKit == null) {
-            messages.send(
-                    sender, messages.language().kitNotFound(), Placeholder.parsed("kit", kit));
+            messages.send(sender, messages.language().kitNotFound(), Placeholder.parsed("kit", kit));
             return;
         }
 
-        DuelInviteRecord record =
-                new DuelInviteRecord(
-                        sender.getUniqueId(),
-                        player.getUniqueId(),
-                        kit,
-                        requestedMap,
-                        requestedRounds,
-                        System.currentTimeMillis());
+        DuelInviteRecord record = new DuelInviteRecord(
+                sender.getUniqueId(),
+                player.getUniqueId(),
+                kit,
+                requestedMap,
+                requestedRounds,
+                System.currentTimeMillis());
         if (!duelInviteManager.add(record)) {
             messages.send(sender, messages.language().tooManyDuelInvites());
             return;

@@ -15,24 +15,18 @@ public class PlayerStatCache {
 
     public PlayerStatCache() {
 
-        this.cache =
-                Caffeine.newBuilder()
-                        .maximumSize(10_000)
-                        .buildAsync(
-                                (key, executor) ->
-                                        Solar.databaseManager
-                                                .getStatById(key.uuid(), key.kit())
-                                                .thenApply(
-                                                        stat -> {
-                                                            if (stat == null) {
+        this.cache = Caffeine.newBuilder().maximumSize(10_000).buildAsync((key, executor) -> Solar.databaseManager
+                .getStatById(key.uuid(), key.kit())
+                .thenApply(stat -> {
+                    if (stat == null) {
 
-                                                                stat = new PlayerStat();
+                        stat = new PlayerStat();
 
-                                                                stat.setUuid(key.uuid().toString());
-                                                                stat.setKit(key.kit());
-                                                            }
-                                                            return stat;
-                                                        }));
+                        stat.setUuid(key.uuid().toString());
+                        stat.setKit(key.kit());
+                    }
+                    return stat;
+                }));
     }
 
     public CompletableFuture<PlayerStat> get(UUID uuid, String kit) {

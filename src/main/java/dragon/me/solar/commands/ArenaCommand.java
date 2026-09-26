@@ -15,8 +15,7 @@ public class ArenaCommand {
     private ConfigManager configManager;
     private MiniMessage miniMessage;
 
-    public ArenaCommand(
-            ArenaManager arenaManager, ConfigManager configManager, MiniMessage miniMessage) {
+    public ArenaCommand(ArenaManager arenaManager, ConfigManager configManager, MiniMessage miniMessage) {
         this.arenaManager = arenaManager;
         this.configManager = configManager;
         this.miniMessage = miniMessage;
@@ -30,11 +29,10 @@ public class ArenaCommand {
         for (String s : unparsed) {
 
             stack.getSender()
-                    .sendMessage(
-                            miniMessage.deserialize(
-                                    s,
-                                    Placeholder.parsed(
-                                            "prefix", configManager.languageRecord().prefix())));
+                    .sendMessage(miniMessage.deserialize(
+                            s,
+                            Placeholder.parsed(
+                                    "prefix", configManager.languageRecord().prefix())));
         }
     }
 
@@ -46,11 +44,10 @@ public class ArenaCommand {
         for (String s : unparsed) {
 
             stack.getSender()
-                    .sendMessage(
-                            miniMessage.deserialize(
-                                    s,
-                                    Placeholder.parsed(
-                                            "prefix", configManager.languageRecord().prefix())));
+                    .sendMessage(miniMessage.deserialize(
+                            s,
+                            Placeholder.parsed(
+                                    "prefix", configManager.languageRecord().prefix())));
         }
     }
 

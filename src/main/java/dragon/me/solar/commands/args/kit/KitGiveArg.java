@@ -23,10 +23,7 @@ public class KitGiveArg {
             @Argument("player") Player player) {
         InMemoryKit kit = context.kitManager().getKit(id);
         if (kit == null) {
-            context.send(
-                    stack,
-                    context.messages().language().kitNotFound(),
-                    Placeholder.parsed("kit", id));
+            context.send(stack, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
             return;
         }
         context.kitService().applyKit(player, kit);

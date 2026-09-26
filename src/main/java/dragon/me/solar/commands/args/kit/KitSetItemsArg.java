@@ -18,8 +18,7 @@ public class KitSetItemsArg {
 
     @Command("kit set-items <id>")
     @Permission("solar.kit.manage.set-items")
-    public void setItems(
-            CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
+    public void setItems(CommandSourceStack stack, @Argument(value = "id", suggestions = "kits") String id) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
@@ -33,16 +32,13 @@ public class KitSetItemsArg {
 
         kit.items = player.getInventory().getStorageContents();
         kit.armor = player.getInventory().getArmorContents();
-        kit.offhand =
-                player.getInventory().getItemInOffHand().getType() == Material.AIR
-                        ? null
-                        : player.getInventory().getItemInOffHand();
-        context.send(
-                player, context.messages().language().kitItemsSet(), Placeholder.parsed("kit", id));
+        kit.offhand = player.getInventory().getItemInOffHand().getType() == Material.AIR
+                ? null
+                : player.getInventory().getItemInOffHand();
+        context.send(player, context.messages().language().kitItemsSet(), Placeholder.parsed("kit", id));
     }
 
     private void sendKitNotFound(Player player, String id) {
-        context.send(
-                player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
+        context.send(player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
     }
 }

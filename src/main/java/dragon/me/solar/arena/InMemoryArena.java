@@ -25,16 +25,6 @@ public class InMemoryArena {
 
     public ArenaRecord toRecord() {
 
-        return new ArenaRecord(
-                name,
-                minX,
-                minY,
-                minZ,
-                maxX,
-                maxY,
-                maxZ,
-                spawn1,
-                spawn2,
-                "schem/" + name + ".schem");
+        return new ArenaRecord(name, minX, minY, minZ, maxX, maxY, maxZ, spawn1, spawn2, "schem/" + name + ".schem");
     }
 }

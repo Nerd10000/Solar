@@ -85,22 +85,19 @@ public final class SolarContext {
         PartyService partyService = new PartyService(partyManager);
         DatabaseManager databaseManager = new DatabaseManager("solar.db");
         PlayerStatCache cache = new PlayerStatCache();
-        MatchPlayerStateService playerStateService =
-                new MatchPlayerStateService(plugin, configManager);
-        MatchAnnouncementService announcementService =
-                new MatchAnnouncementService(configManager, messageService);
-        MatchCountdownService countdownService =
-                new MatchCountdownService(plugin, configManager, messageService);
-        MatchService matchService =
-                new MatchService(
-                        matchManager,
-                        gridManager,
-                        configManager,
-                        kitManager,
-                        kitService,
-                        playerStateService,
-                        announcementService,
-                        countdownService);
+        MatchPlayerStateService playerStateService = new MatchPlayerStateService(plugin, configManager);
+        MatchAnnouncementService announcementService = new MatchAnnouncementService(configManager, messageService);
+        MatchCountdownService countdownService = new MatchCountdownService(plugin, configManager, messageService);
+        MatchService matchService = new MatchService(
+                matchManager,
+                gridManager,
+                configManager,
+                kitManager,
+                kitService,
+                playerStateService,
+                announcementService,
+                countdownService,
+                arenaManager);
 
         return new SolarContext(
                 configManager,

@@ -28,14 +28,9 @@ public class DuelDeclineArg {
             messages.send(player, messages.language().maintenancePrevention());
         }
 
-        messages.send(
-                player,
-                messages.language().duelDeclined(),
-                Placeholder.parsed("sender", target.getName()));
+        messages.send(player, messages.language().duelDeclined(), Placeholder.parsed("sender", target.getName()));
         duelInviteManager.removeBySender(target.getUniqueId());
         messages.send(
-                target,
-                messages.language().duelDeclinedRequester(),
-                Placeholder.parsed("target", player.getName()));
+                target, messages.language().duelDeclinedRequester(), Placeholder.parsed("target", player.getName()));
     }
 }

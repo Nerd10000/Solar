@@ -9,6 +9,5 @@ public record GlobalArenaSettingsRecord(
         @Setting("y-coordinate") int y,
         @Setting("column") int column) {
 
-    public static final GlobalArenaSettingsRecord DEFAULTS =
-            new GlobalArenaSettingsRecord(512, 64, 100);
+    public static final GlobalArenaSettingsRecord DEFAULTS = new GlobalArenaSettingsRecord(512, 64, 100);
 }

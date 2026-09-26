@@ -15,8 +15,7 @@ public class MatchCountdownService {
     private final ConfigManager configManager;
     private final MessageService messages;
 
-    public MatchCountdownService(
-            Solar plugin, ConfigManager configManager, MessageService messages) {
+    public MatchCountdownService(Solar plugin, ConfigManager configManager, MessageService messages) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.messages = messages;
@@ -30,18 +29,16 @@ public class MatchCountdownService {
                     .runTaskLater(
                             plugin,
                             () -> {
-                                String sound =
-                                        configManager
-                                                .settingsRecord()
-                                                .soundRecords()
-                                                .countdownSound();
+                                String sound = configManager
+                                        .settingsRecord()
+                                        .soundRecords()
+                                        .countdownSound();
                                 for (TeamPlayer teamPlayer : match.getMembers()) {
                                     Player player = Bukkit.getPlayer(teamPlayer.uuid());
                                     if (player == null) {
                                         continue;
                                     }
-                                    SoundUtils.playConfiguredSound(
-                                            player, sound, Sound.BLOCK_NOTE_BLOCK_PLING);
+                                    SoundUtils.playConfiguredSound(player, sound, Sound.BLOCK_NOTE_BLOCK_PLING);
                                     messages.send(
                                             player,
                                             "<gray>Match starts in <color:#FCD05C>"
@@ -64,7 +61,10 @@ public class MatchCountdownService {
                                 }
                                 SoundUtils.playConfiguredSound(
                                         player,
-                                        configManager.settingsRecord().soundRecords().startSound(),
+                                        configManager
+                                                .settingsRecord()
+                                                .soundRecords()
+                                                .startSound(),
                                         Sound.BLOCK_BEACON_ACTIVATE);
                                 messages.send(player, messages.language().matchBegin());
                             }

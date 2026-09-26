@@ -29,50 +29,36 @@ public class PlayerJoinListener implements Listener {
 
         if (!configManager.settingsRecord().teleportToLobbyOnJoin()) return;
 
-        p.teleport(
-                new Location(
-                        Bukkit.getWorld(configManager.settingsRecord().lobbyRecord().name()),
-                        configManager.settingsRecord().lobbyRecord().x(),
-                        configManager.settingsRecord().lobbyRecord().y(),
-                        configManager.settingsRecord().lobbyRecord().z(),
-                        configManager.settingsRecord().lobbyRecord().yaw(),
-                        configManager.settingsRecord().lobbyRecord().pitch()));
+        p.teleport(new Location(
+                Bukkit.getWorld(configManager.settingsRecord().lobbyRecord().name()),
+                configManager.settingsRecord().lobbyRecord().x(),
+                configManager.settingsRecord().lobbyRecord().y(),
+                configManager.settingsRecord().lobbyRecord().z(),
+                configManager.settingsRecord().lobbyRecord().yaw(),
+                configManager.settingsRecord().lobbyRecord().pitch()));
 
-        Solar.databaseManager
-                .getStoreById(e.getPlayer().getUniqueId())
-                .thenAccept(
-                        store -> {
-                            if (store == null) return;
+        Solar.databaseManager.getStoreById(e.getPlayer().getUniqueId()).thenAccept(store -> {
+            if (store == null) return;
 
-                            //            p.getInventory().setContents((ItemStack[])
-                            // store.getContent());
-                            //            p.getInventory().setItemInOffHand((ItemStack)
-                            // store.getOffhand());
-                            //            p.getInventory().setArmorContents((ItemStack[])
-                            // store.getArmor());
+            //            p.getInventory().setContents((ItemStack[])
+            // store.getContent());
+            //            p.getInventory().setItemInOffHand((ItemStack)
+            // store.getOffhand());
+            //            p.getInventory().setArmorContents((ItemStack[])
+            // store.getArmor());
 
-                            // TODO: Handle adding potion effects.
+            // TODO: Handle adding potion effects.
 
-                            p.teleportAsync(
-                                    new Location(
-                                            Bukkit.getWorld(
-                                                    configManager
-                                                            .settingsRecord()
-                                                            .lobbyRecord()
-                                                            .name()),
-                                            configManager.settingsRecord().lobbyRecord().x(),
-                                            configManager.settingsRecord().lobbyRecord().y(),
-                                            configManager.settingsRecord().lobbyRecord().z(),
-                                            configManager.settingsRecord().lobbyRecord().yaw(),
-                                            configManager.settingsRecord().lobbyRecord().pitch()));
+            p.teleportAsync(new Location(
+                    Bukkit.getWorld(configManager.settingsRecord().lobbyRecord().name()),
+                    configManager.settingsRecord().lobbyRecord().x(),
+                    configManager.settingsRecord().lobbyRecord().y(),
+                    configManager.settingsRecord().lobbyRecord().z(),
+                    configManager.settingsRecord().lobbyRecord().yaw(),
+                    configManager.settingsRecord().lobbyRecord().pitch()));
 
-                            databaseManager.removeStoreById(p.getUniqueId());
-                            Solar.instance
-                                    .getLogger()
-                                    .info(
-                                            "Restored the state of "
-                                                    + p.getName()
-                                                    + " later as he left the match!");
-                        });
+            databaseManager.removeStoreById(p.getUniqueId());
+            Solar.instance.getLogger().info("Restored the state of " + p.getName() + " later as he left the match!");
+        });
     }
 }

@@ -19,9 +19,7 @@ public class ArenaFinalizeArg {
 
     @Command("arenas finalize <name>")
     @Permission("solar.arena.manage.finalize")
-    public void finalizeArena(
-            CommandSourceStack stack,
-            @Argument(value = "name", suggestions = "arenas") String name) {
+    public void finalizeArena(CommandSourceStack stack, @Argument(value = "name", suggestions = "arenas") String name) {
         if (!(stack.getSender() instanceof Player player)) {
             messages.sendConsoleError(stack);
             return;
