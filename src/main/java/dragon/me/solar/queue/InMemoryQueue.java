@@ -1,5 +1,7 @@
 package dragon.me.solar.queue;
 
+import dragon.me.solar.configs.records.QueueFlagsRecord;
+import dragon.me.solar.configs.records.QueueRecord;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.UUID;
@@ -9,9 +11,13 @@ public class InMemoryQueue {
     public final String kitId;
     public Queue<UUID> queue = new ArrayDeque<>();
     public int teamSize = 1;
+    public final String name;
+    public QueueFlagsRecord flags;
 
-    public InMemoryQueue(String kitId) {
+    public boolean isEnabled = false;
 
+    public InMemoryQueue(String name, String kitId) {
+        this.name = name;
         this.kitId = kitId;
     }
 
@@ -26,7 +32,6 @@ public class InMemoryQueue {
     }
 
     public void leave(UUID uuid) {
-
         queue.remove(uuid);
     }
 
@@ -47,5 +52,10 @@ public class InMemoryQueue {
     public boolean isEnoughForNextMatch(int teamSize) {
 
         return queue.size() >= teamSize * 2;
+    }
+
+    public QueueRecord toRecord() {
+
+        return new QueueRecord(name, kitId, isEnabled, teamSize, flags);
     }
 }

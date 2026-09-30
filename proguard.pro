@@ -22,6 +22,13 @@
     <methods>;
     <init>();
 }
+-keep enum dragon.me.solar.commands.args.queues.QueueType {
+    <fields>;
+    <methods>;
+    <init>();
+}
+
+
 # =====
 # ============================================================
 # Keep shaded dependencies unchanged
@@ -47,9 +54,19 @@
 # Obfuscation
 -repackageclasses 'dragon.me.solar.obf'
 -allowaccessmodification
--flattenpackagehierarchy 'obfuscatedx'
--overloadaggressively
 
 # Optimizations
 -mergeinterfacesaggressively
 -optimizeaggressively
+
+# =========================
+# Optimization
+# =========================
+
+-optimizationpasses 5
+-allowaccessmodification
+
+# Don't optimize these packages initially
+-keep,allowoptimization class dragon.me.solar.Solar {
+    public <init>();
+}

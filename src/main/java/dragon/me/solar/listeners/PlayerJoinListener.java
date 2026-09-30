@@ -3,6 +3,7 @@ package dragon.me.solar.listeners;
 import dragon.me.solar.Solar;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.database.DatabaseManager;
+import dragon.me.solar.database.models.PlayerStat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -39,7 +40,16 @@ public class PlayerJoinListener implements Listener {
 
         for (String kitName : Solar.kitManager.getKits().keySet()) {
 
-            Solar.cache.get(e.getPlayer().getUniqueId(), kitName).thenAccept(stat -> {});
+            Solar.cache.getPlayer(p.getUniqueId(), kitName).thenAccept(stat -> {
+                if (stat == null) {
+                    stat = new PlayerStat();
+                    stat.setUuid(p.getUniqueId().toString());
+                    stat.setKit(kitName);
+                    stat.setElo(configManager.settingsRecord().ratingSettings().defaultElo());
+
+                    databaseManager.updateStats(stat);
+                }
+            });
         }
 
         Solar.databaseManager.getStoreById(e.getPlayer().getUniqueId()).thenAccept(store -> {

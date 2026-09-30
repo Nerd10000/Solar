@@ -21,6 +21,9 @@ public class PlayerStat {
     @DatabaseField(defaultValue = "0")
     private int losses;
 
+    @DatabaseField
+    private int elo;
+
     public PlayerStat() {}
 
     public String getUuid() {
@@ -53,5 +56,17 @@ public class PlayerStat {
 
     public void setLosses(int losses) {
         this.losses = losses;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getElo() {
+        return elo;
+    }
+
+    public void setElo(int elo) {
+        this.elo = elo;
     }
 }

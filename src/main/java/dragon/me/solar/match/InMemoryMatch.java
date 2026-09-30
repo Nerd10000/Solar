@@ -4,6 +4,7 @@ import dragon.me.solar.match.player.PlayerSnapshot;
 import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchStageEnum;
+import dragon.me.solar.queue.InMemoryQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +28,14 @@ public class InMemoryMatch {
     private final Map<UUID, PlayerSnapshot> savedInventories = new HashMap<>();
 
     private boolean preventAllActions = false;
+    private final long startMillis;
+    private InMemoryQueue matchSource = null; // this is null if it is a /duel or a party duel (not queued)
 
     public InMemoryMatch(List<InMemoryTeam> teamList, String kit) {
         uuid = UUID.randomUUID();
         this.teamList = teamList;
         this.kit = kit;
+        this.startMillis = System.currentTimeMillis();
     }
 
     public List<InMemoryTeam> getTeamList() {
@@ -160,6 +164,10 @@ public class InMemoryMatch {
         return savedInventories;
     }
 
+    public long getStartMillis() {
+        return startMillis;
+    }
+
     public void saveInventory(Player player) {
         savedInventories.put(player.getUniqueId(), PlayerSnapshot.capture(player));
     }
@@ -170,5 +178,13 @@ public class InMemoryMatch {
 
     public void setPreventAllActions(boolean preventAllActions) {
         this.preventAllActions = preventAllActions;
+    }
+
+    public InMemoryQueue getMatchSource() {
+        return matchSource;
+    }
+
+    public void setMatchSource(InMemoryQueue matchSource) {
+        this.matchSource = matchSource;
     }
 }

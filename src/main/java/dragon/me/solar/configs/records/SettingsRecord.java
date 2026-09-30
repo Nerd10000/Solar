@@ -10,7 +10,8 @@ public record SettingsRecord(
         @Setting("lobby-location") LobbyRecord lobbyRecord,
         @Setting("sounds") SoundRecords soundRecords,
         @Setting("teleport-to-lobby-on-join") boolean teleportToLobbyOnJoin,
-        @Setting("party-invite-expire-time") long partyInviteExpireTime) {
+        @Setting("party-invite-expire-time") long partyInviteExpireTime,
+        @Setting("rating-settings") RatingSettingsRecord ratingSettings) {
 
     public static final SettingsRecord DEFAULTS = new SettingsRecord(
             GlobalArenaSettingsRecord.DEFAULTS,
@@ -24,7 +25,8 @@ public record SettingsRecord(
                     "ui.toast.challange.complete",
                     "block.note_block.bass"),
             true,
-            120000);
+            120000,
+            RatingSettingsRecord.DEFAULT);
 
     public SettingsRecord updateLobbyLocation(LobbyRecord record) {
 
@@ -34,7 +36,8 @@ public record SettingsRecord(
                 record,
                 this.soundRecords,
                 this.teleportToLobbyOnJoin,
-                this.partyInviteExpireTime);
+                this.partyInviteExpireTime,
+                this.ratingSettings);
 
         return prev;
     }

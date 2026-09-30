@@ -1,10 +1,18 @@
 package dragon.me.solar.hooks.papi;
 
 import dragon.me.solar.Solar;
+import dragon.me.solar.match.InMemoryMatch;
+import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.match.teams.InMemoryTeam;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,8 +64,97 @@ public class SolarExpansion extends PlaceholderExpansion {
             case "losses" -> resolveLosses(player, kit, parts);
             case "wlr" -> resolveWlr(player, kit, parts);
             case "winrate" -> resolveWinrate(player, kit, parts);
+            case "match" -> resolveMatch(player, kit, parts);
             default -> null;
         };
+    }
+
+    private String resolveMatch(OfflinePlayer player, String kit, String[] parts) {
+
+        int count = 2;
+
+        if (parts.length >= 3 && !parts[2].isBlank()) {
+            try {
+                count = Integer.parseInt(parts[2]);
+            } catch (NumberFormatException ignored) {
+                // Keep default
+            }
+        }
+
+        switch (kit.toLowerCase()) {
+            case "active":
+                return String.valueOf(Solar.matchManager.isPlayerInAMatch(player.getUniqueId()));
+            case "kit":
+                if (!Solar.matchManager.isPlayerInAMatch(player.getUniqueId())) {
+                    return "null";
+                }
+
+                return Solar.matchManager.getMatchByMember(player.getUniqueId()).getKit();
+            case "arena":
+                if (!Solar.matchManager.isPlayerInAMatch(player.getUniqueId())) {
+                    return "null";
+                }
+
+                return Solar.matchManager.getMatchByMember(player.getUniqueId()).getArenaName();
+            case "state":
+                if (!Solar.matchManager.isPlayerInAMatch(player.getUniqueId())) {
+                    return "null";
+                }
+
+                return Solar.matchManager
+                        .getMatchByMember(player.getUniqueId())
+                        .getStage()
+                        .name();
+            case "opponents":
+                if (!Solar.matchManager.isPlayerInAMatch(player.getUniqueId())) {
+                    return "null";
+                }
+
+                InMemoryMatch match = Solar.matchManager.getMatchByMember(player.getUniqueId());
+                InMemoryTeam ownTeam = match.getTeamByMember(player.getUniqueId());
+
+                List<String> names = new ArrayList<>();
+                boolean hasMore = false;
+
+                outer:
+                for (InMemoryTeam team : match.getTeamList()) {
+                    if (team.equals(ownTeam)) continue;
+
+                    for (TeamPlayer tp : team.getMembers()) {
+                        if (names.size() >= count) {
+                            hasMore = true;
+                            break outer;
+                        }
+
+                        Player target = Bukkit.getPlayer(tp.uuid());
+                        if (target != null) {
+                            names.add(target.getName());
+                        }
+                    }
+                }
+
+                String result = String.join(", ", names);
+                return hasMore ? result + " ..." : result;
+
+            case "duration":
+                if (!Solar.matchManager.isPlayerInAMatch(player.getUniqueId())) {
+                    return "null";
+                }
+
+                InMemoryMatch match2 = Solar.matchManager.getMatchByMember(player.getUniqueId());
+
+                Instant start = Instant.ofEpochMilli(match2.getStartMillis());
+                Instant now = Instant.now();
+
+                Duration duration = Duration.between(start, now);
+
+                long minutes = duration.toMinutes();
+                long seconds = duration.getSeconds() % 60;
+
+                return String.format("%02d:%02d", minutes, seconds);
+        }
+
+        return null;
     }
 
     private String resolveWlr(OfflinePlayer player, String kit, String[] parts) {
