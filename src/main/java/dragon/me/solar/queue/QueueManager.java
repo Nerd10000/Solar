@@ -21,6 +21,8 @@ public class QueueManager {
             queue.teamSize = entry.getValue().teamSize();
             queue.flags = entry.getValue().flags();
             queue.isEnabled = entry.getValue().isEnabled();
+
+            queueManagerMap.put(entry.getKey(), queue);
         }
     }
 

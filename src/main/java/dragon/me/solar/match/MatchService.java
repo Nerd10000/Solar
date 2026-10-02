@@ -61,10 +61,6 @@ public class MatchService {
 
         match.setStage(MatchStageEnum.STARTING);
 
-        if (queue != null) {
-            match.setMatchSource(queue);
-        }
-
         BlockVector3 center = gridManager.getCenter(match.getGridSlot());
         FaweHook.pasteArena(match.getArenaName(), center)
                 .thenAccept(success -> {

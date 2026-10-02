@@ -87,12 +87,18 @@ public record LanguageRecord(
         @Setting("queue-created") String queueCreated,
         @Setting("queue-not-exists") String queueNotExists,
         @Setting("queue-flags-set") String queueFlagsSet,
+        @Setting("joined-queue") String joinedQueue,
+        @Setting("in-queue-actionbar") String inQueueActionbar,
 
         // Help messages
         @Setting("party-help") List<String> partyHelp,
         @Setting("arenas-help") List<String> arenasHelp,
         @Setting("solar-help") List<String> solarHelp,
-        @Setting("queue-help") List<String> queueHelp) {
+        @Setting("queue-help") List<String> queueHelp,
+
+        // Titles / Misc
+        @Setting("match-found") String matchFound,
+        @Setting("match-found-subtitle") String matchFoundSubtitle) {
 
     public static final LanguageRecord DEFAULTS = new LanguageRecord(
             "<i><b><gradient:#FCD05C:#A48022>Solar</gradient></b></i> <grey>→<reset> ",
@@ -194,6 +200,8 @@ public record LanguageRecord(
             "<prefix><gray>The <color:#fcd05c>'<queue>'</color:#fcd05c> queue was successfully created!</gray>",
             "<prefix><red>The specified '<queue>' queue does not exists!</red>",
             "<prefix><gray>The <color:#fcd05c>'<queue>'</color:#fcd05c> queue's flags have been set!</gray>",
+            "<prefix><gray>You've joined the <color:#fcd05c>'<queue>'</color:#fcd05c> queue!</gray>",
+            "<color:#fcd05c>Queue → </color:#fcd05c> <gray>In <queues> queue(s) for <time>!</gray>",
             List.of(
                     "<b><gradient:#FCD05C:#A48022><u>Help for Parties:</u></b>",
                     "<gradient:#FCD05C:#A48022>/party create <gray>- Creates the party.",
@@ -225,5 +233,7 @@ public record LanguageRecord(
                     "<b><gradient:#FCD05C:#A48022><u>Help for Queue:</u></b>",
                     "<gradient:#FCD05C:#A48022>/queue create <name> <kit> <gray>- Creates a queue.",
                     "<gradient:#FCD05C:#A48022>/queue set-flags <name> <flags...> <gray>- Sets the flags for the queue which is specified.",
-                    "<gradient:#FCD05C:#A48022>/queue finalize <name> <gray>- Saves/Finalizes the specified queue."));
+                    "<gradient:#FCD05C:#A48022>/queue finalize <name> <gray>- Saves/Finalizes the specified queue."),
+            "<b><gradient:#FCD05C:#A48022><u>MATCH FOUND!</u></b>",
+            "<gray>We found a match for you, prepare to fight!</gray>");
 }

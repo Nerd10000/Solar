@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 
 public class MessageService {
@@ -39,6 +40,15 @@ public class MessageService {
         }
 
         return deserialize(template, placeholders);
+    }
+
+    public void sendActionBar(Player player, String template, TagResolver... placeholders) {
+        player.sendActionBar(render(player, template, placeholders));
+    }
+
+    public void sendTitle(Player player, String title, String subtitle, TagResolver... placeholders) {
+
+        player.showTitle(Title.title(render(player, title, placeholders), render(player, subtitle, placeholders)));
     }
 
     public Component render(CommandSourceStack stack, String template, TagResolver... placeholders) {

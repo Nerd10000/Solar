@@ -26,7 +26,7 @@ configurations {
 	}
 }
 group = 'dragon.me'
-version = '1.0.0'
+version = '0.1.0.beta.1'
 
 repositories {
 	mavenCentral()
@@ -151,7 +151,10 @@ processResources {
 		expand props
 	}
 }
-
+tasks.jar {
+	archiveBaseName.set("Solar")
+	archiveVersion.set(project.version.toString())
+}
 tasks.shadowJar {
 	archiveClassifier.set("")
 }

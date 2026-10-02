@@ -52,12 +52,13 @@
 -keepattributes MethodParameters
 
 # Obfuscation
--repackageclasses 'dragon.me.solar.obf'
+-repackageclasses 'dragon.me.solar'
 -allowaccessmodification
 
 # Optimizations
 -mergeinterfacesaggressively
 -optimizeaggressively
+
 
 # =========================
 # Optimization

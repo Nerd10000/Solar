@@ -1,46 +1,78 @@
 package dragon.me.solar.queue;
 
+import dragon.me.solar.Solar;
+import dragon.me.solar.match.InMemoryMatch;
 import dragon.me.solar.match.MatchService;
+import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.match.teams.InMemoryTeam;
+import dragon.me.solar.utils.SoundUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class QueueService {
 
     private final QueueManager queueManager;
+    private final MatchService matchService;
 
-    public QueueService(QueueManager queueManager) {
+    public QueueService(QueueManager queueManager, MatchService matchService) {
 
         this.queueManager = queueManager;
+        this.matchService = matchService;
     }
 
-    public void joinQueue(UUID playerId, String kit) {
+    public boolean isAbleToStart(String queueName) {
 
-        InMemoryQueue queue = queueManager.get(kit);
+        InMemoryQueue queue = queueManager.get(queueName);
+
+        if (queue == null) {
+            return false;
+        }
+
+        return queue.queue.size() >= (queue.teamSize * 2);
+    }
+
+    public void joinQueue(UUID playerId, String queueName) {
+
+        InMemoryQueue queue = queueManager.get(queueName);
 
         if (queue == null) {
             return;
         }
 
         queue.join(playerId);
+        Player player = Bukkit.getPlayer(playerId);
+        if (player != null) {
+
+            Solar.queueActionbarService.startActionbar(player, queue);
+        }
+        startMatch(Bukkit.getPlayer(playerId), queue);
     }
 
-    public void leaveQueue(UUID playerId, String kit) {
+    public void leaveQueue(UUID playerId, String queueName) {
 
-        InMemoryQueue queue = queueManager.get(kit);
+        InMemoryQueue queue = queueManager.get(queueName);
 
         if (queue == null) {
             return;
         }
 
         queue.leave(playerId);
+
+        Player player = Bukkit.getPlayer(playerId);
+        if (player != null) {
+
+            Solar.queueActionbarService.stopActionbar(player, queue);
+        }
     }
 
-    public void startMatch(Player p, String kit, MatchService service) {
-
-        InMemoryQueue queue = queueManager.get(kit);
+    public void startMatch(Player p, InMemoryQueue queue) {
 
         if (queue != null) {
 
@@ -57,6 +89,68 @@ public class QueueService {
 
                 teams.add(new ArrayList<>(players.subList(from, to)));
             }
+
+            players.forEach(player -> {
+                Player bukkitPlayer = Bukkit.getPlayer(player);
+
+                if (bukkitPlayer != null) {
+                    Solar.messageService.sendTitle(
+                            bukkitPlayer,
+                            Solar.messageService.language().matchFound(),
+                            Solar.messageService.language().matchFoundSubtitle());
+
+                    SoundUtils.playConfiguredSound(
+                            bukkitPlayer,
+                            Solar.configManager.settingsRecord().soundRecords().matchFound(),
+                            Sound.ENTITY_PLAYER_LEVELUP);
+                }
+            });
+            InMemoryMatch match = new InMemoryMatch(
+                    teams.stream()
+                            .map(team -> new InMemoryTeam(
+                                    team.stream()
+                                            .map(uuid -> new TeamPlayer(uuid, true))
+                                            .collect(Collectors.toCollection(ArrayList::new)),
+                                    true))
+                            .collect(Collectors.toCollection(ArrayList::new)),
+                    queue.kitId);
+
+            int slot = Solar.gridManager.allocate();
+
+            if (slot < 0) {
+                Solar.instance.getLogger().warning("Failed to start a queue match: no available grid!");
+                return;
+            }
+
+            match.setArenaName(resolveArenaName());
+            match.setGridSlot(slot);
+
+            matchService.startMatch(match, false, queue);
+
+            match.setMatchSource(queue);
+
+            for (TeamPlayer tp : match.getMembers()) {
+                Player player = Bukkit.getPlayer(tp.uuid());
+
+                if (player == null) continue;
+
+                Solar.queueActionbarService.stopActionbar(player, queue);
+            }
         }
+    }
+
+    private String resolveArenaName() {
+        if (Solar.arenaManager.getArenas().isEmpty()) {
+            return null;
+        }
+
+        int index = ThreadLocalRandom.current()
+                .nextInt(Solar.arenaManager.getArenas().size());
+
+        return Solar.arenaManager.getArenas().values().stream()
+                .skip(index)
+                .findFirst()
+                .map(arena -> arena.name)
+                .orElse(null);
     }
 }

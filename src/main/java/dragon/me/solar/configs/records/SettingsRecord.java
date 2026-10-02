@@ -23,7 +23,8 @@ public record SettingsRecord(
                     "block.beacon.deactivate",
                     "entity.blaze.death",
                     "ui.toast.challange.complete",
-                    "block.note_block.bass"),
+                    "block.note_block.bass",
+                    "entity.player.levelup"),
             true,
             120000,
             RatingSettingsRecord.DEFAULT);
