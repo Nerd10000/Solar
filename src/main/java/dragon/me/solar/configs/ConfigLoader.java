@@ -65,8 +65,6 @@ public class ConfigLoader<T> {
         // with values from the defaults without overwriting existing values.
         root.mergeFrom(defaultNode);
 
-        loader.save(root);
-
         T config = root.get(type);
 
         if (config == null) {

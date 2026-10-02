@@ -82,10 +82,23 @@ public record LanguageRecord(
         @Setting("party-broadcast") String partyBroadcast,
         @Setting("party-not-enough-players") String notEnoughPlayers,
 
+        // Queue related
+        @Setting("queue-exists") String queueExists,
+        @Setting("queue-created") String queueCreated,
+        @Setting("queue-not-exists") String queueNotExists,
+        @Setting("queue-flags-set") String queueFlagsSet,
+        @Setting("joined-queue") String joinedQueue,
+        @Setting("in-queue-actionbar") String inQueueActionbar,
+
         // Help messages
         @Setting("party-help") List<String> partyHelp,
         @Setting("arenas-help") List<String> arenasHelp,
-        @Setting("solar-help") List<String> solarHelp) {
+        @Setting("solar-help") List<String> solarHelp,
+        @Setting("queue-help") List<String> queueHelp,
+
+        // Titles / Misc
+        @Setting("match-found") String matchFound,
+        @Setting("match-found-subtitle") String matchFoundSubtitle) {
 
     public static final LanguageRecord DEFAULTS = new LanguageRecord(
             "<i><b><gradient:#FCD05C:#A48022>Solar</gradient></b></i> <grey>→<reset> ",
@@ -183,6 +196,12 @@ public record LanguageRecord(
             "<prefix><gray><color:#fcd05c><player></color:#fcd05c> was kicked by the party leader!</gray>",
             "<prefix><gray>You have been invited to <color:#fcd05c><player>'s party</color:#fcd05c>! Click here to <click:run_command:'party accept <player>'><green><b><u>ACCEPT</u></b></green></click> </gray>",
             "<prefix><red>You can't start the split fight due to lack of players! You must have at least 2 players to start a party event!",
+            "<prefix><red>A name with that queue already exists",
+            "<prefix><gray>The <color:#fcd05c>'<queue>'</color:#fcd05c> queue was successfully created!</gray>",
+            "<prefix><red>The specified '<queue>' queue does not exists!</red>",
+            "<prefix><gray>The <color:#fcd05c>'<queue>'</color:#fcd05c> queue's flags have been set!</gray>",
+            "<prefix><gray>You've joined the <color:#fcd05c>'<queue>'</color:#fcd05c> queue!</gray>",
+            "<color:#fcd05c>Queue → </color:#fcd05c> <gray>In <queues> queue(s) for <time>!</gray>",
             List.of(
                     "<b><gradient:#FCD05C:#A48022><u>Help for Parties:</u></b>",
                     "<gradient:#FCD05C:#A48022>/party create <gray>- Creates the party.",
@@ -209,5 +228,12 @@ public record LanguageRecord(
                     "<b><gradient:#FCD05C:#A48022><u>Help for Solar:</u></b>",
                     "<gradient:#FCD05C:#A48022>/solar setlobby <gray>- Sets the lobby location (where the players will be teleported after a match)",
                     "<gradient:#FCD05C:#A48022>/solar reload <gray>- Reloads the configuration files.",
-                    "<gradient:#FCD05C:#A48022>/solar maintenance <gray>- Turn on or off maintenance mode. (Players will not be able to start a new match!)"));
+                    "<gradient:#FCD05C:#A48022>/solar maintenance <gray>- Turn on or off maintenance mode. (Players will not be able to start a new match!)"),
+            List.of(
+                    "<b><gradient:#FCD05C:#A48022><u>Help for Queue:</u></b>",
+                    "<gradient:#FCD05C:#A48022>/queue create <name> <kit> <gray>- Creates a queue.",
+                    "<gradient:#FCD05C:#A48022>/queue set-flags <name> <flags...> <gray>- Sets the flags for the queue which is specified.",
+                    "<gradient:#FCD05C:#A48022>/queue finalize <name> <gray>- Saves/Finalizes the specified queue."),
+            "<b><gradient:#FCD05C:#A48022><u>MATCH FOUND!</u></b>",
+            "<gray>We found a match for you, prepare to fight!</gray>");
 }

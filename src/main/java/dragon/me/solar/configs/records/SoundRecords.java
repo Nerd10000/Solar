@@ -10,4 +10,5 @@ public record SoundRecords(
         @Setting("lose-sound") String lostSound,
         @Setting("dead-sound") String deadSound,
         @Setting("won-sound") String wonSound,
-        @Setting("party-disbanded") String partyDisbanded) {}
+        @Setting("party-disbanded") String partyDisbanded,
+        @Setting("match-found") String matchFound) {}

@@ -130,7 +130,7 @@ public class PartyStartArg {
                 .getLogger()
                 .info("Starting party ffa: arena=" + arenaName + ", slot=" + slot + ", teams=" + teams.size());
 
-        matchService.startMatch(match, true);
+        matchService.startMatch(match, true, null);
     }
 
     private void startSplit(InMemoryParty party, InMemoryKit kit) {
@@ -166,7 +166,7 @@ public class PartyStartArg {
                 .getLogger()
                 .info("Starting party split: arena=" + arenaName + ", slot=" + slot + ", teams=" + teams.size());
 
-        matchService.startMatch(match, false);
+        matchService.startMatch(match, false, null);
     }
 
     private String resolveArenaName() {

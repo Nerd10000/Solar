@@ -1,6 +1,8 @@
 package dragon.me.solar.match.teams;
 
+import dragon.me.solar.Solar;
 import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.queue.InMemoryQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +41,21 @@ public class InMemoryTeam {
                 return;
             }
         }
+    }
+
+    public int getAvgRating(InMemoryQueue queue) {
+
+        if (queue.flags.weight().equalsIgnoreCase("None")) return 0;
+
+        int sum = 0;
+
+        for (TeamPlayer member : members) {
+            sum += Solar.cache.getElo(member.uuid(), queue.kitId) == 0
+                    ? Solar.configManager.settingsRecord().ratingSettings().defaultElo()
+                    : Solar.cache.getElo(member.uuid(), queue.kitId);
+        }
+
+        return sum / members.size();
     }
 
     public void updateTeamStatus() {

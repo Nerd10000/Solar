@@ -5,7 +5,7 @@ import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.GridManager;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.database.DatabaseManager;
-import dragon.me.solar.database.PlayerStatCache;
+import dragon.me.solar.database.PlayerCache;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.hooks.CompatibilityChecker;
 import dragon.me.solar.kit.KitManager;
@@ -34,7 +34,7 @@ public final class SolarContext {
     public final PartyManager partyManager;
     public final PartyService partyService;
     public final DatabaseManager databaseManager;
-    public final PlayerStatCache cache;
+    public final PlayerCache cache;
     public final MatchService matchService;
 
     private SolarContext(
@@ -51,7 +51,7 @@ public final class SolarContext {
             PartyManager partyManager,
             PartyService partyService,
             DatabaseManager databaseManager,
-            PlayerStatCache cache,
+            PlayerCache cache,
             MatchService matchService) {
         this.configManager = configManager;
         this.arenaManager = arenaManager;
@@ -84,7 +84,7 @@ public final class SolarContext {
         PartyManager partyManager = new PartyManager();
         PartyService partyService = new PartyService(partyManager);
         DatabaseManager databaseManager = new DatabaseManager("solar.db");
-        PlayerStatCache cache = new PlayerStatCache();
+        PlayerCache cache = new PlayerCache();
         MatchPlayerStateService playerStateService = new MatchPlayerStateService(plugin, configManager);
         MatchAnnouncementService announcementService = new MatchAnnouncementService(configManager, messageService);
         MatchCountdownService countdownService = new MatchCountdownService(plugin, configManager, messageService);

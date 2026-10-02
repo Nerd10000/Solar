@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -40,6 +41,7 @@ public class PlayerQuitEventListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
         UUID uuid = event.getPlayer().getUniqueId();
 
         /*
@@ -93,7 +95,7 @@ public class PlayerQuitEventListener implements Listener {
             return;
         }
 
-        Solar.cache.invalidateAll(uuid);
+        Solar.cache.invalidatePlayerAll(uuid);
 
         for (InMemoryTeam team : match.getTeamList()) {
             team.getMembers().removeIf(member -> member.uuid().equals(uuid));
@@ -127,6 +129,12 @@ public class PlayerQuitEventListener implements Listener {
             //
             //            Solar.databaseManager.updateStore(store);
 
+            player.getInventory().setContents(snapshot.getContents());
+            player.getInventory().setArmorContents(snapshot.getArmor());
+            player.getInventory().setItemInOffHand(snapshot.getOffhand());
+            player.clearActivePotionEffects();
+
+            player.updateInventory();
         }
     }
 }

@@ -11,15 +11,18 @@ import dragon.me.solar.kit.InMemoryKit;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
 import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.match.ratings.RatingService;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.match.utils.MatchEndReason;
 import dragon.me.solar.match.utils.MatchStageEnum;
+import dragon.me.solar.queue.InMemoryQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class MatchService {
 
@@ -54,7 +57,7 @@ public class MatchService {
         this.arenaManager = arenaManager;
     }
 
-    public void startMatch(InMemoryMatch match, boolean isFFA) {
+    public void startMatch(InMemoryMatch match, boolean isFFA, @Nullable InMemoryQueue queue) {
 
         match.setStage(MatchStageEnum.STARTING);
 
@@ -174,6 +177,41 @@ public class MatchService {
         announcementService.announceResults(match, winner, winnerName, reason);
         playerStateService.restoreAndTeleport(match);
         playerStateService.resetMaxHealth(match);
+
+        for (InMemoryTeam team : match.getTeamList()) {
+
+            boolean isWinner = team.equals(winner);
+
+            for (TeamPlayer tp : team.getMembers()) {
+                Solar.cache
+                        .getPlayer(tp.uuid(), match.getKit())
+                        .thenCompose(stat -> {
+                            if (isWinner) {
+                                stat.setWins(stat.getWins() + 1);
+
+                            } else {
+                                stat.setLosses(stat.getLosses() + 1);
+                            }
+
+                            return Solar.databaseManager.updateStats(stat);
+                        })
+                        .exceptionally(error -> {
+                            Solar.instance.getLogger().severe("Failed to update stats for " + tp.uuid());
+                            error.printStackTrace();
+                            return null;
+                        });
+            }
+
+            if (match.getTeamList().size() == 2 && match.getMatchSource() != null && winner != null) {
+                RatingService.updateRating(
+                        winner,
+                        match.getTeamList().stream()
+                                .filter(team_ -> team_.equals(winner))
+                                .findFirst()
+                                .get(),
+                        match.getMatchSource());
+            }
+        }
 
         Bukkit.getScheduler()
                 .runTaskLater(

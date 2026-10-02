@@ -1,5 +1,6 @@
 package dragon.me.solar;
 
+import dragon.me.solar.application.AntiPiracy;
 import dragon.me.solar.application.SolarContext;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.DupeArenaGenerator;
@@ -21,13 +22,17 @@ import dragon.me.solar.commands.args.kit.KitSetEffectsArg;
 import dragon.me.solar.commands.args.kit.KitSetFlagsArg;
 import dragon.me.solar.commands.args.kit.KitSetItemsArg;
 import dragon.me.solar.commands.args.party.*;
+import dragon.me.solar.commands.args.queues.*;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.configs.records.KitRecord;
+import dragon.me.solar.configs.records.QueueRecord;
 import dragon.me.solar.database.DatabaseManager;
-import dragon.me.solar.database.PlayerStatCache;
+import dragon.me.solar.database.PlayerCache;
 import dragon.me.solar.duel.DuelInviteManager;
+import dragon.me.solar.hooks.Compatibilities;
 import dragon.me.solar.hooks.CompatibilityChecker;
+import dragon.me.solar.hooks.papi.SolarExpansion;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
 import dragon.me.solar.listeners.*;
@@ -38,6 +43,9 @@ import dragon.me.solar.messages.MessageService;
 import dragon.me.solar.party.PartyManager;
 import dragon.me.solar.party.PartyService;
 import dragon.me.solar.party.invite.PartyInviteManager;
+import dragon.me.solar.queue.QueueActionbarService;
+import dragon.me.solar.queue.QueueManager;
+import dragon.me.solar.queue.QueueService;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.io.File;
 import java.nio.file.Path;
@@ -70,10 +78,14 @@ public final class Solar extends JavaPlugin {
     public static PartyManager partyManager;
     public static PartyService partyService;
     public static DatabaseManager databaseManager;
-    public static PlayerStatCache cache;
+    public static PlayerCache cache;
+    public static QueueManager queueManager;
 
     public static MatchService matchService;
     public static boolean MAINTENANCE_MODE = false;
+
+    public static QueueActionbarService queueActionbarService;
+    public static QueueService queueService;
 
     public static SolarContext context() {
         return context;
@@ -85,6 +97,8 @@ public final class Solar extends JavaPlugin {
 
         instance = this;
         context = SolarContext.create(this);
+
+        AntiPiracy.check(true);
 
         configManager = context.configManager;
         arenaManager = context.arenaManager;
@@ -108,6 +122,10 @@ public final class Solar extends JavaPlugin {
 
         duelInviteManager.expireTimer();
         partyInviteManager.expireTimer();
+        queueManager = new QueueManager(); // TODO: Move it to context
+        queueService = new QueueService(queueManager, matchService); // Todo: Move it to context
+
+        queueActionbarService = new QueueActionbarService(queueService, configManager, messageService);
 
         setupDupeWorld();
 
@@ -131,9 +149,24 @@ public final class Solar extends JavaPlugin {
                 configManager.kitsRecord().kits().entrySet()) {
             this.getLogger().info(" - " + entry.getKey());
         }
+        queueManager.load(configManager.queuesRecord());
+
+        this.getLogger()
+                .info("Loaded in " + configManager.queuesRecord().queues().size() + " queue(s)!");
+        for (Map.Entry<String, QueueRecord> entry :
+                configManager.queuesRecord().queues().entrySet()) {
+            this.getLogger().info(" - " + entry.getKey());
+        }
 
         registerCommands();
         registerListeners();
+
+        if (compatibilityChecker.isCompatibleWith(Compatibilities.PAPI)) {
+
+            new SolarExpansion(this).register();
+        }
+
+        queueActionbarService.tick();
     }
 
     @Override
@@ -164,6 +197,9 @@ public final class Solar extends JavaPlugin {
                 new PartyCommandContext(partyManager, partyInviteManager, configManager, miniMessage, messageService);
         KitCommandContext kitCommandContext =
                 new KitCommandContext(kitManager, kitService, configManager, messageService);
+
+        QueueCommandContext queueCommandContext =
+                new QueueCommandContext(queueManager, kitService, configManager, messageService, queueService);
 
         parser.parse(
                 new PingCommand(),
@@ -204,7 +240,12 @@ public final class Solar extends JavaPlugin {
                         arenaManager,
                         gridManager,
                         matchService,
-                        messageService));
+                        messageService),
+                new QueueCommand(queueCommandContext),
+                new QueueCreateArg(queueCommandContext),
+                new QueueSetFlags(queueCommandContext),
+                new QueueFinalizeArg(queueCommandContext),
+                new QueueJoinArg(queueCommandContext));
     }
 
     public void registerListeners() {

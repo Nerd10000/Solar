@@ -8,6 +8,7 @@ import com.j256.ormlite.table.TableUtils;
 import dragon.me.solar.Solar;
 import dragon.me.solar.database.models.PlayerStat;
 import dragon.me.solar.database.models.PlayerStore;
+import dragon.me.solar.database.models.queue.QueueStat;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class DatabaseManager {
     private ConnectionSource source;
     private Dao<PlayerStat, String> statsDao;
     private Dao<PlayerStore, String> storeDao;
+    private Dao<QueueStat, String> queueDao;
 
     private final ExecutorService thread = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -32,15 +34,62 @@ public class DatabaseManager {
         try {
             this.source = new JdbcConnectionSource(this.url);
             this.statsDao = DaoManager.createDao(source, PlayerStat.class);
+            this.queueDao = DaoManager.createDao(source, QueueStat.class);
+
             //            this.storeDao = DaoManager.createDao(source, PlayerStore.class);
 
             TableUtils.createTableIfNotExists(source, PlayerStat.class);
             //            TableUtils.createTableIfNotExists(source, PlayerStore.class);
+
+            TableUtils.createTableIfNotExists(source, QueueStat.class);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /*
+     *
+     * Queue stat related DB operations
+     *
+     */
+
+    public @Nullable CompletableFuture<QueueStat> getQueueStat(UUID uuid, String queueId) {
+
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        return queueDao.queryBuilder()
+                                .where()
+                                .eq("uuid", uuid.toString())
+                                .and()
+                                .eq("queueId", queueId)
+                                .queryForFirst();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+                thread);
+    }
+
+    public CompletableFuture<Void> updateQueueStat(UUID uuid, String queueId, QueueStat queueStat) {
+
+        return CompletableFuture.runAsync(() -> {
+            try {
+
+                queueDao.createOrUpdate(queueStat);
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /*
+     *
+     * Stat related DB operations
+     *
+     */
     public @Nullable CompletableFuture<PlayerStat> getStatById(UUID uuid, String kit) {
 
         return CompletableFuture.supplyAsync(
@@ -90,6 +139,12 @@ public class DatabaseManager {
                 },
                 thread);
     }
+
+    /*
+     *
+     * Store related DB operations (deprecated)
+     *
+     */
 
     public CompletableFuture<Void> updateStore(PlayerStore store) {
 

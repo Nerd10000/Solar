@@ -14,14 +14,23 @@ public class CompatibilityChecker {
 
             compatibilitiesList.add(Compatibilities.FAWE);
         }
+
+        if (instance.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            compatibilitiesList.add(Compatibilities.PAPI);
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        for (Compatibilities c : compatibilitiesList) {
+
+            builder.append(" " + c.name());
+        }
+
+        Solar.instance.getLogger().info("Hooks: " + builder.toString());
     }
 
     public boolean isCompatibleWith(Compatibilities c) {
 
-        if (compatibilitiesList.contains(c)) {
-            return true;
-        } else {
-            return false;
-        }
+        return compatibilitiesList.contains(c);
     }
 }

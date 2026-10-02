@@ -112,6 +112,6 @@ public class DuelAcceptArg {
         match.setArenaName(arenaName);
         match.setGridSlot(slot);
 
-        matchService.startMatch(match, false);
+        matchService.startMatch(match, false, null);
     }
 }
