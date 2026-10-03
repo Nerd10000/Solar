@@ -81,7 +81,9 @@ public class ConfigManager {
             if (languageLoader != null) {
                 languageRecord = languageLoader.load(LanguageRecord.DEFAULTS);
             }
-
+            if (queuesLoader != null) {
+                queuesRecord = queuesLoader.load(QueuesRecord.DEFAULTS);
+            }
             if (settingsLoader != null) {
                 settingsRecord = settingsLoader.load(SettingsRecord.DEFAULTS);
             }

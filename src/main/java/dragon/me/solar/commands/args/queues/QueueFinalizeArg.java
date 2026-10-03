@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
 
 public class QueueFinalizeArg {
 
@@ -16,6 +17,7 @@ public class QueueFinalizeArg {
     }
 
     @Command("queue finalize <name>")
+    @Permission("solar.queue.finalize")
     public void finalize(CommandSourceStack stack, @Argument("name") String name) {
 
         if (!(stack.getSender() instanceof Player p)) {

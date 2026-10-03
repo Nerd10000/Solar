@@ -35,7 +35,7 @@ public class QueueService {
             return false;
         }
 
-        return queue.queue.size() >= (queue.teamSize * 2);
+        return queue.queue.size() >= (queue.flags.teamSize() * 2);
     }
 
     public void joinQueue(UUID playerId, String queueName) {
@@ -76,16 +76,16 @@ public class QueueService {
 
         if (queue != null) {
 
-            if (!queue.isEnoughForNextMatch(queue.teamSize)) {
+            if (!queue.isEnoughForNextMatch(queue.flags.teamSize())) {
                 return;
             }
-            List<UUID> players = Arrays.asList(queue.getNextParticipants(queue.teamSize * 2));
+            List<UUID> players = Arrays.asList(queue.getNextParticipants(queue.flags.teamSize() * 2));
 
             List<List<UUID>> teams = new ArrayList<>();
 
             for (int i = 0; i < 2; i++) {
-                int from = i * queue.teamSize;
-                int to = from + queue.teamSize;
+                int from = i * queue.flags.teamSize();
+                int to = from + queue.flags.teamSize();
 
                 teams.add(new ArrayList<>(players.subList(from, to)));
             }

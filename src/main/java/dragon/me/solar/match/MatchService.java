@@ -168,16 +168,21 @@ public class MatchService {
         }
 
         match.setStage(MatchStageEnum.ENDED);
+
         if (winner != null) {
             match.setWinner(winner);
         }
 
         playerStateService.clearInventories(match);
+
         String winnerName = announcementService.resolveWinnerName(winner);
+
         announcementService.announceResults(match, winner, winnerName, reason);
+
         playerStateService.restoreAndTeleport(match);
         playerStateService.resetMaxHealth(match);
 
+        // Update wins/losses
         for (InMemoryTeam team : match.getTeamList()) {
 
             boolean isWinner = team.equals(winner);
@@ -188,7 +193,6 @@ public class MatchService {
                         .thenCompose(stat -> {
                             if (isWinner) {
                                 stat.setWins(stat.getWins() + 1);
-
                             } else {
                                 stat.setLosses(stat.getLosses() + 1);
                             }
@@ -197,19 +201,31 @@ public class MatchService {
                         })
                         .exceptionally(error -> {
                             Solar.instance.getLogger().severe("Failed to update stats for " + tp.uuid());
+
                             error.printStackTrace();
                             return null;
                         });
             }
+        }
 
-            if (match.getTeamList().size() == 2 && match.getMatchSource() != null && winner != null) {
-                RatingService.updateRating(
-                        winner,
-                        match.getTeamList().stream()
-                                .filter(team_ -> team_.equals(winner))
-                                .findFirst()
-                                .get(),
-                        match.getMatchSource());
+        if (match.getTeamList().size() == 2
+                && match.getMatchSource() != null
+                && winner != null
+                && !match.getMatchSource().flags.weight().equalsIgnoreCase("None")) {
+
+            Solar.instance.getLogger().warning("[DEBUG] Updating rating for match " + match.getUuid());
+
+            InMemoryTeam loser = null;
+
+            for (InMemoryTeam team : match.getTeamList()) {
+                if (!team.equals(winner)) {
+                    loser = team;
+                    break;
+                }
+            }
+
+            if (loser != null) {
+                RatingService.updateRating(winner, loser, match.getMatchSource());
             }
         }
 

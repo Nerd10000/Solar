@@ -245,7 +245,9 @@ public final class Solar extends JavaPlugin {
                 new QueueCreateArg(queueCommandContext),
                 new QueueSetFlags(queueCommandContext),
                 new QueueFinalizeArg(queueCommandContext),
-                new QueueJoinArg(queueCommandContext));
+                new QueueJoinArg(queueCommandContext),
+                new QueueLeaveArg(queueCommandContext),
+                new QueueToggleArg(queueCommandContext));
     }
 
     public void registerListeners() {

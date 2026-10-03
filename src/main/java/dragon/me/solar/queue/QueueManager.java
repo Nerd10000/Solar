@@ -18,7 +18,6 @@ public class QueueManager {
 
             InMemoryQueue queue =
                     new InMemoryQueue(entry.getKey(), entry.getValue().kit());
-            queue.teamSize = entry.getValue().teamSize();
             queue.flags = entry.getValue().flags();
             queue.isEnabled = entry.getValue().isEnabled();
 

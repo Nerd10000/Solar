@@ -35,11 +35,14 @@ public class PlayerCache {
                 .getQueueStat(key.uuid(), key.queue())
                 .thenApply(queue -> {
                     if (queue == null) {
-
                         queue = new QueueStat();
 
                         queue.setUuid(key.uuid().toString());
                         queue.setQueueId(key.queue());
+                        queue.setElo(Solar.configManager
+                                .settingsRecord()
+                                .ratingSettings()
+                                .defaultElo());
                     }
                     return queue;
                 }));
