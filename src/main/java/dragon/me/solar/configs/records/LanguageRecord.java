@@ -43,7 +43,7 @@ public record LanguageRecord(
         @Setting("spectator-joined") String spectatorJoined,
         @Setting("spectator-left") String spectatorLeft,
         @Setting("match-not-found") String matchNotFound,
-        @Setting("already-in-spectator") String alreadyInSprectator,
+        @Setting("already-in-spectator") String alreadyInSpectator,
         @Setting("not-in-spectator") String notInSpectator,
 
         // Match related messages
@@ -159,7 +159,7 @@ public record LanguageRecord(
                     + " <color:#fcd05c><killer></color:#fcd05c>!</gray>",
             "<prefix><red>You are already spectating! Please leave first.</red>",
             "<prefix><red>You need to be in spectator mode in order to leave!</red>",
-            "<prefix><red>There is no match with that player!</red>",
+            "<prefix><color:#fcd05c>☠ <victim></color> died to the hands of <color:#fcd05c><killer></color:#fcd05c>!</gray>",
             "<gray><color:#fcd05c>☠ <victim></color> died in" + " <color:#fcd05c>combat</color:#fcd05c>!</gray>",
             "<prefix><green>You won the duel!</green>",
             "<prefix><red>You lost the duel. Winner: <color:#FCD05C><winner></color></red>",

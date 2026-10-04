@@ -114,7 +114,7 @@ public class FaweHook {
                     Operation operation = new ClipboardHolder(clipboard)
                             .createPaste(editSession)
                             .to(center)
-                            .ignoreAirBlocks(true)
+                            .ignoreAirBlocks(false)
                             .copyEntities(false)
                             .build();
 

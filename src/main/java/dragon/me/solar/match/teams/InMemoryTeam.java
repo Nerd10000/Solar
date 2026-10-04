@@ -14,6 +14,7 @@ public class InMemoryTeam {
     private List<TeamPlayer> members = new ArrayList<>();
 
     private boolean isTeamAlive = true;
+    private int roundWins = 0;
 
     public InMemoryTeam(List<TeamPlayer> members, boolean isTeamAlive) {
         this.members = members;
@@ -41,6 +42,14 @@ public class InMemoryTeam {
                 return;
             }
         }
+    }
+
+    public int getRoundWins() {
+        return roundWins;
+    }
+
+    public void setRoundWins(int roundWins) {
+        this.roundWins = roundWins;
     }
 
     public int getAvgRating(InMemoryQueue queue) {

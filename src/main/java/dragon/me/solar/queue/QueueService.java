@@ -6,10 +6,7 @@ import dragon.me.solar.match.MatchService;
 import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.utils.SoundUtils;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -69,6 +66,13 @@ public class QueueService {
         if (player != null) {
 
             Solar.queueActionbarService.stopActionbar(player, queue);
+        }
+    }
+
+    public void leaveAllQueues(UUID playerId) {
+
+        for (Map.Entry<String, InMemoryQueue> entry : queueManager.queueManagerMap.entrySet()) {
+            entry.getValue().leave(playerId);
         }
     }
 

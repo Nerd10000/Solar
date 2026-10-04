@@ -22,6 +22,8 @@ public class InMemoryMatch {
     private String arenaName;
     private int gridSlot = -1;
 
+    private int rounds = 1;
+    private int currentRound = 0;
     private InMemoryTeam winner;
     private List<UUID> spectatorList = new ArrayList<>();
     private MatchStageEnum stage = MatchStageEnum.STARTING;
@@ -36,6 +38,22 @@ public class InMemoryMatch {
         this.teamList = teamList;
         this.kit = kit;
         this.startMillis = System.currentTimeMillis();
+    }
+
+    public int getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(int rounds) {
+        this.rounds = rounds;
+    }
+
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
+    public void setCurrentRound(int currentRound) {
+        this.currentRound = currentRound;
     }
 
     public List<InMemoryTeam> getTeamList() {

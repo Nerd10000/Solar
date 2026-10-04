@@ -1,5 +1,7 @@
 package dragon.me.solar.configs.records;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -11,7 +13,8 @@ public record SettingsRecord(
         @Setting("sounds") SoundRecords soundRecords,
         @Setting("teleport-to-lobby-on-join") boolean teleportToLobbyOnJoin,
         @Setting("party-invite-expire-time") long partyInviteExpireTime,
-        @Setting("rating-settings") RatingSettingsRecord ratingSettings) {
+        @Setting("rating-settings") RatingSettingsRecord ratingSettings,
+        @Setting("whitelisted-match-commands") List<String> whitelistedMatchCommands) {
 
     public static final SettingsRecord DEFAULTS = new SettingsRecord(
             GlobalArenaSettingsRecord.DEFAULTS,
@@ -27,7 +30,8 @@ public record SettingsRecord(
                     "entity.player.levelup"),
             true,
             120000,
-            RatingSettingsRecord.DEFAULT);
+            RatingSettingsRecord.DEFAULT,
+            new ArrayList<>(List.of("^/queue(?:\\s+.*)?$", "^/duel(?:\\s+.*)?$", "^/party(?:\\s+.*)?$")));
 
     public SettingsRecord updateLobbyLocation(LobbyRecord record) {
 
@@ -38,7 +42,8 @@ public record SettingsRecord(
                 this.soundRecords,
                 this.teleportToLobbyOnJoin,
                 this.partyInviteExpireTime,
-                this.ratingSettings);
+                this.ratingSettings,
+                this.whitelistedMatchCommands);
 
         return prev;
     }
