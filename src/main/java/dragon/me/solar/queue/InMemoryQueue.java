@@ -10,7 +10,7 @@ public class InMemoryQueue {
 
     public final String kitId;
     public Queue<UUID> queue = new ArrayDeque<>();
-    public int teamSize = 1;
+
     public final String name;
     public QueueFlagsRecord flags;
 
@@ -56,6 +56,6 @@ public class InMemoryQueue {
 
     public QueueRecord toRecord() {
 
-        return new QueueRecord(name, kitId, isEnabled, teamSize, flags);
+        return new QueueRecord(name, kitId, isEnabled, flags);
     }
 }

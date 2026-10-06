@@ -61,8 +61,6 @@ public class ConfigLoader<T> {
         CommentedConfigurationNode defaultNode = loader.createNode();
         defaultNode.set(type, defaults);
 
-        // Merge defaults into the existing config. This will populate any missing keys
-        // with values from the defaults without overwriting existing values.
         root.mergeFrom(defaultNode);
 
         T config = root.get(type);

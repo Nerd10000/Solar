@@ -73,7 +73,9 @@ public class PlayerDeathEventListener implements Listener {
             match.broadcast(miniMessage.deserialize(
                     Solar.configManager.languageRecord().playerDiedToPlayer(),
                     Placeholder.parsed("victim", player.getName()),
-                    Placeholder.parsed("killer", player.getKiller().getName())));
+                    Placeholder.parsed("killer", player.getKiller().getName()),
+                    Placeholder.parsed(
+                            "prefix", Solar.configManager.languageRecord().prefix())));
         }
 
         team.updateTeamStatus();
@@ -84,8 +86,6 @@ public class PlayerDeathEventListener implements Listener {
                 player.spigot().respawn();
 
                 player.teleport(deathLocation);
-                player.setAllowFlight(true);
-                player.setInvulnerable(true);
             }
         });
         player.setGameMode(GameMode.SPECTATOR);

@@ -31,7 +31,7 @@ public class QueueCreateArg {
 
         // Check the kit if it exists!
 
-        if (context.kitService().getKit(name) == null) {
+        if (context.kitService().getKit(kit) == null) {
 
             context.send(p, context.messages().language().kitNotFound(), Placeholder.parsed("kit", kit));
             return;

@@ -54,7 +54,6 @@ public class FaweHook {
 
                 BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 
-                // IMPORTANT: keep clipboard coordinates consistent
                 clipboard.setOrigin(center);
 
                 ForwardExtentCopy copy =
@@ -115,7 +114,7 @@ public class FaweHook {
                     Operation operation = new ClipboardHolder(clipboard)
                             .createPaste(editSession)
                             .to(center)
-                            .ignoreAirBlocks(true)
+                            .ignoreAirBlocks(false)
                             .copyEntities(false)
                             .build();
 
@@ -191,7 +190,6 @@ public class FaweHook {
         com.sk89q.worldedit.world.World worldeditWorld = BukkitAdapter.adapt(bukkitWorld);
         CuboidRegion region = new CuboidRegion(worldeditWorld, min, max);
 
-        // Synchronous EditSession without FastMode so changes commit immediately to Bukkit
         try (EditSession editSession = WorldEdit.getInstance()
                 .newEditSessionBuilder()
                 .world(worldeditWorld)
@@ -199,7 +197,7 @@ public class FaweHook {
                 .build()) {
 
             editSession.setBlocks((com.sk89q.worldedit.regions.Region) region, BlockTypes.AIR.getDefaultState());
-            editSession.flushQueue(); // Ensure queued operations are explicitly flushed
+            editSession.flushQueue();
         } catch (WorldEditException e) {
             Solar.instance.getLogger().log(Level.SEVERE, "Failed to synchronously clear arena " + arenaName, e);
         }

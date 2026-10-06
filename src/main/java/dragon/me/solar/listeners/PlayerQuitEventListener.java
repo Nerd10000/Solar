@@ -109,7 +109,7 @@ public class PlayerQuitEventListener implements Listener {
         InMemoryTeam winner = matchOver && !aliveTeams.isEmpty() ? aliveTeams.getFirst() : null;
 
         if (matchOver) {
-            matchService.endMatch(match, winner, MatchEndReason.FORFEIT);
+            matchService.finishMatch(match, winner, MatchEndReason.FORFEIT);
         }
 
         PlayerSnapshot snapshot = match.getSavedInventories().get(uuid);

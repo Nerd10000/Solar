@@ -22,12 +22,12 @@ public class PlayerCache {
                 .getStatById(key.uuid(), key.kit())
                 .thenApply(stat -> {
                     if (stat == null) {
-
                         stat = new PlayerStat();
 
                         stat.setUuid(key.uuid().toString());
                         stat.setKit(key.kit());
                     }
+
                     return stat;
                 }));
 
@@ -35,39 +35,77 @@ public class PlayerCache {
                 .getQueueStat(key.uuid(), key.queue())
                 .thenApply(queue -> {
                     if (queue == null) {
-
                         queue = new QueueStat();
 
                         queue.setUuid(key.uuid().toString());
                         queue.setQueueId(key.queue());
+                        queue.setElo(Solar.configManager
+                                .settingsRecord()
+                                .ratingSettings()
+                                .defaultElo());
                     }
+
                     return queue;
                 }));
     }
+
+    /*
+     * Async access
+     */
 
     public CompletableFuture<PlayerStat> getPlayer(UUID uuid, String kit) {
         return statCache.get(new StatKey(uuid, kit));
     }
 
-    public CompletableFuture<QueueStat> getQueue(UUID uuid, String kit) {
-        return queueCache.get(new QueueKey(uuid, kit));
+    public CompletableFuture<QueueStat> getQueue(UUID uuid, String queue) {
+        return queueCache.get(new QueueKey(uuid, queue));
+    }
+
+    /*
+     * Synchronous access
+     *
+     * These are mainly useful for PAPI and other synchronous APIs.
+     */
+
+    public PlayerStat getPlayerSync(UUID uuid, String kit) {
+        return statCache.synchronous().get(new StatKey(uuid, kit));
+    }
+
+    public QueueStat getQueueSync(UUID uuid, String queue) {
+        return queueCache.synchronous().get(new QueueKey(uuid, queue));
     }
 
     public int getElo(UUID uuid, String queue) {
 
-        QueueKey queueKey = new QueueKey(uuid, queue);
-        queueCache.get(queueKey);
+        QueueKey key = new QueueKey(uuid, queue);
 
-        QueueStat stat = queueCache.synchronous().get(queueKey);
+        QueueStat stat = queueCache.synchronous().get(key);
 
-        if (stat != null) {
-            return stat.getElo();
-        }
-        return -1;
+        Solar.instance
+                .getLogger()
+                .info("[ELO DEBUG] uuid=" + uuid
+                        + " queue=" + queue
+                        + " stat=" + stat
+                        + " elo=" + (stat != null ? stat.getElo() : "NULL"));
+
+        return stat != null
+                ? stat.getElo()
+                : Solar.configManager.settingsRecord().ratingSettings().defaultElo();
     }
 
-    public List<PlayerStat> getPlayerAll(UUID uuid) {
+    public int getWins(UUID uuid, String kit) {
+        return getPlayerSync(uuid, kit).getWins();
+    }
 
+    public int getLosses(UUID uuid, String kit) {
+        return getPlayerSync(uuid, kit).getLosses();
+    }
+
+    /*
+     * Player statistics
+     */
+
+    public List<PlayerStat> getPlayerAll(UUID uuid) {
         return statCache.synchronous().asMap().values().stream()
                 .filter(stat -> stat.getUuid().equals(uuid.toString()))
                 .toList();
@@ -77,31 +115,11 @@ public class PlayerCache {
         statCache.synchronous().asMap().keySet().removeIf(key -> key.uuid().equals(uuid));
     }
 
-    public int getWins(UUID uuid, String kit) {
-        StatKey key = new StatKey(uuid, kit);
-        statCache.get(key);
-        PlayerStat stat = statCache.synchronous().getIfPresent(key);
-
-        if (stat != null) {
-            return stat.getWins();
-        }
-
-        return -1;
-    }
-
-    public int getLosses(UUID uuid, String kit) {
-        StatKey key = new StatKey(uuid, kit);
-        statCache.get(key);
-        PlayerStat stat = statCache.synchronous().getIfPresent(key);
-
-        if (stat != null) {
-            return stat.getLosses();
-        }
-
-        return -1;
-    }
-
     public void invalidate(UUID uuid, String kit) {
         statCache.synchronous().invalidate(new StatKey(uuid, kit));
+    }
+
+    public void invalidateQueue(UUID uuid, String queue) {
+        queueCache.synchronous().invalidate(new QueueKey(uuid, queue));
     }
 }

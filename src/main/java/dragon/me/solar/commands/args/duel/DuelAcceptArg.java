@@ -83,7 +83,9 @@ public class DuelAcceptArg {
                         return;
                     }
                     Bukkit.getScheduler()
-                            .runTask(plugin, () -> startMatchAtArena(sender, player, invite, arenaName, slot));
+                            .runTask(
+                                    plugin,
+                                    () -> startMatchAtArena(sender, player, invite, arenaName, slot, invite.rounds()));
                 })
                 .exceptionally(throwable -> {
                     gridManager.free(slot);
@@ -93,7 +95,7 @@ public class DuelAcceptArg {
     }
 
     private void startMatchAtArena(
-            Player sender, Player receiver, DuelInviteRecord invite, String arenaName, int slot) {
+            Player sender, Player receiver, DuelInviteRecord invite, String arenaName, int slot, int rounds) {
         World world = Bukkit.getWorld("arenas");
 
         if (!sender.isOnline() || !receiver.isOnline()) {
@@ -111,6 +113,7 @@ public class DuelAcceptArg {
 
         match.setArenaName(arenaName);
         match.setGridSlot(slot);
+        match.setRounds(rounds);
 
         matchService.startMatch(match, false, null);
     }

@@ -6,10 +6,7 @@ import dragon.me.solar.match.MatchService;
 import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.utils.SoundUtils;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -35,7 +32,7 @@ public class QueueService {
             return false;
         }
 
-        return queue.queue.size() >= (queue.teamSize * 2);
+        return queue.queue.size() >= (queue.flags.teamSize() * 2);
     }
 
     public void joinQueue(UUID playerId, String queueName) {
@@ -72,20 +69,27 @@ public class QueueService {
         }
     }
 
+    public void leaveAllQueues(UUID playerId) {
+
+        for (Map.Entry<String, InMemoryQueue> entry : queueManager.queueManagerMap.entrySet()) {
+            entry.getValue().leave(playerId);
+        }
+    }
+
     public void startMatch(Player p, InMemoryQueue queue) {
 
         if (queue != null) {
 
-            if (!queue.isEnoughForNextMatch(queue.teamSize)) {
+            if (!queue.isEnoughForNextMatch(queue.flags.teamSize())) {
                 return;
             }
-            List<UUID> players = Arrays.asList(queue.getNextParticipants(queue.teamSize * 2));
+            List<UUID> players = Arrays.asList(queue.getNextParticipants(queue.flags.teamSize() * 2));
 
             List<List<UUID>> teams = new ArrayList<>();
 
             for (int i = 0; i < 2; i++) {
-                int from = i * queue.teamSize;
-                int to = from + queue.teamSize;
+                int from = i * queue.flags.teamSize();
+                int to = from + queue.flags.teamSize();
 
                 teams.add(new ArrayList<>(players.subList(from, to)));
             }

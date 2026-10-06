@@ -31,7 +31,7 @@ public class SpectateCommand {
             if (Solar.matchManager.isSpectatingAlready(p.getUniqueId())) {
 
                 p.sendMessage(Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().alreadyInSprectator(),
+                        Solar.configManager.languageRecord().alreadyInSpectator(),
                         Placeholder.parsed(
                                 "prefix", Solar.configManager.languageRecord().prefix())));
 
@@ -81,7 +81,7 @@ public class SpectateCommand {
             if (!Solar.matchManager.isSpectatingAlready(p.getUniqueId())) {
 
                 p.sendMessage(Solar.miniMessage.deserialize(
-                        Solar.configManager.languageRecord().alreadyInSprectator(),
+                        Solar.configManager.languageRecord().alreadyInSpectator(),
                         Placeholder.parsed(
                                 "prefix", Solar.configManager.languageRecord().prefix())));
 

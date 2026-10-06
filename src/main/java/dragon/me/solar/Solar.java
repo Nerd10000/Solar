@@ -245,7 +245,9 @@ public final class Solar extends JavaPlugin {
                 new QueueCreateArg(queueCommandContext),
                 new QueueSetFlags(queueCommandContext),
                 new QueueFinalizeArg(queueCommandContext),
-                new QueueJoinArg(queueCommandContext));
+                new QueueJoinArg(queueCommandContext),
+                new QueueLeaveArg(queueCommandContext),
+                new QueueToggleArg(queueCommandContext));
     }
 
     public void registerListeners() {
@@ -256,12 +258,15 @@ public final class Solar extends JavaPlugin {
                 .getPluginManager()
                 .registerEvents(
                         new PlayerQuitEventListener(matchManager, matchService, partyManager, messageService), this);
-        getServer().getPluginManager().registerEvents(new PlayerItemUseListener(matchManager, kitManager), this);
+        /// getServer().getPluginManager().registerEvents(new PlayerItemUseListener(matchManager, kitManager), this);
         getServer().getPluginManager().registerEvents(new BlockBreakAndPlaceListener(matchManager, kitManager), this);
         getServer().getPluginManager().registerEvents(new PlayerPickupItemListener(matchManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDropItemListener(matchManager, kitManager), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementListener(matchManager, kitManager), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(configManager, databaseManager), this);
+        getServer()
+                .getPluginManager()
+                .registerEvents(new PlayerCommandSendEventListener(configManager, messageService), this);
     }
 
     public void setupDupeWorld() {

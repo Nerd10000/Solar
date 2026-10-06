@@ -5,10 +5,7 @@ import dragon.me.solar.queue.InMemoryQueue;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
-import org.incendo.cloud.annotations.Argument;
-import org.incendo.cloud.annotations.Command;
-import org.incendo.cloud.annotations.Default;
-import org.incendo.cloud.annotations.Flag;
+import org.incendo.cloud.annotations.*;
 
 public class QueueSetFlags {
 
@@ -19,6 +16,7 @@ public class QueueSetFlags {
     }
 
     @Command("queue set-flags <name>")
+    @Permission("solar.queue.set-flags")
     public void setFlags(
             CommandSourceStack stack,
             @Argument("name") String name,

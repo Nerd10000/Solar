@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
 
 public class PartyStartArg {
 
@@ -50,12 +51,17 @@ public class PartyStartArg {
     }
 
     @Command("party start <kit> <eventType>")
-    public void start(CommandSourceStack stack, @Argument("kit") String kit, @Argument("eventType") String eventType) {
+    public void start(
+            CommandSourceStack stack,
+            @Argument("kit") String kit,
+            @Argument("eventType") String eventType,
+            @Flag("rounds") Integer rounds) {
 
         if (!(stack.getSender() instanceof Player player)) {
             messages.sendConsoleError(stack);
             return;
         }
+        int rounds2 = rounds == null ? 1 : rounds;
 
         if (Solar.MAINTENANCE_MODE) {
             messages.send(player, Solar.configManager.languageRecord().maintenancePrevention());
@@ -84,11 +90,11 @@ public class PartyStartArg {
         switch (eventType.toLowerCase()) {
             case "splitfight":
             case "split":
-                startSplit(party, inMemoryKit);
+                startSplit(party, inMemoryKit, rounds2);
                 break;
 
             case "ffa":
-                startFFA(party, inMemoryKit);
+                startFFA(party, inMemoryKit, rounds2);
                 break;
 
             default:
@@ -97,7 +103,7 @@ public class PartyStartArg {
         }
     }
 
-    private void startFFA(InMemoryParty party, InMemoryKit kit) {
+    private void startFFA(InMemoryParty party, InMemoryKit kit, int rounds) {
         if (party.getMemberList().size() < 2) {
             messages.send(
                     Bukkit.getPlayer(party.getOwner()), messages.language().notEnoughPlayers());
@@ -125,6 +131,7 @@ public class PartyStartArg {
         match.setArenaName(arenaName);
 
         match.setGridSlot(slot);
+        match.setRounds(rounds);
 
         Solar.instance
                 .getLogger()
@@ -133,7 +140,7 @@ public class PartyStartArg {
         matchService.startMatch(match, true, null);
     }
 
-    private void startSplit(InMemoryParty party, InMemoryKit kit) {
+    private void startSplit(InMemoryParty party, InMemoryKit kit, int rounds) {
         if (party.getMemberList().size() < 2) {
             messages.send(
                     Bukkit.getPlayer(party.getOwner()), messages.language().notEnoughPlayers());
@@ -161,6 +168,7 @@ public class PartyStartArg {
         match.setArenaName(arenaName);
 
         match.setGridSlot(slot);
+        match.setRounds(rounds);
 
         Solar.instance
                 .getLogger()

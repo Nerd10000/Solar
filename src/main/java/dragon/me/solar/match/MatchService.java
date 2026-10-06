@@ -19,8 +19,11 @@ import dragon.me.solar.queue.InMemoryQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,36 +61,51 @@ public class MatchService {
     }
 
     public void startMatch(InMemoryMatch match, boolean isFFA, @Nullable InMemoryQueue queue) {
-
         match.setStage(MatchStageEnum.STARTING);
 
+        // Start the next round.
+        match.setCurrentRound(match.getCurrentRound() + 1);
+
         BlockVector3 center = gridManager.getCenter(match.getGridSlot());
+
         FaweHook.pasteArena(match.getArenaName(), center)
                 .thenAccept(success -> {
                     Bukkit.getScheduler().runTask(Solar.instance, () -> {
                         if (!success) {
                             gridManager.free(match.getGridSlot());
+
                             Solar.instance.getLogger().warning("Failed to paste arena");
+
                             return;
                         }
 
-                        matchManager.add(match);
-                        playerStateService.saveSnapshots(match);
+                        for (TeamPlayer tp : match.getMembers()) {
+                            Solar.queueService.leaveAllQueues(tp.uuid());
+                        }
+
+                        if (match.getCurrentRound() == 1) {
+                            matchManager.add(match);
+                            playerStateService.saveSnapshots(match);
+                        }
+
                         validateAndApplyKit(match);
-                        countdownService.start(match);
 
                         if (!prepareArena(match, isFFA)) {
                             return;
                         }
+                        clearDroppedItems(match);
+                        countdownService.start(match);
                     });
                 })
                 .exceptionally(throwable -> {
                     Bukkit.getScheduler().runTask(Solar.instance, () -> {
                         gridManager.free(match.getGridSlot());
+
                         Solar.instance
                                 .getLogger()
                                 .log(Level.SEVERE, "Error while pasting arena " + match.getArenaName(), throwable);
                     });
+
                     return null;
                 });
     }
@@ -142,53 +160,139 @@ public class MatchService {
 
                 if (player != null) {
                     player.teleport(onGroundCenter.add(0.5, 1, 0.5));
+                    player.setGameMode(GameMode.SURVIVAL);
                 }
             }
         }
+        for (InMemoryTeam team : match.getTeamList()) {
+            for (TeamPlayer member : team.getMembers()) {
+                team.setMemberStateTo(true, member.uuid());
+            }
 
+            team.updateTeamStatus();
+        }
         Solar.instance
                 .getLogger()
-                .info("Starting the match between " + match.getTeamList().size() + " teams. (Party)");
+                .info("Starting round "
+                        + match.getCurrentRound()
+                        + " / FT"
+                        + match.getRounds()
+                        + " with "
+                        + match.getTeamList().size()
+                        + " teams.");
+
         return true;
+    }
+
+    private void clearDroppedItems(InMemoryMatch match) {
+        World world = Bukkit.getWorld("arenas");
+
+        if (world == null) {
+            return;
+        }
+
+        BlockVector3 center = gridManager.getCenter(match.getGridSlot());
+
+        int radius = configManager.settingsRecord().arena().offset();
+        int minY = world.getMinHeight();
+        int maxY = world.getMaxHeight();
+
+        for (Entity entity : world.getNearbyEntities(
+                new Location(world, center.x(), center.y(), center.z()), radius, maxY - minY, radius)) {
+            if (entity instanceof Item item) {
+                item.remove();
+            }
+        }
     }
 
     private void teleportTeam(InMemoryTeam team, Location location) {
         for (TeamPlayer teamPlayer : team.getMembers()) {
             Player player = Bukkit.getPlayer(teamPlayer.uuid());
             if (player != null) {
+                player.setGameMode(GameMode.SURVIVAL);
                 player.teleport(location);
             }
         }
     }
 
-    public void endMatch(InMemoryMatch match, InMemoryTeam winner, MatchEndReason reason) {
-
+    public void endMatch(InMemoryMatch match, @Nullable InMemoryTeam winner, MatchEndReason reason) {
         if (match.getStage() == MatchStageEnum.ENDED) {
             return;
         }
 
-        match.setStage(MatchStageEnum.ENDED);
+        // This round has ended.
         if (winner != null) {
-            match.setWinner(winner);
+            winner.setRoundWins(winner.getRoundWins() + 1);
         }
 
+        // Clear the current round's inventory/state.
         playerStateService.clearInventories(match);
-        String winnerName = announcementService.resolveWinnerName(winner);
-        announcementService.announceResults(match, winner, winnerName, reason);
-        playerStateService.restoreAndTeleport(match);
         playerStateService.resetMaxHealth(match);
 
+        String winnerName = announcementService.resolveWinnerName(winner);
+
+        announcementService.announceResults(match, winner, winnerName, reason);
+
+        /*
+         * FT X:
+         *
+         * FT1 -> first to 1
+         * FT2 -> first to 2
+         * FT3 -> first to 3
+         * FT5 -> first to 5
+         */
+        boolean matchFinished = winner != null && winner.getRoundWins() >= match.getRounds();
+
+        if (!matchFinished) {
+
+            /*
+             * The MATCH is still active.
+             *
+             * Do NOT:
+             * - restore and teleport players to lobby
+             * - remove the match
+             * - free the grid
+             * - update W/L
+             * - update rating
+             */
+
+            startMatch(match, match.getTeamList().size() > 2, match.getMatchSource());
+
+            return;
+        }
+
+        /*
+         * The entire FT X match is finished.
+         */
+        finishMatch(match, winner, reason);
+    }
+
+    public void finishMatch(InMemoryMatch match, InMemoryTeam winner, MatchEndReason reason) {
+        match.setStage(MatchStageEnum.ENDED);
+
+        /*
+         * The complete match is over.
+         *
+         * NOW players can be restored and sent back to the lobby.
+         */
+        playerStateService.restoreAndTeleport(match);
+        playerStateService.resetMaxHealth(match);
+        playerStateService.resetSpectators(match);
+
+        /*
+         * Update W/L only once for the entire FT X match.
+         */
         for (InMemoryTeam team : match.getTeamList()) {
 
             boolean isWinner = team.equals(winner);
 
             for (TeamPlayer tp : team.getMembers()) {
+
                 Solar.cache
                         .getPlayer(tp.uuid(), match.getKit())
                         .thenCompose(stat -> {
                             if (isWinner) {
                                 stat.setWins(stat.getWins() + 1);
-
                             } else {
                                 stat.setLosses(stat.getLosses() + 1);
                             }
@@ -196,20 +300,33 @@ public class MatchService {
                             return Solar.databaseManager.updateStats(stat);
                         })
                         .exceptionally(error -> {
-                            Solar.instance.getLogger().severe("Failed to update stats for " + tp.uuid());
-                            error.printStackTrace();
+                            Solar.instance
+                                    .getLogger()
+                                    .log(Level.SEVERE, "Failed to update stats for " + tp.uuid(), error);
+
                             return null;
                         });
             }
+        }
 
-            if (match.getTeamList().size() == 2 && match.getMatchSource() != null && winner != null) {
-                RatingService.updateRating(
-                        winner,
-                        match.getTeamList().stream()
-                                .filter(team_ -> team_.equals(winner))
-                                .findFirst()
-                                .get(),
-                        match.getMatchSource());
+        /*
+         * Rating is updated once for the complete match.
+         */
+        if (match.getTeamList().size() == 2
+                && match.getMatchSource() != null
+                && !match.getMatchSource().flags.weight().equalsIgnoreCase("None")) {
+
+            InMemoryTeam loser = null;
+
+            for (InMemoryTeam team : match.getTeamList()) {
+                if (!team.equals(winner)) {
+                    loser = team;
+                    break;
+                }
+            }
+
+            if (loser != null) {
+                RatingService.updateRating(winner, loser, match.getMatchSource());
             }
         }
 
@@ -220,12 +337,13 @@ public class MatchService {
                             cleanupArena(match);
                             match.getSavedInventories().clear();
                             matchManager.remove(match.getUuid());
+                            gridManager.free(match.getGridSlot());
                         },
                         20 * 5L);
     }
 
     public void terminate(InMemoryMatch match) {
-        endMatch(match, null, MatchEndReason.TERMINATED);
+        finishMatch(match, null, MatchEndReason.TERMINATED);
     }
 
     private void validateAndApplyKit(InMemoryMatch match) {

@@ -43,7 +43,7 @@ public record LanguageRecord(
         @Setting("spectator-joined") String spectatorJoined,
         @Setting("spectator-left") String spectatorLeft,
         @Setting("match-not-found") String matchNotFound,
-        @Setting("already-in-spectator") String alreadyInSprectator,
+        @Setting("already-in-spectator") String alreadyInSpectator,
         @Setting("not-in-spectator") String notInSpectator,
 
         // Match related messages
@@ -89,12 +89,16 @@ public record LanguageRecord(
         @Setting("queue-flags-set") String queueFlagsSet,
         @Setting("joined-queue") String joinedQueue,
         @Setting("in-queue-actionbar") String inQueueActionbar,
+        @Setting("not-in-queue") String notInQueue,
+        @Setting("left-queue") String leftQueue,
+        @Setting("toggle-queue") String toggleQueue,
 
         // Help messages
         @Setting("party-help") List<String> partyHelp,
         @Setting("arenas-help") List<String> arenasHelp,
         @Setting("solar-help") List<String> solarHelp,
         @Setting("queue-help") List<String> queueHelp,
+        @Setting("elo-upward-change") String eloChange,
 
         // Titles / Misc
         @Setting("match-found") String matchFound,
@@ -155,7 +159,7 @@ public record LanguageRecord(
                     + " <color:#fcd05c><killer></color:#fcd05c>!</gray>",
             "<prefix><red>You are already spectating! Please leave first.</red>",
             "<prefix><red>You need to be in spectator mode in order to leave!</red>",
-            "<prefix><red>There is no match with that player!</red>",
+            "<prefix><color:#fcd05c>☠ <victim></color> died to the hands of <color:#fcd05c><killer></color:#fcd05c>!</gray>",
             "<gray><color:#fcd05c>☠ <victim></color> died in" + " <color:#fcd05c>combat</color:#fcd05c>!</gray>",
             "<prefix><green>You won the duel!</green>",
             "<prefix><red>You lost the duel. Winner: <color:#FCD05C><winner></color></red>",
@@ -202,6 +206,9 @@ public record LanguageRecord(
             "<prefix><gray>The <color:#fcd05c>'<queue>'</color:#fcd05c> queue's flags have been set!</gray>",
             "<prefix><gray>You've joined the <color:#fcd05c>'<queue>'</color:#fcd05c> queue!</gray>",
             "<color:#fcd05c>Queue → </color:#fcd05c> <gray>In <queues> queue(s) for <time>!</gray>",
+            "<prefix><red>You can't leave the queue while you are not in the queue!</red>",
+            "<prefix><gray>You have left <queue> queue!</gray>",
+            "<prefix><gray>You have toggled <color:#fcd05c>'<queue>'</color:#fcd05c> to <color:#fcd05c><status></color:#fcd05c>.",
             List.of(
                     "<b><gradient:#FCD05C:#A48022><u>Help for Parties:</u></b>",
                     "<gradient:#FCD05C:#A48022>/party create <gray>- Creates the party.",
@@ -234,6 +241,7 @@ public record LanguageRecord(
                     "<gradient:#FCD05C:#A48022>/queue create <name> <kit> <gray>- Creates a queue.",
                     "<gradient:#FCD05C:#A48022>/queue set-flags <name> <flags...> <gray>- Sets the flags for the queue which is specified.",
                     "<gradient:#FCD05C:#A48022>/queue finalize <name> <gray>- Saves/Finalizes the specified queue."),
+            "<prefix><gray>You <status> <color:#fcd05c><change></color:#fcd05c> Elo, going from <color:#fcd05c><old></color:#fcd05c> to <color:#fcd05c><new></color:#fcd05c>.",
             "<b><gradient:#FCD05C:#A48022><u>MATCH FOUND!</u></b>",
             "<gray>We found a match for you, prepare to fight!</gray>");
 }

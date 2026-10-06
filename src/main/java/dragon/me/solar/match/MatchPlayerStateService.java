@@ -4,6 +4,7 @@ import dragon.me.solar.Solar;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.match.player.PlayerSnapshot;
 import dragon.me.solar.match.player.TeamPlayer;
+import java.util.UUID;
 import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -63,6 +64,17 @@ public class MatchPlayerStateService {
                                     }
                                 },
                                 5 * 20L);
+            }
+        }
+    }
+
+    public void resetSpectators(InMemoryMatch match) {
+        for (UUID uuid : match.getSpectatorList()) {
+            Player player = Bukkit.getPlayer(uuid);
+
+            if (player != null) {
+                player.setGameMode(GameMode.SURVIVAL);
+                player.teleport(configManager.getLobbyLocation());
             }
         }
     }
