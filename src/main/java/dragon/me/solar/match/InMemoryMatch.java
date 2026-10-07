@@ -33,6 +33,8 @@ public class InMemoryMatch {
     private final long startMillis;
     private InMemoryQueue matchSource = null; // this is null if it is a /duel or a party duel (not queued)
 
+    private boolean isFFA = false;
+
     public InMemoryMatch(List<InMemoryTeam> teamList, String kit) {
         uuid = UUID.randomUUID();
         this.teamList = teamList;
@@ -128,6 +130,14 @@ public class InMemoryMatch {
             }
         }
         return null;
+    }
+
+    public boolean isFFA() {
+        return isFFA;
+    }
+
+    public void setFFA(boolean FFA) {
+        isFFA = FFA;
     }
 
     public UUID getUuid() {

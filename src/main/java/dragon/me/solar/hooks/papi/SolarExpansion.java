@@ -2,10 +2,12 @@ package dragon.me.solar.hooks.papi;
 
 import dragon.me.solar.Solar;
 import dragon.me.solar.hooks.papi.handlers.*;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import dragon.me.solar.match.InMemoryMatch;
+import dragon.me.solar.match.player.TeamPlayer;
+import dragon.me.solar.match.teams.InMemoryTeam;
+import java.util.*;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -14,23 +16,9 @@ import org.jetbrains.annotations.Nullable;
 public class SolarExpansion extends PlaceholderExpansion {
 
     private final Solar instance;
-    private final Map<String, PapiHandler> handlers = new HashMap<>();
 
     public SolarExpansion(Solar instance) {
         this.instance = instance;
-
-        register(new WinPapiHandler());
-        register(new LossesPapiHandler());
-        register(new WinratePapiHandler());
-        register(new WlrPapiHandler());
-        register(new EloPapiHandler());
-        register(new MatchPapiHandler());
-        register(new InQueuePapiHandler());
-        register(new TeamQueuePapiHandler());
-    }
-
-    private void register(PapiHandler handler) {
-        handlers.put(handler.identifier().toLowerCase(Locale.ROOT), handler);
     }
 
     @Override
@@ -55,80 +43,285 @@ public class SolarExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] onRequest params='" + params + "' player="
-                        + (player == null ? "null" : player.getName()));
+        String[] args = params.split(":");
 
-        if (player == null) {
+        if (args.length == 0) {
             return null;
         }
+        instance.getLogger().info("[PAPI-DEBUG] params=" + Arrays.toString(args));
+        switch (args[0].toLowerCase(Locale.ROOT)) {
+            case "wins":
+                if (args.length < 3) {
+                    return null;
+                }
 
-        ParsedPlaceholder parsed = parse(params);
+                return handleWins(
+                        player.getPlayer(),
+                        args[1],
+                        Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+            case "losses":
+                if (args.length < 3) {
+                    return null;
+                }
 
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] identifier='" + parsed.identifier() + "' arguments='" + parsed.arguments() + "'");
+                return handleLosses(
+                        player.getPlayer(),
+                        args[1],
+                        Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+            case "elo":
+                if (args.length < 3) {
+                    return null;
+                }
+                return handleElo(
+                        player.getPlayer(),
+                        args[1],
+                        Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+            case "inqueue":
+                if (args.length < 2) {
+                    return null;
+                }
 
-        PapiHandler handler = handlers.get(parsed.identifier());
+                return handleInQueue(player.getPlayer(), args[1]);
+            case "isinqueue":
+                if (args.length < 3) {
+                    return null;
+                }
 
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] handler="
-                        + (handler == null ? "null" : handler.getClass().getSimpleName()));
+                return handleIsInQueue(
+                        player.getPlayer(),
+                        args[1],
+                        Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+            case "match":
+                if (args.length < 2) {
+                    return null;
+                }
 
-        if (handler == null) {
-            return null;
+                return handleMatchPlaceholders(player.getPlayer(), args[1], args);
+            default:
+                return null;
         }
-
-        return handler.handleOffline(player, parsed.arguments());
     }
 
-    @Override
-    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] onPlaceholderRequest params='" + params + "' player="
-                        + (player == null ? "null" : player.getName()));
+    //  Match placeholders ( %solar_match:xxxx% )
+    private String handleMatchPlaceholders(Player player, String arg, String[] params) {
 
-        if (player == null) {
-            return null;
+        UUID uuid = player.getUniqueId();
+
+        InMemoryMatch match = Solar.context().matchManager.getMatchByMember(uuid);
+
+        int count = params.length == 3 ? Integer.parseInt(params[2]) : 1;
+
+        switch (arg.toLowerCase(Locale.ROOT)) {
+            case "active":
+                return String.valueOf(match != null);
+
+            case "kit":
+                if (match != null) return match.getKit();
+                return "null";
+
+            case "arena":
+                if (match != null) return match.getArenaName();
+                return "null";
+
+            case "state":
+                if (match != null) return match.getStage().name();
+                return "null";
+            case "rounds":
+                if (match != null) return String.valueOf("FT" + match.getRounds());
+                return "null";
+
+            case "round":
+                if (match != null) return String.valueOf(match.getCurrentRound());
+                return "null";
+
+            case "opponents":
+                if (match != null) {
+
+                    List<String> names = new ArrayList<>();
+
+                    InMemoryTeam ownTeam = match.getTeamByMember(uuid);
+
+                    if (ownTeam == null) {
+                        return "null";
+                    }
+
+                    for (InMemoryTeam team : match.getTeamList()) {
+
+                        if (team.equals(ownTeam)) {
+                            continue;
+                        }
+
+                        for (TeamPlayer tp : team.getMembers()) {
+
+                            Player target = Bukkit.getPlayer(tp.uuid());
+
+                            if (target == null) {
+                                continue;
+                            }
+
+                            names.add(target.getName());
+
+                            if (names.size() > count) {
+                                break;
+                            }
+                        }
+
+                        if (names.size() > count) {
+                            break;
+                        }
+                    }
+
+                    if (names.isEmpty()) {
+                        return "";
+                    }
+
+                    boolean hasMore = names.size() > count;
+
+                    if (hasMore) {
+                        names = names.subList(0, count);
+                    }
+
+                    return String.join(", ", names) + (hasMore ? "..." : "");
+                }
+
+                return "null";
         }
 
-        ParsedPlaceholder parsed = parse(params);
-
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] identifier='" + parsed.identifier() + "' arguments='" + parsed.arguments() + "'");
-
-        PapiHandler handler = handlers.get(parsed.identifier());
-
-        Solar.instance
-                .getLogger()
-                .info("[PAPI DEBUG] handler="
-                        + (handler == null ? "null" : handler.getClass().getSimpleName()));
-
-        if (handler == null) {
-            return null;
-        }
-
-        return handler.handlePlayer(player, parsed.arguments());
+        return null;
     }
 
-    private ParsedPlaceholder parse(String params) {
+    // Is in queue placeholder
+    private String handleIsInQueue(Player player, String queue, OfflinePlayer target) {
 
-        int separator = params.indexOf(':');
+        UUID uuid = target != null ? target.getUniqueId() : player.getUniqueId();
 
-        if (separator == -1) {
-            return new ParsedPlaceholder(params.toLowerCase(Locale.ROOT), "");
+        // All queues
+        if ("*".equals(queue)) {
+
+            for (var queueManager : Solar.queueManager.queueManagerMap.values()) {
+                if (queueManager.queue.contains(uuid)) {
+                    return "true";
+                }
+            }
+
+            return "false";
         }
 
-        String identifier = params.substring(0, separator).toLowerCase(Locale.ROOT);
+        // Specific queue
+        if (queue != null && !queue.isBlank()) {
 
-        String arguments = params.substring(separator + 1);
+            var queueManager = Solar.queueManager.queueManagerMap.get(queue);
 
-        return new ParsedPlaceholder(identifier, arguments);
+            if (queueManager == null) {
+                return "false";
+            }
+
+            return String.valueOf(queueManager.queue.contains(uuid));
+        }
+
+        return "false";
     }
 
-    private record ParsedPlaceholder(String identifier, String arguments) {}
+    // inq. placeholder
+    private String handleInQueue(Player player, String queue) {
+
+        // UUID uuid = player.getUniqueId();
+
+        // All queues
+        if ("*".equals(queue)) {
+            int sum = 0;
+
+            for (String s : Solar.queueManager.queueManagerMap.keySet()) {
+
+                sum += Solar.queueManager.get(s).queue.size();
+            }
+
+            return String.valueOf(sum);
+        }
+
+        // Specific kit
+        if (queue != null && !queue.isBlank()) {
+
+            int queueSize = Solar.queueManager.get(queue).queue.size();
+
+            return String.valueOf(queueSize);
+        }
+
+        return null;
+    }
+
+    // Win placeholder
+    private String handleWins(Player player, String kit, OfflinePlayer target) {
+
+        UUID uuid = target != null ? target.getUniqueId() : player.getUniqueId();
+
+        // All kits
+        if ("*".equals(kit)) {
+            int sum = 0;
+
+            for (String kitId : Solar.context().kitManager.getKits().keySet()) {
+                sum += Solar.context().cache.getWins(uuid, kitId);
+            }
+
+            return String.valueOf(sum);
+        }
+
+        // Specific kit
+        if (kit != null && !kit.isBlank()) {
+
+            return String.valueOf(Solar.context().cache.getWins(uuid, kit));
+        }
+
+        return null;
+    }
+
+    // Losses placeholder
+    private String handleLosses(Player player, String kit, OfflinePlayer target) {
+
+        UUID uuid = target != null ? target.getUniqueId() : player.getUniqueId();
+
+        // All kits
+        if ("*".equals(kit)) {
+            int sum = 0;
+
+            for (String kitId : Solar.context().kitManager.getKits().keySet()) {
+                sum += Solar.context().cache.getLosses(uuid, kitId);
+            }
+            instance.getLogger().info("[PAPI-DEBUG] kit=" + kit + ", target=" + target.getName() + ", sum=" + sum);
+            return String.valueOf(sum);
+        }
+
+        // Specific kit
+        if (kit != null && !kit.isBlank()) {
+            instance.getLogger()
+                    .info("[PAPI-DEBUG] kit=" + kit + ", target=" + target.getName() + ", wins="
+                            + Solar.context().cache.getWins(uuid, kit));
+            return String.valueOf(Solar.context().cache.getLosses(uuid, kit));
+        }
+        instance.getLogger().info("[PAPI-DEBUG] kit=" + kit + ", target=" + target.getName());
+        return null;
+    }
+
+    // Elo placeholder
+    private String handleElo(Player player, String queue, OfflinePlayer target) {
+
+        UUID uuid = target != null ? target.getUniqueId() : player.getUniqueId();
+
+        // All kits
+        if ("*".equals(queue)) {
+            int sum = 0;
+
+            for (String queueId : Solar.queueManager.queueManagerMap.keySet()) {
+                sum += Solar.context().cache.getElo(uuid, queueId);
+            }
+            return String.valueOf(sum / Solar.queueManager.queueManagerMap.size());
+        }
+
+        // Specific kit
+        if (queue != null && !queue.isBlank()) {
+            return String.valueOf(Solar.context().cache.getElo(uuid, queue));
+        }
+
+        return null;
+    }
 }

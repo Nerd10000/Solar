@@ -62,7 +62,7 @@ public class MatchService {
 
     public void startMatch(InMemoryMatch match, boolean isFFA, @Nullable InMemoryQueue queue) {
         match.setStage(MatchStageEnum.STARTING);
-
+        match.setFFA(isFFA);
         // Start the next round.
         match.setCurrentRound(match.getCurrentRound() + 1);
 
@@ -220,12 +220,10 @@ public class MatchService {
             return;
         }
 
-        // This round has ended.
         if (winner != null) {
             winner.setRoundWins(winner.getRoundWins() + 1);
         }
 
-        // Clear the current round's inventory/state.
         playerStateService.clearInventories(match);
         playerStateService.resetMaxHealth(match);
 
@@ -233,37 +231,15 @@ public class MatchService {
 
         announcementService.announceResults(match, winner, winnerName, reason);
 
-        /*
-         * FT X:
-         *
-         * FT1 -> first to 1
-         * FT2 -> first to 2
-         * FT3 -> first to 3
-         * FT5 -> first to 5
-         */
         boolean matchFinished = winner != null && winner.getRoundWins() >= match.getRounds();
 
         if (!matchFinished) {
 
-            /*
-             * The MATCH is still active.
-             *
-             * Do NOT:
-             * - restore and teleport players to lobby
-             * - remove the match
-             * - free the grid
-             * - update W/L
-             * - update rating
-             */
-
-            startMatch(match, match.getTeamList().size() > 2, match.getMatchSource());
+            startMatch(match, match.isFFA(), match.getMatchSource());
 
             return;
         }
 
-        /*
-         * The entire FT X match is finished.
-         */
         finishMatch(match, winner, reason);
     }
 
