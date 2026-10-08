@@ -1,10 +1,12 @@
 package dragon.me.solar.hooks.papi;
 
 import dragon.me.solar.Solar;
-import dragon.me.solar.hooks.papi.handlers.*;
 import dragon.me.solar.match.InMemoryMatch;
 import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
+import dragon.me.solar.party.InMemoryParty;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -91,15 +93,68 @@ public class SolarExpansion extends PlaceholderExpansion {
                         player.getPlayer(),
                         args[1],
                         Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+            case "winrate":
+                if (args.length < 3) {
+                    return null;
+                }
+
+                return handleWinrate(
+                        player.getPlayer(),
+                        args[1],
+                        Bukkit.getOfflinePlayer(args[2].replace("{player}", player.getName())));
+
             case "match":
                 if (args.length < 2) {
                     return null;
                 }
 
                 return handleMatchPlaceholders(player.getPlayer(), args[1], args);
+            case "party":
+                if (args.length < 2) {
+                    return null;
+                }
+
+                return handleParty(player.getPlayer(), args);
+
             default:
                 return null;
         }
+    }
+
+    // Party placeholders
+    private String handleParty(Player player, String[] params) {
+
+        UUID uuid = player.getUniqueId();
+
+        InMemoryParty party = Solar.context().partyManager.getPartyByMember(uuid);
+        int count = params.length == 3 ? Integer.parseInt(params[2]) : 1;
+        switch (params[1].toLowerCase(Locale.ROOT)) {
+            case "inparty":
+                return String.valueOf(party != null);
+            case "leader":
+                if (party == null) return "null";
+                return Bukkit.getPlayer(party.getOwner()).getName();
+            case "size":
+                if (party == null) return "null";
+                return String.valueOf(party.getMemberList().size());
+            case "max":
+                if (party == null) return "null";
+                return String.valueOf(party.getMaxMembers());
+            case "members":
+                if (party == null) return "null";
+                List<String> names = new ArrayList<>();
+                int c = 0;
+                for (UUID u : party.getMemberList()) {
+                    if (c >= count) break;
+
+                    names.add(u.toString());
+                }
+                boolean hasMore = names.size() > count;
+
+                return String.join(", ", names) + (hasMore ? "..." : "");
+        }
+
+        return "null";
     }
 
     //  Match placeholders ( %solar_match:xxxx% )
@@ -134,6 +189,20 @@ public class SolarExpansion extends PlaceholderExpansion {
                 if (match != null) return String.valueOf(match.getCurrentRound());
                 return "null";
 
+            case "duration":
+                if (match != null) {
+
+                    Instant start = Instant.ofEpochMilli(match.getStartMillis());
+                    Duration duration = Duration.between(start, Instant.now());
+
+                    long secs = Math.max(0, duration.getSeconds());
+                    long mins = secs / 60;
+                    long remainingSecs = secs % 60;
+
+                    return String.format("%02d:%02d", mins, remainingSecs);
+                }
+
+                return "null";
             case "opponents":
                 if (match != null) {
 
@@ -314,12 +383,52 @@ public class SolarExpansion extends PlaceholderExpansion {
             for (String queueId : Solar.queueManager.queueManagerMap.keySet()) {
                 sum += Solar.context().cache.getElo(uuid, queueId);
             }
+
             return String.valueOf(sum / Solar.queueManager.queueManagerMap.size());
         }
 
         // Specific kit
         if (queue != null && !queue.isBlank()) {
             return String.valueOf(Solar.context().cache.getElo(uuid, queue));
+        }
+
+        return null;
+    }
+
+    // Winrate placeholder
+    private String handleWinrate(Player player, String queue, OfflinePlayer target) {
+
+        UUID uuid = target != null ? target.getUniqueId() : player.getUniqueId();
+
+        if ("*".equals(queue)) {
+            int wins = 0;
+            int losses = 0;
+
+            for (String queueId : Solar.queueManager.queueManagerMap.keySet()) {
+                wins += Solar.context().cache.getWins(uuid, queueId);
+                losses += Solar.context().cache.getLosses(uuid, queueId);
+            }
+
+            int games = wins + losses;
+
+            if (games == 0) {
+                return "0.0%";
+            }
+
+            return String.format("%.2f%%", (double) wins / games * 100);
+        }
+
+        if (queue != null && !queue.isBlank()) {
+            int wins = Solar.context().cache.getWins(uuid, queue);
+            int losses = Solar.context().cache.getLosses(uuid, queue);
+
+            int games = wins + losses;
+
+            if (games == 0) {
+                return "0.0%";
+            }
+
+            return String.format("%.2f%%", (double) wins / games * 100);
         }
 
         return null;
