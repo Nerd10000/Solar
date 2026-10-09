@@ -42,6 +42,7 @@ public class QueueService {
         if (queue == null) {
             return;
         }
+        if (queue.queue.contains(playerId)) return;
 
         queue.join(playerId);
         Player player = Bukkit.getPlayer(playerId);
