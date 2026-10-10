@@ -74,6 +74,7 @@ public class QueueService {
 
         for (Map.Entry<String, InMemoryQueue> entry : queueManager.queueManagerMap.entrySet()) {
             entry.getValue().leave(playerId);
+            Solar.queueActionbarService.stopActionbar(Bukkit.getPlayer(playerId), entry.getValue());
         }
     }
 

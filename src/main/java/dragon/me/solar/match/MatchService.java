@@ -2,11 +2,17 @@ package dragon.me.solar.match;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import dragon.me.solar.Solar;
+import dragon.me.solar.api.events.MatchEndEvent;
+import dragon.me.solar.api.events.MatchRoundEndEvent;
+import dragon.me.solar.api.events.MatchRoundStartEvent;
+import dragon.me.solar.api.events.MatchStartEvent;
 import dragon.me.solar.arena.ArenaManager;
 import dragon.me.solar.arena.GridManager;
 import dragon.me.solar.arena.InMemoryArena;
 import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.hooks.FaweHook;
+import dragon.me.solar.hooks.api.match.MatchImpl;
+import dragon.me.solar.hooks.api.match.TeamImpl;
 import dragon.me.solar.kit.InMemoryKit;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
@@ -66,6 +72,8 @@ public class MatchService {
         // Start the next round.
         match.setCurrentRound(match.getCurrentRound() + 1);
 
+        Bukkit.getPluginManager().callEvent(new MatchRoundStartEvent(new MatchImpl(match)));
+
         BlockVector3 center = gridManager.getCenter(match.getGridSlot());
 
         FaweHook.pasteArena(match.getArenaName(), center)
@@ -86,6 +94,8 @@ public class MatchService {
                         if (match.getCurrentRound() == 1) {
                             matchManager.add(match);
                             playerStateService.saveSnapshots(match);
+
+                            Bukkit.getPluginManager().callEvent(new MatchStartEvent(new MatchImpl(match)));
                         }
 
                         validateAndApplyKit(match);
@@ -222,6 +232,8 @@ public class MatchService {
 
         if (winner != null) {
             winner.setRoundWins(winner.getRoundWins() + 1);
+
+            Bukkit.getPluginManager().callEvent(new MatchRoundEndEvent(new MatchImpl(match), new TeamImpl(winner)));
         }
 
         playerStateService.clearInventories(match);
@@ -254,6 +266,15 @@ public class MatchService {
         playerStateService.restoreAndTeleport(match);
         playerStateService.resetMaxHealth(match);
         playerStateService.resetSpectators(match);
+
+        dragon.me.solar.api.match.MatchEndReason apiReason =
+                switch (reason) {
+                    case DEATH -> dragon.me.solar.api.match.MatchEndReason.COMPLETE;
+                    case TERMINATED -> dragon.me.solar.api.match.MatchEndReason.TERMINATED;
+                    case FORFEIT -> dragon.me.solar.api.match.MatchEndReason.FORFEIT;
+                };
+
+        Bukkit.getPluginManager().callEvent(new MatchEndEvent(new MatchImpl(match), apiReason, new TeamImpl(winner)));
 
         /*
          * Update W/L only once for the entire FT X match.
@@ -319,6 +340,7 @@ public class MatchService {
     }
 
     public void terminate(InMemoryMatch match) {
+
         finishMatch(match, null, MatchEndReason.TERMINATED);
     }
 

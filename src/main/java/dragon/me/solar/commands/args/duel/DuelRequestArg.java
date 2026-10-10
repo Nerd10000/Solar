@@ -39,6 +39,11 @@ public class DuelRequestArg {
             messages.sendConsoleError(stack);
             return;
         }
+
+        if (sender.equals(player)) {
+            return; // TODO: Add message here!
+        }
+
         if (Solar.MAINTENANCE_MODE) {
             messages.send(sender, messages.language().maintenancePrevention());
             return;

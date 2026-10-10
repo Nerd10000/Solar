@@ -102,7 +102,10 @@ public record LanguageRecord(
 
         // Titles / Misc
         @Setting("match-found") String matchFound,
-        @Setting("match-found-subtitle") String matchFoundSubtitle) {
+        @Setting("match-found-subtitle") String matchFoundSubtitle,
+
+        @Setting("match-terminated-title") String matchTerminatedTitle,
+        @Setting("match-terminated-subtitle") String matchTerminatedSubtitle) {
 
     public static final LanguageRecord DEFAULTS = new LanguageRecord(
             "<i><b><gradient:#FCD05C:#A48022>Solar</gradient></b></i> <grey>→<reset> ",
@@ -145,9 +148,9 @@ public record LanguageRecord(
             "<prefix><gray><color:#FCD05C><player></color:#FCD05C> sent you a"
                     + " <color:#FCD05C>FT<rounds> <kit></color:#FCD05C> duel request! Click"
                     + " here to <click:run_command:'duel accept"
-                    + " %player%'><green><b><u>ACCEPT</u></b></green></click> or"
+                    + " <player>'><green><b><u>ACCEPT</u></b></green></click> or"
                     + " <click:run_command:'duel decline"
-                    + " %player%'><red><b><u>DECLINE</u></b></red></click>.</gray>",
+                    + " <player>'><red><b><u>DECLINE</u></b></red></click>.</gray>",
             "<prefix><red>You can't send more than 1 duel invite at a time, please wait"
                     + " until it is declined or accepted!</red>",
             "<prefix><#FCD05C>The match will begin shortly!",
@@ -155,11 +158,10 @@ public record LanguageRecord(
             "<prefix><color:#fcd05c>'<target>'<gray> has declined you duel request!</gray>",
             "<prefix><gray><color:#fcd05c><spectator></color:#fcd05c> is now" + " spectating!</gray>",
             "<prefix><gray><color:#fcd05c><spectator></color:#fcd05c> is not spectating" + " anymore!",
-            "<gray><color:#fcd05c>☠ <victim></color> died to the hands of"
-                    + " <color:#fcd05c><killer></color:#fcd05c>!</gray>",
+            "<prefix><red>Match not found!</red>",
             "<prefix><red>You are already spectating! Please leave first.</red>",
             "<prefix><red>You need to be in spectator mode in order to leave!</red>",
-            "<prefix><color:#fcd05c>☠ <victim></color> died to the hands of <color:#fcd05c><killer></color:#fcd05c>!</gray>",
+            "<prefix><color:#fcd05c>☠ <victim></color> died to the hands of <color:#fcd05c><killer></color:#fcd05c>!",
             "<gray><color:#fcd05c>☠ <victim></color> died in" + " <color:#fcd05c>combat</color:#fcd05c>!</gray>",
             "<prefix><green>You won the duel!</green>",
             "<prefix><red>You lost the duel. Winner: <color:#FCD05C><winner></color></red>",
@@ -243,5 +245,7 @@ public record LanguageRecord(
                     "<gradient:#FCD05C:#A48022>/queue finalize <name> <gray>- Saves/Finalizes the specified queue."),
             "<prefix><gray>You <status> <color:#fcd05c><change></color:#fcd05c> Elo, going from <color:#fcd05c><old></color:#fcd05c> to <color:#fcd05c><new></color:#fcd05c>.",
             "<b><gradient:#FCD05C:#A48022><u>MATCH FOUND!</u></b>",
-            "<gray>We found a match for you, prepare to fight!</gray>");
+            "<gray>We found a match for you, prepare to fight!</gray>",
+            "<red><u><b>MATCH TERMINATED!</b></u></red>",
+            "<gray>The match have been terminated due to cheating.");
 }

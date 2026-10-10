@@ -26,7 +26,7 @@ configurations {
 	}
 }
 group = 'dragon.me'
-version = '0.1.0.beta.2'
+version = '0.1.1.beta.4'
 
 repositories {
 	mavenCentral()
@@ -51,6 +51,11 @@ repositories {
 	}
 	maven {
 		url = 'https://repo.extendedclip.com/releases/'
+	}
+
+	// Intave
+	maven {
+		url = uri("https://repo.janmm14.de/repository/intave/")
 	}
 }
 
@@ -83,6 +88,8 @@ dependencies {
 	implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
 
 	compileOnly 'me.clip:placeholderapi:2.12.3'
+
+	compileOnly("de.jpx3.intave.access:intave-access:14.4.2")
 }
 
 spotbugs {

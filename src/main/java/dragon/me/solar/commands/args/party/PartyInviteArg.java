@@ -42,6 +42,6 @@ public class PartyInviteArg {
                 .addInvite(new PartyInviteRecord(
                         player.getUniqueId(), target.getUniqueId(), party.getUuid(), System.currentTimeMillis()));
         context.send(player, context.language().partyInviteSent(), Placeholder.parsed("player", target.getName()));
-        context.send(target, context.language().partyInviteReceived(), Placeholder.parsed("sender", player.getName()));
+        context.send(target, context.language().partyInviteReceived(), Placeholder.parsed("player", player.getName()));
     }
 }
