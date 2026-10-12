@@ -1,5 +1,6 @@
 package dragon.me.solar;
 
+import dragon.me.solar.api.SolarAPI;
 import dragon.me.solar.application.AntiPiracy;
 import dragon.me.solar.application.SolarContext;
 import dragon.me.solar.arena.ArenaManager;
@@ -9,7 +10,6 @@ import dragon.me.solar.commands.*;
 import dragon.me.solar.commands.args.arena.ArenaCreateArg;
 import dragon.me.solar.commands.args.arena.ArenaEdgeArg;
 import dragon.me.solar.commands.args.arena.ArenaFinalizeArg;
-import dragon.me.solar.commands.args.arena.ArenaSaveSchematicArg;
 import dragon.me.solar.commands.args.arena.ArenaSpawnArg;
 import dragon.me.solar.commands.args.duel.DuelAcceptArg;
 import dragon.me.solar.commands.args.duel.DuelDeclineArg;
@@ -32,6 +32,8 @@ import dragon.me.solar.database.PlayerCache;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.hooks.Compatibilities;
 import dragon.me.solar.hooks.CompatibilityChecker;
+import dragon.me.solar.hooks.api.SolarApiImpl;
+import dragon.me.solar.hooks.intave.IntavePunishmentListener;
 import dragon.me.solar.hooks.papi.SolarExpansion;
 import dragon.me.solar.kit.KitManager;
 import dragon.me.solar.kit.KitService;
@@ -53,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.incendo.cloud.annotations.AnnotationParser;
@@ -86,6 +89,8 @@ public final class Solar extends JavaPlugin {
 
     public static QueueActionbarService queueActionbarService;
     public static QueueService queueService;
+
+    public static SolarAPI solarAPI;
 
     public static SolarContext context() {
         return context;
@@ -167,6 +172,10 @@ public final class Solar extends JavaPlugin {
         }
 
         queueActionbarService.tick();
+
+        solarAPI = new SolarApiImpl();
+
+        Bukkit.getServicesManager().register(SolarAPI.class, solarAPI, this, ServicePriority.Normal);
     }
 
     @Override
@@ -208,7 +217,6 @@ public final class Solar extends JavaPlugin {
                 new ArenaEdgeArg(messageService),
                 new ArenaSpawnArg(messageService),
                 new ArenaFinalizeArg(messageService),
-                new ArenaSaveSchematicArg(messageService),
                 new KitCommand(kitManager),
                 new KitCreateArg(kitCommandContext),
                 new KitSetItemsArg(kitCommandContext),
@@ -267,6 +275,10 @@ public final class Solar extends JavaPlugin {
         getServer()
                 .getPluginManager()
                 .registerEvents(new PlayerCommandSendEventListener(configManager, messageService), this);
+
+        if (compatibilityChecker.isCompatibleWith(Compatibilities.INTAVE)) {
+            getServer().getPluginManager().registerEvents(new IntavePunishmentListener(), this);
+        }
     }
 
     public void setupDupeWorld() {

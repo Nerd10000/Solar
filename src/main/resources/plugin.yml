@@ -9,3 +9,4 @@ depend:
   - FastAsyncWorldEdit
 softdepend:
   - PlaceholderAPI
+  - Intave

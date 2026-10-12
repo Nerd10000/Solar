@@ -1,5 +1,7 @@
 package dragon.me.solar.configs.records;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
@@ -15,8 +17,9 @@ public record KitFlagsRecord(
         @Setting("prevent-block-place") boolean preventBlockPlace,
         @Setting("prevent-block-break") boolean preventBlockBreak,
         @Setting("prevent-item-drop") boolean preventItemDrop,
-        @Setting("prevent-movement-before-start") boolean preventMovementBeforeStart) {
+        @Setting("prevent-movement-before-start") boolean preventMovementBeforeStart,
+        @Setting("maps") List<String> maps) {
 
-    public static final KitFlagsRecord DEFAULT =
-            new KitFlagsRecord(20, true, true, true, -1, -1, -1, false, false, false, false);
+    public static final KitFlagsRecord DEFAULT = new KitFlagsRecord(
+            20, true, true, true, -1, -1, -1, false, false, false, false, new ArrayList<>(List.of("*")));
 }

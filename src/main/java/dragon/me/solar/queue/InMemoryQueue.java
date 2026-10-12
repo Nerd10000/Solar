@@ -23,6 +23,7 @@ public class InMemoryQueue {
 
     public void join(UUID uuid) {
 
+        if (queue.contains(uuid)) return;
         queue.add(uuid);
     }
 

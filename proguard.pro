@@ -22,6 +22,13 @@
     <methods>;
     <init>();
 }
+
+-keep class dragon.me.solar.api.** {
+    <fields>;
+    <methods>;
+    <init>();
+}
+
 -keep enum dragon.me.solar.commands.args.queues.QueueType {
     <fields>;
     <methods>;

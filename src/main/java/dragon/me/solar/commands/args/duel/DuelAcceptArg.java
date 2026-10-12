@@ -7,6 +7,7 @@ import dragon.me.solar.arena.GridManager;
 import dragon.me.solar.duel.DuelInviteManager;
 import dragon.me.solar.duel.record.DuelInviteRecord;
 import dragon.me.solar.hooks.FaweHook;
+import dragon.me.solar.kit.InMemoryKit;
 import dragon.me.solar.match.InMemoryMatch;
 import dragon.me.solar.match.MatchService;
 import dragon.me.solar.match.player.TeamPlayer;
@@ -63,11 +64,22 @@ public class DuelAcceptArg {
         if (!duelInviteManager.removeBySender(player.getUniqueId())) {
             return;
         }
+        InMemoryKit kit = Solar.kitManager.getKit(invite.kit());
+
+        if (kit == null) {
+            return;
+        }
+
+        String map = "random";
+
+        if (!invite.map().equalsIgnoreCase("random") && kit.flags.maps().contains(invite.map())) {
+            map = arenaManager.resolveArenaName(map, kit);
+        }
 
         messages.send(player, messages.language().matchBegin());
         messages.send(sender, messages.language().matchBegin());
 
-        String arenaName = arenaManager.resolveArenaName(invite.map());
+        String arenaName = arenaManager.resolveArenaName(map, kit);
         if (arenaName == null) {
             plugin.getLogger().warning("No arena available for duel.");
             return;

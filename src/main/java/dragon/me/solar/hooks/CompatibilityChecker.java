@@ -19,6 +19,10 @@ public class CompatibilityChecker {
             compatibilitiesList.add(Compatibilities.PAPI);
         }
 
+        if (instance.getServer().getPluginManager().isPluginEnabled("Intave")) {
+            compatibilitiesList.add(Compatibilities.INTAVE);
+        }
+
         StringBuilder builder = new StringBuilder();
 
         for (Compatibilities c : compatibilitiesList) {

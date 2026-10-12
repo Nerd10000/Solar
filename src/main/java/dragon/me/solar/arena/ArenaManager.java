@@ -2,6 +2,7 @@ package dragon.me.solar.arena;
 
 import dragon.me.solar.configs.records.ArenaRecord;
 import dragon.me.solar.configs.records.ArenasRecord;
+import dragon.me.solar.kit.InMemoryKit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,20 +44,36 @@ public class ArenaManager {
         }
     }
 
-    public String resolveArenaName(String map) {
-        if (map.equalsIgnoreCase("random")) {
-            if (getArenas().isEmpty()) {
+    public String resolveArenaName(String map, InMemoryKit kit) {
+        var arenas = getArenas();
+
+        String recoverableMap = "random";
+
+        if (map != null) {
+            recoverableMap = map;
+        }
+
+        if (recoverableMap.equalsIgnoreCase("random")) {
+            var eligibleArenas = arenas.values().stream()
+                    .filter(arena -> kit.flags.maps().contains("*")
+                            || kit.flags.maps().stream()
+                                    .anyMatch(allowedMap -> allowedMap.equalsIgnoreCase(arena.name)))
+                    .toList();
+
+            if (eligibleArenas.isEmpty()) {
                 return null;
             }
-            return getArenas().values().stream()
-                    .skip(ThreadLocalRandom.current().nextInt(getArenas().size()))
-                    .findFirst()
-                    .orElseThrow()
-                    .name;
+
+            return eligibleArenas.get(ThreadLocalRandom.current().nextInt(eligibleArenas.size())).name;
         }
-        if (!getArenas().containsKey(map)) {
+
+        var arena = arenas.get(recoverableMap);
+        if (arena == null) {
             return null;
         }
-        return map;
+
+        boolean allowed = kit.flags.maps().contains("*")
+                || kit.flags.maps().stream().anyMatch(allowedMap -> allowedMap.equalsIgnoreCase(arena.name));
+        return allowed ? arena.name : null;
     }
 }

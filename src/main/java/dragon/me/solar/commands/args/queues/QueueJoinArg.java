@@ -1,5 +1,6 @@
 package dragon.me.solar.commands.args.queues;
 
+import dragon.me.solar.Solar;
 import dragon.me.solar.queue.InMemoryQueue;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -20,6 +21,11 @@ public class QueueJoinArg {
 
         if (!(stack.getSender() instanceof Player p)) {
             context.sendConsoleError(stack);
+            return;
+        }
+
+        if (Solar.MAINTENANCE_MODE) {
+            context.send(p, context.messages().language().maintenancePrevention());
             return;
         }
 
