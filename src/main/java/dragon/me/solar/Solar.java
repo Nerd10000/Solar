@@ -10,7 +10,6 @@ import dragon.me.solar.commands.*;
 import dragon.me.solar.commands.args.arena.ArenaCreateArg;
 import dragon.me.solar.commands.args.arena.ArenaEdgeArg;
 import dragon.me.solar.commands.args.arena.ArenaFinalizeArg;
-import dragon.me.solar.commands.args.arena.ArenaSaveSchematicArg;
 import dragon.me.solar.commands.args.arena.ArenaSpawnArg;
 import dragon.me.solar.commands.args.duel.DuelAcceptArg;
 import dragon.me.solar.commands.args.duel.DuelDeclineArg;
@@ -218,7 +217,6 @@ public final class Solar extends JavaPlugin {
                 new ArenaEdgeArg(messageService),
                 new ArenaSpawnArg(messageService),
                 new ArenaFinalizeArg(messageService),
-                new ArenaSaveSchematicArg(messageService),
                 new KitCommand(kitManager),
                 new KitCreateArg(kitCommandContext),
                 new KitSetItemsArg(kitCommandContext),

@@ -7,7 +7,6 @@ import dragon.me.solar.match.player.TeamPlayer;
 import dragon.me.solar.match.teams.InMemoryTeam;
 import dragon.me.solar.utils.SoundUtils;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -128,7 +127,8 @@ public class QueueService {
                 return;
             }
 
-            match.setArenaName(resolveArenaName());
+            match.setArenaName(
+                    Solar.arenaManager.resolveArenaName(match.getArenaName(), Solar.kitManager.getKit(match.getKit())));
             match.setGridSlot(slot);
 
             matchService.startMatch(match, false, queue);
@@ -143,20 +143,5 @@ public class QueueService {
                 Solar.queueActionbarService.stopActionbar(player, queue);
             }
         }
-    }
-
-    private String resolveArenaName() {
-        if (Solar.arenaManager.getArenas().isEmpty()) {
-            return null;
-        }
-
-        int index = ThreadLocalRandom.current()
-                .nextInt(Solar.arenaManager.getArenas().size());
-
-        return Solar.arenaManager.getArenas().values().stream()
-                .skip(index)
-                .findFirst()
-                .map(arena -> arena.name)
-                .orElse(null);
     }
 }

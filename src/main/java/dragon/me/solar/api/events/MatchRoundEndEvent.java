@@ -19,7 +19,7 @@ public final class MatchRoundEndEvent extends MatchEvent {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return null;
+        return handlers;
     }
 
     public Team getWinner() {

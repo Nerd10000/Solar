@@ -14,7 +14,6 @@ import dragon.me.solar.party.PartyManager;
 import dragon.me.solar.party.PartyService;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -110,7 +109,7 @@ public class PartyStartArg {
             return;
         }
 
-        String arenaName = resolveArenaName();
+        String arenaName = arenaManager.resolveArenaName("random", kit);
 
         if (arenaName == null) {
             Solar.instance.getLogger().warning("Unable to start party ffa: no arenas are available.");
@@ -147,7 +146,7 @@ public class PartyStartArg {
             return;
         }
 
-        String arenaName = resolveArenaName();
+        String arenaName = arenaManager.resolveArenaName("random", kit);
 
         if (arenaName == null) {
             Solar.instance.getLogger().warning("Unable to start party split: no arenas are available.");
@@ -175,19 +174,5 @@ public class PartyStartArg {
                 .info("Starting party split: arena=" + arenaName + ", slot=" + slot + ", teams=" + teams.size());
 
         matchService.startMatch(match, false, null);
-    }
-
-    private String resolveArenaName() {
-        if (arenaManager.getArenas().isEmpty()) {
-            return null;
-        }
-
-        int index = ThreadLocalRandom.current().nextInt(arenaManager.getArenas().size());
-
-        return arenaManager.getArenas().values().stream()
-                .skip(index)
-                .findFirst()
-                .map(arena -> arena.name)
-                .orElse(null);
     }
 }

@@ -3,6 +3,9 @@ package dragon.me.solar.commands.args.kit;
 import dragon.me.solar.configs.records.KitFlagsRecord;
 import dragon.me.solar.kit.InMemoryKit;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.annotation.specifier.Range;
@@ -34,7 +37,8 @@ public class KitSetFlagsArg {
             @Flag("prevent-block-place") @Default("false") Boolean preventBlockPlace,
             @Flag("prevent-block-break") @Default("false") Boolean preventBlockBreak,
             @Flag("prevent-item-drop") @Default("false") Boolean preventItemDrop,
-            @Flag("prevent-movement-before-start") @Default("false") Boolean preventMovementBeforeStart) {
+            @Flag("prevent-movement-before-start") @Default("false") Boolean preventMovementBeforeStart,
+            @Flag("maps") String maps) {
         if (!(stack.getSender() instanceof Player player)) {
             context.sendConsoleError(stack);
             return;
@@ -45,6 +49,11 @@ public class KitSetFlagsArg {
             context.send(player, context.messages().language().kitNotFound(), Placeholder.parsed("kit", kit));
             return;
         }
+
+        List<String> allowedMaps = Arrays.stream(maps.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
 
         inMemoryKit.flags = new KitFlagsRecord(
                 maxHealth != null ? maxHealth : 20.0f,
@@ -57,7 +66,9 @@ public class KitSetFlagsArg {
                 preventBlockPlace != null && preventBlockPlace,
                 preventBlockBreak != null && preventBlockBreak,
                 preventItemDrop != null && preventItemDrop,
-                preventMovementBeforeStart != null && preventMovementBeforeStart);
+                preventMovementBeforeStart != null && preventMovementBeforeStart,
+                !allowedMaps.isEmpty() ? allowedMaps : new ArrayList<>(List.of("*")));
+
         context.send(player, context.messages().language().kitFlagsSet(), Placeholder.parsed("kit", kit));
     }
 }
