@@ -2,6 +2,7 @@ package dragon.me.solar.commands;
 
 import dragon.me.solar.Solar;
 import dragon.me.solar.configs.ConfigManager;
+import dragon.me.solar.configs.records.KitEditorLocationRecord;
 import dragon.me.solar.configs.records.LobbyRecord;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.List;
@@ -48,6 +49,36 @@ public class SolarCommand {
 
         player.sendMessage(Solar.miniMessage.deserialize(
                 Solar.configManager.languageRecord().lobbySet(),
+                Placeholder.parsed(
+                        "prefix", Solar.configManager.languageRecord().prefix())));
+    }
+
+    @Command("solar setkiteditor")
+    @Permission("solar.setkiteditor")
+    public void setKitEditor(CommandSourceStack stack) {
+
+        if (!(stack.getSender() instanceof Player player)) {
+            stack.getSender()
+                    .sendMessage(Solar.miniMessage.deserialize(
+                            Solar.configManager.languageRecord().consoleCantRun(),
+                            Placeholder.parsed(
+                                    "prefix",
+                                    Solar.configManager.languageRecord().prefix())));
+            return;
+        }
+
+        KitEditorLocationRecord loc = new KitEditorLocationRecord(
+                player.getLocation().getX(),
+                player.getLocation().getY(),
+                player.getLocation().getZ(),
+                player.getLocation().getYaw(),
+                player.getLocation().getPitch(),
+                player.getWorld().getName());
+
+        Solar.configManager.setKitEditorLocation(loc);
+
+        player.sendMessage(Solar.miniMessage.deserialize(
+                Solar.configManager.languageRecord().kitEditorSet(),
                 Placeholder.parsed(
                         "prefix", Solar.configManager.languageRecord().prefix())));
     }

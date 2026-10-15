@@ -10,6 +10,7 @@ public record SettingsRecord(
         @Setting("arena") GlobalArenaSettingsRecord arena,
         @Setting("duel-request-expire-time") long duelRequestExpireTime,
         @Setting("lobby-location") LobbyRecord lobbyRecord,
+        @Setting("kiteditor-location") KitEditorLocationRecord kiteditorLocation,
         @Setting("sounds") SoundRecords soundRecords,
         @Setting("teleport-to-lobby-on-join") boolean teleportToLobbyOnJoin,
         @Setting("party-invite-expire-time") long partyInviteExpireTime,
@@ -20,6 +21,7 @@ public record SettingsRecord(
             GlobalArenaSettingsRecord.DEFAULTS,
             120000,
             new LobbyRecord(0, 0, 0, 0f, 0f, "world"),
+            new KitEditorLocationRecord(0, 0, 0, 0f, 0f, "world"),
             new SoundRecords(
                     "block.note.block.pling",
                     "block.beacon.activate",
@@ -39,6 +41,23 @@ public record SettingsRecord(
         SettingsRecord prev = new SettingsRecord(
                 this.arena,
                 this.duelRequestExpireTime,
+                record,
+                this.kiteditorLocation,
+                this.soundRecords,
+                this.teleportToLobbyOnJoin,
+                this.partyInviteExpireTime,
+                this.ratingSettings,
+                this.whitelistedMatchCommands);
+
+        return prev;
+    }
+
+    public SettingsRecord updateKitEditorLocation(KitEditorLocationRecord record) {
+
+        SettingsRecord prev = new SettingsRecord(
+                this.arena,
+                this.duelRequestExpireTime,
+                this.lobbyRecord,
                 record,
                 this.soundRecords,
                 this.teleportToLobbyOnJoin,

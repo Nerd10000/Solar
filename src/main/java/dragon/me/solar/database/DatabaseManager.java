@@ -8,11 +8,13 @@ import com.j256.ormlite.table.TableUtils;
 import dragon.me.solar.Solar;
 import dragon.me.solar.database.models.PlayerStat;
 import dragon.me.solar.database.models.PlayerStore;
+import dragon.me.solar.database.models.kits.KitLayout;
 import dragon.me.solar.database.models.queue.QueueStat;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +27,7 @@ public class DatabaseManager {
     private Dao<PlayerStore, String> storeDao;
     private Dao<QueueStat, String> queueDao;
 
+    private Dao<KitLayout, String> kitLayoutDao;
     private final ExecutorService thread = Executors.newVirtualThreadPerTaskExecutor();
 
     public DatabaseManager(String filename) {
@@ -35,6 +38,7 @@ public class DatabaseManager {
             this.source = new JdbcConnectionSource(this.url);
             this.statsDao = DaoManager.createDao(source, PlayerStat.class);
             this.queueDao = DaoManager.createDao(source, QueueStat.class);
+            this.kitLayoutDao = DaoManager.createDao(source, KitLayout.class);
 
             //            this.storeDao = DaoManager.createDao(source, PlayerStore.class);
 
@@ -42,6 +46,8 @@ public class DatabaseManager {
             //            TableUtils.createTableIfNotExists(source, PlayerStore.class);
 
             TableUtils.createTableIfNotExists(source, QueueStat.class);
+
+            TableUtils.createTableIfNotExists(source, KitLayout.class);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -191,6 +197,61 @@ public class DatabaseManager {
                     });
 
                     return null;
+                },
+                thread);
+    }
+
+    /*
+    Kit layouts
+     */
+
+    public CompletableFuture<Void> updateLayout(KitLayout layout) {
+        return CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        var status = kitLayoutDao.createOrUpdate(layout);
+
+                        Solar.instance
+                                .getLogger()
+                                .info("Kit layout save: created=" + status.isCreated() + ", updated="
+                                        + status.isUpdated());
+
+                    } catch (SQLException e) {
+                        throw new CompletionException(e);
+                    }
+                },
+                thread);
+    }
+
+    public CompletableFuture<Void> removeLayout(UUID uuid, String kit) {
+        return CompletableFuture.runAsync(
+                () -> {
+                    getLayoutById(uuid, kit).thenAccept(layout -> {
+                        try {
+                            kitLayoutDao.delete(layout);
+                        } catch (SQLException e) {
+                        }
+                    });
+                },
+                thread);
+    }
+
+    public CompletableFuture<KitLayout> getLayoutById(UUID uuid, String kit) {
+
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        return kitLayoutDao
+                                .queryBuilder()
+                                .where()
+                                .eq("playerId", uuid.toString())
+                                .and()
+                                .eq("kitId", kit)
+                                .queryForFirst();
+
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
                 },
                 thread);
     }

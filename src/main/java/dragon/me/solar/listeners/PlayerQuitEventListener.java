@@ -1,7 +1,9 @@
 package dragon.me.solar.listeners;
 
 import dragon.me.solar.Solar;
+import dragon.me.solar.commands.args.kit.PlayerInventorySnapshot;
 import dragon.me.solar.database.models.PlayerStore;
+import dragon.me.solar.database.models.kits.KitEditingSession;
 import dragon.me.solar.match.InMemoryMatch;
 import dragon.me.solar.match.MatchManager;
 import dragon.me.solar.match.MatchService;
@@ -43,6 +45,26 @@ public class PlayerQuitEventListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = event.getPlayer().getUniqueId();
+
+        if (Solar.kitService.getEditingSessions().containsKey(uuid)) {
+
+            KitEditingSession session = Solar.kitService.getEditingSessions().get(uuid);
+
+            if (session != null) {
+
+                PlayerInventorySnapshot snapshot = session.snapshot();
+
+                player.getInventory().clear();
+                player.getInventory().setArmorContents(snapshot.armor());
+                player.getInventory().setStorageContents(snapshot.contents());
+                player.getInventory().setItemInOffHand(snapshot.offhand());
+
+                player.updateInventory();
+
+                Solar.kitService.getEditingSessions().remove(uuid);
+                player.teleport(Solar.configManager.getLobbyLocation());
+            }
+        }
 
         /*
          *

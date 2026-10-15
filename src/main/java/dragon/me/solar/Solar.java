@@ -14,13 +14,7 @@ import dragon.me.solar.commands.args.arena.ArenaSpawnArg;
 import dragon.me.solar.commands.args.duel.DuelAcceptArg;
 import dragon.me.solar.commands.args.duel.DuelDeclineArg;
 import dragon.me.solar.commands.args.duel.DuelRequestArg;
-import dragon.me.solar.commands.args.kit.KitCommandContext;
-import dragon.me.solar.commands.args.kit.KitCreateArg;
-import dragon.me.solar.commands.args.kit.KitFinalizeArg;
-import dragon.me.solar.commands.args.kit.KitGiveArg;
-import dragon.me.solar.commands.args.kit.KitSetEffectsArg;
-import dragon.me.solar.commands.args.kit.KitSetFlagsArg;
-import dragon.me.solar.commands.args.kit.KitSetItemsArg;
+import dragon.me.solar.commands.args.kit.*;
 import dragon.me.solar.commands.args.party.*;
 import dragon.me.solar.commands.args.queues.*;
 import dragon.me.solar.configs.ConfigManager;
@@ -255,7 +249,10 @@ public final class Solar extends JavaPlugin {
                 new QueueFinalizeArg(queueCommandContext),
                 new QueueJoinArg(queueCommandContext),
                 new QueueLeaveArg(queueCommandContext),
-                new QueueToggleArg(queueCommandContext));
+                new QueueToggleArg(queueCommandContext),
+                new KitEditArg(kitCommandContext),
+                new KitSaveArg(kitCommandContext),
+                new KitResetArg(kitCommandContext));
     }
 
     public void registerListeners() {

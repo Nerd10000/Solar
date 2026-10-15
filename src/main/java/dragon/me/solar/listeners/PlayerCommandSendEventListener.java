@@ -5,6 +5,7 @@ import dragon.me.solar.configs.ConfigManager;
 import dragon.me.solar.messages.MessageService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -24,6 +25,8 @@ public class PlayerCommandSendEventListener implements Listener {
 
         if (!Solar.matchManager.isPlayerInAMatch(event.getPlayer().getUniqueId())) return;
 
+        if (!Solar.kitService.getEditingSessions().containsKey(event.getPlayer().getUniqueId())) return;
+
         for (String s : configManager.settingsRecord().whitelistedMatchCommands()) {
 
             Pattern pattern = Pattern.compile(s);
@@ -32,7 +35,10 @@ public class PlayerCommandSendEventListener implements Listener {
 
             if (matcher.matches()) {
 
-                // TODO Add message here!
+                messageService.send(
+                        event.getPlayer(),
+                        messageService.language().blockedCommands(),
+                        Placeholder.parsed("command", event.getMessage()));
                 event.setCancelled(true);
             }
         }

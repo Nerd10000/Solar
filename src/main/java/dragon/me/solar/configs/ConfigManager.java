@@ -1,15 +1,7 @@
 package dragon.me.solar.configs;
 
 import dragon.me.solar.Solar;
-import dragon.me.solar.configs.records.ArenaRecord;
-import dragon.me.solar.configs.records.ArenasRecord;
-import dragon.me.solar.configs.records.KitRecord;
-import dragon.me.solar.configs.records.KitsRecord;
-import dragon.me.solar.configs.records.LanguageRecord;
-import dragon.me.solar.configs.records.LobbyRecord;
-import dragon.me.solar.configs.records.QueueRecord;
-import dragon.me.solar.configs.records.QueuesRecord;
-import dragon.me.solar.configs.records.SettingsRecord;
+import dragon.me.solar.configs.records.*;
 import java.nio.file.Path;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -148,6 +140,15 @@ public class ConfigManager {
         }
     }
 
+    public void setKitEditorLocation(KitEditorLocationRecord record) {
+        settingsRecord = settingsRecord.updateKitEditorLocation(record);
+        try {
+            settingsLoader.save(settingsRecord);
+        } catch (ConfigurateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void registerQueue(QueueRecord queue) {
 
         queuesRecord = queuesRecord.addQueue(queue);
@@ -171,5 +172,19 @@ public class ConfigManager {
         }
 
         return new Location(world, lobby.x(), lobby.y(), lobby.z(), lobby.yaw(), lobby.pitch());
+    }
+
+    public Location getKitEditorLocation() {
+        KitEditorLocationRecord loc = settingsRecord.kiteditorLocation();
+        if (loc == null || loc.world() == null) {
+            return null;
+        }
+
+        World world = Bukkit.getWorld(loc.world());
+        if (world == null) {
+            return null;
+        }
+
+        return new Location(world, loc.x(), loc.y(), loc.z(), loc.yaw(), loc.pitch());
     }
 }

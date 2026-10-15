@@ -105,7 +105,11 @@ public record LanguageRecord(
         @Setting("match-found-subtitle") String matchFoundSubtitle,
 
         @Setting("match-terminated-title") String matchTerminatedTitle,
-        @Setting("match-terminated-subtitle") String matchTerminatedSubtitle) {
+        @Setting("match-terminated-subtitle") String matchTerminatedSubtitle,
+        @Setting("kiteditor-set") String kitEditorSet,
+        @Setting("player-not-editing-kit") String playerNotEditingKit,
+        @Setting("player-already-editing-kits") String playerAlreadyEditingKits,
+        @Setting("blocked-commands") String blockedCommands) {
 
     public static final LanguageRecord DEFAULTS = new LanguageRecord(
             "<i><b><gradient:#FCD05C:#A48022>Solar</gradient></b></i> <grey>→<reset> ",
@@ -247,5 +251,9 @@ public record LanguageRecord(
             "<b><gradient:#FCD05C:#A48022><u>MATCH FOUND!</u></b>",
             "<gray>We found a match for you, prepare to fight!</gray>",
             "<red><u><b>MATCH TERMINATED!</b></u></red>",
-            "<gray>The match have been terminated due to cheating.");
+            "<gray>The match have been terminated due to cheating.",
+            "<prefix><gray>The location for the <color:#fcd05c>kit editor</color:#fcd05c> has been set.",
+            "<prefix><red>You are not editing any kits</red>",
+            "<prefix><red>You can't edit any kits as you are already editing kits!</red>",
+            "<prefix><red>You can't run <command> now.</red>");
 }

@@ -26,6 +26,6 @@ public class KitGiveArg {
             context.send(stack, context.messages().language().kitNotFound(), Placeholder.parsed("kit", id));
             return;
         }
-        context.kitService().applyKit(player, kit);
+        context.kitService().applyLayoutKit(player, kit.kitId);
     }
 }

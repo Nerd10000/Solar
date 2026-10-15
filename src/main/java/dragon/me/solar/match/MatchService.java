@@ -359,7 +359,7 @@ public class MatchService {
                 throw new IllegalStateException("No such a kit as '" + match.getKit() + "'! ");
             }
 
-            kitService.applyKit(player, kit);
+            kitService.applyLayoutKit(player, kit.kitId);
             if (kit.flags.maxHealth() != 20 && kit.flags.maxHealth() != -1) {
                 player.setMaxHealth(kit.flags.maxHealth());
             }
